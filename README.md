@@ -1,5 +1,5 @@
 # Powershell-XKCD
-A PowerShell module for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ http://xkcd.com.
+A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ http://xkcd.com.
 
 ##XKCD 
 XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: http://xkcd.com/license.html.
