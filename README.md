@@ -1,14 +1,14 @@
 # Powershell-XKCD
 A PowerShell module for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ http://xkcd.com.
 
-#XKCD 
+##XKCD 
 XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: http://xkcd.com/license.html.
 
-#Requirements
+##Requirements
 - The API provided by xkcd.com must be functional: https://xkcd.com/json.html
 - This script requires PowerShell 3.0 or above.
 
-#Usage Examples
+##Usage Examples
 
 `Get-XKCD`
 By default the function will return a PowerShell object with the details of the latest webcomic. For example:
