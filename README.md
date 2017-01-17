@@ -31,7 +31,7 @@ day        : 16
 
 2) `Get-XKCD 1` or `Get-XKCD -num 1`
 
-Specify the number of a specifc comic you want to access va the -num parameter (this is a positional parameter so it doesn't need to be explicitly used).
+Specify the number of specifc comic/s you want to access via the -num parameter (this is a positional parameter so it doesn't need to be explicitly used).
 
 3) `Get-XKCD -Random` or `Get-XKCD -Random -Min 1 -Max 10`
 
