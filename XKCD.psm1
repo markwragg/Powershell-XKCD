@@ -8,11 +8,11 @@ Function Get-XKCD{
         [switch]$Download,
         [ValidateScript({Test-Path $_ -PathType ‘Container’})] 
         [string]$Path = $PWD,
-        [Parameter(ParameterSetName=’Specific’,ValueFromPipeline=$True,Position=0)][int[]]$Num = $Max    
+        [Parameter(ParameterSetName=’Specific’,ValueFromPipeline=$True,Position=0)][int[]]$Num = $Max     
     )
     Begin{
-        If ($Random) { $Num = get-random -min $Min -max $Max }
-        If ($Newest) { $Num = (($Max - $Newest)+1)..$Max }
+        If ($Random) { $Num = Get-Random -min $Min -max $Max }
+        If ($Newest) { $Num = (($Max - $Newest) + 1)..$Max }
     }
     Process{
         $Num | ForEach-Object { 
