@@ -1,4 +1,4 @@
-﻿Import-Module xkcd.psd1
+.\xkcd.psm1
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
@@ -15,6 +15,4 @@ Describe 'Basic Tests' {
     It "Get-XKCD should return a comic from $((get-date).Year)" {
         ($Latest).year | Should Be (get-date).Year
     }
-
-
 }
