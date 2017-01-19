@@ -5,7 +5,7 @@ if(-not $PSScriptRoot)
 }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-Import-Module -Force $PSScriptRoot\..\PSDiskPart
+Import-Module -Force "$PSScriptRoot\XKCD"
 
 
 #This is more appropriate for context, but we include PSVersion in the It blocks to differentiate in AppVeyor
@@ -16,12 +16,6 @@ Describe "Invoke-DiskPartScript"  {
         Set-StrictMode -Version latest
 
         It "Should list disks on a local system PS$PSVersion" {
-
-            $OutString = Invoke-DiskPartScript -ComputerName $env:COMPUTERNAME -DiskPartText "list disk" -Raw
-            $OutArray = ($OutString -split "`n") | Where-Object { $_ -match "[A-Za-z0-9]"}
-            
-            #Hopefully you have at least one disk.
-            $OutArray.Count | Should BeGreaterThan 4
 
             #Is this different on other versions of Windows?  Is there a better regex?
             $OutString | Should Match "\s*Disk ###\s*Status\s*Size\s*Free.*"
@@ -37,7 +31,7 @@ Describe "Get-DiskPartDisk" {
 
         It "Should list disks on a local system PS$PSVersion" {
 
-            $OutArray = @( Get-DiskPartDisk -ComputerName $env:COMPUTERNAME )
+            $OutArray = @( $env:COMPUTERNAME )
             
             #Hopefully you have at least one disk.
             $OutArray.Count | Should BeGreaterThan 0
