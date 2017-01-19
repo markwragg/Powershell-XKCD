@@ -1,4 +1,4 @@
-Import-Module -Force $PSScriptRoot\..\XKCD
+Import-Module -Force (Join-Path $PSScriptRoot 'XKCD.psd1')
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
