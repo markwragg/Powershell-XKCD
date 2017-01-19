@@ -1,4 +1,4 @@
-.\xkcd.psm1
+Import-Module "$PSScriptRoot\..\..\xkcd.psm1"
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
