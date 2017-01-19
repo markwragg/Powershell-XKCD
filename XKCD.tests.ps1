@@ -1,4 +1,4 @@
-Import-Module -Force $PSScriptRoot\..\PSDiskPart
+Import-Module -Force $PSScriptRoot\..\XKCD
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
