@@ -7,7 +7,9 @@ test_script:
     - ps: |
         $testResultsFile = ".\TestsResults.xml"
         $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
+        Try {
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
+        } Throw { $_ }
         if ($res.FailedCount -gt 0) { 
             throw "$($res.FailedCount) tests failed."
         }
