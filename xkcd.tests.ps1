@@ -1,4 +1,4 @@
-﻿Import-Module .\xkcd.psm1
+﻿Import-Module xkcd.psd1
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
