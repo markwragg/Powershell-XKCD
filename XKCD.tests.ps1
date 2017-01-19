@@ -1,4 +1,4 @@
-Import-Module XKCD
+Import-Module "$PSSciptRoot\XKCD.psm1"
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
