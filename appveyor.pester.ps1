@@ -19,7 +19,7 @@ param([switch]$Finalize)
     
         Import-Module Pester
 
-        Invoke-Pester -Path "$ProjectRoot" -OutputFormat LegacyNUnitXML -OutputFile "$ProjectRoot\$TestFile" -PassThru |
+        Invoke-Pester -Path "$ProjectRoot" -OutputFormat NUnitXML -OutputFile "$ProjectRoot\$TestFile" -PassThru |
             Export-Clixml -Path "$ProjectRoot\PesterResults$PSVersion.xml"
     }
 
@@ -34,7 +34,7 @@ param([switch]$Finalize)
         #Upload results for test page
             Get-ChildItem -Path "$ProjectRoot\TestResultsPS*.xml" | Foreach-Object {
         
-                $Address = "$($env:APPVEYOR_API_URL)api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
+                $Address = "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
                 $Source = $_.FullName
 
                 "UPLOADING FILES: $Address $Source"
