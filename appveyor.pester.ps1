@@ -19,7 +19,7 @@ param([switch]$Finalize)
     
         Import-Module Pester
 
-        Invoke-Pester -Path "$ProjectRoot" -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile" -PassThru |
+        Invoke-Pester -Path "$ProjectRoot" -OutputFormat LegacyNUnitXML -OutputFile "$ProjectRoot\$TestFile" -PassThru |
             Export-Clixml -Path "$ProjectRoot\PesterResults$PSVersion.xml"
     }
 
