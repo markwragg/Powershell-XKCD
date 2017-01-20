@@ -30,9 +30,13 @@ param([switch]$Finalize)
             $AllFiles = Get-ChildItem -Path $ProjectRoot\*Results*.xml | Select -ExpandProperty FullName
             "`n`tSTATUS: Finalizing results`n"
             "COLLATING FILES:`n$($AllFiles | Out-String)"
-
+ 
         #Upload results for test page
             Get-ChildItem -Path "$ProjectRoot\TestResultsPS*.xml" | Foreach-Object {
+            
+                [xml]$content = Get-Content $_.FullName
+                $content.'test-results'.'test-suite'.type = "Powershell"
+                $content.Save($_.FullName)
         
                 $Address = "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)"
                 $Source = $_.FullName
