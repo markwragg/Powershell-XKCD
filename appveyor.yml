@@ -20,8 +20,4 @@ test_script:
 # Test with native PS version
   - ps: . .\appveyor.pester.ps1 -Verbose
 # Finalize pass - collect and upload results
-  - ps: . .\appveyor.pester.ps1 -Finalize -Verbose
-
-on_success:
-#Deploy to PS Gallery here, using PSGalleryKey env var
-  - ps: . .\appveyor.pester.ps1 -Success -Verbose
+  - ps: . .\appveyor.pester.ps1 -Finalize -Success -Verbose
