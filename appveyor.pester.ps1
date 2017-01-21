@@ -85,6 +85,8 @@ if ($success) {
       $Module = 'PowerShell-XKCD'
       $Publish = $true
       
+      Import-Module $Module
+      
       $ModuleData = (Get-Module $Module)
       Write-Host $ModuleData
       
