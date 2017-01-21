@@ -110,10 +110,12 @@ if ($success) {
         $ModulePath = Split-Path $pwd
         Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
         $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
-
+        
+        $env:psmodulepath
+        
         Write-Host 'Publishing module to Powershell Gallery'
         #Uncomment the below line, make sure you set the variables in appveyor.yml
         Dir $ProjectRoot -Recurse | ft
-        Publish-Module -Path $ProjectRoot -NuGetApiKey $env:PSGalleryKey
+        Publish-Module -Name $module -NuGetApiKey $env:PSGalleryKey
       }
 }
