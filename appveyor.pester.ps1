@@ -98,7 +98,7 @@ if ($success) {
 
               If ($Publish) {   
                   Try {
-                      Publish-Module -Name $Module -NuGetApiKey ($env:PSGalleryKey)
+                      Publish-Module -Path .\ -NuGetApiKey ($env:PSGalleryKey)
                       Write-Verbose "Published $Module to PSGallery"
                   } Catch { 
                       Write-Error "Could not publish to PSGallery." -Category ConnectionError
