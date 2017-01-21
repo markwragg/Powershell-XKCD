@@ -97,12 +97,20 @@ if ($success) {
               Write-Verbose "Module manifest updated with -ModuleVersion $Version"
 
               If ($Publish) {   
-                  #Try {
-                      Publish-Module -Path .\ -NuGetApiKey ($env:PSGalleryKey)
-                      #Write-Verbose "Published $Module to PSGallery"
-                  #} Catch { 
-                      #Write-Error "Could not publish to PSGallery." -Category ConnectionError
-                  #}
+                
+                If ($env:APPVEYOR_REPO_BRANCH -notmatch 'master')
+                {
+                    Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting"
+                    exit;
+                }
+
+                $ModulePath = Split-Path $pwd
+                Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
+                $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
+
+                Write-Host 'Publishing module to Powershell Gallery'
+                #Uncomment the below line, make sure you set the variables in appveyor.yml
+                Publish-Module -Name $Module -NuGetApiKey $env:PSGalleryKey
               }
 
           #} Catch { 
