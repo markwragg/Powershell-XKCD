@@ -110,7 +110,7 @@ if ($success) {
 
                 Write-Host 'Publishing module to Powershell Gallery'
                 #Uncomment the below line, make sure you set the variables in appveyor.yml
-                Publish-Module -Name $Module -NuGetApiKey $env:PSGalleryKey
+                Publish-Module -Path  "$PSScriptRoot\XKCD.psm1" -NuGetApiKey $env:PSGalleryKey
               }
 
           #} Catch { 
