@@ -16,5 +16,5 @@ test_script:
 # Finalize pass - collect and upload results
   - ps: . .\appveyor.pester.ps1 -Finalize
 
-after_test:
-# Code to push to PS Gallery here
+deploy:
+# Code to push to PS Gallery here. Assuming this only happens if tests pass, otherwise maybe need to use on_success?
