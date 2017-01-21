@@ -3,7 +3,11 @@
 # We serialize XML results and pull them in appveyor.yml
 
 #If Finalize is specified, we collect XML output, upload tests, and indicate build errors
-param([switch]$Finalize)
+param(
+    [switch]$Finalize,
+    [switch]$Success
+)
+
 
 #Initialize some variables, move to the project root
     $PSVersion = $PSVersionTable.PSVersion.Major
@@ -76,3 +80,33 @@ param([switch]$Finalize)
                 throw "$FailedCount tests failed."
             }
     }
+
+if ($success) {
+    $Module = 'XKCD'
+      $Publish = $true
+      $Version = $Env:APPVEYOR_BUILD_VERSION
+
+      $ModuleData = (Get-Module $Module)
+
+      If ($Version -and $Version -ne '0.0.1') {
+          Try {
+              Update-ModuleManifest -Path ($ModuleData.Path) -ModuleVersion $Version
+              Write-Verbose "Module manifest updated with -ModuleVersion $Version"
+
+              If ($Publish) {   
+                  Try {
+                      Publish-Module -Name $Module -NuGetApiKey $Env:PSGalleryKey 
+                      Write-Verbose "Published $Module to PSGallery"
+                  } Catch { 
+                      Write-Error "Could not publish to PSGallery." -Category ConnectionError
+                  }
+              }
+
+          } Catch { 
+              Write-Error "Could not update module manifest." -Category ConnectionError
+          }
+
+      }Else{
+          Write-Error "No version specified." -Category InvalidArgument
+      }
+}
