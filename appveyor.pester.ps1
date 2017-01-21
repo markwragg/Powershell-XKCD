@@ -97,12 +97,12 @@ if ($success) {
               Write-Verbose "Module manifest updated with -ModuleVersion $Version"
 
               If ($Publish) {   
-                  Try {
+                  #Try {
                       Publish-Module -Path .\ -NuGetApiKey ($env:PSGalleryKey)
-                      Write-Verbose "Published $Module to PSGallery"
-                  } Catch { 
-                      Write-Error "Could not publish to PSGallery." -Category ConnectionError
-                  }
+                      #Write-Verbose "Published $Module to PSGallery"
+                  #} Catch { 
+                      #Write-Error "Could not publish to PSGallery." -Category ConnectionError
+                  #}
               }
 
           } Catch { 
