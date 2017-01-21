@@ -8,7 +8,7 @@ skip_commits:
 install:
   - cinst pester
   - ps: Install-PackageProvider -Name NuGet -Force
-  – ps: Install-Module -Name PSScriptAnalyzer -Force
+  - ps: Install-Module -Name PSScriptAnalyzer -Force
 
 build: false
 
