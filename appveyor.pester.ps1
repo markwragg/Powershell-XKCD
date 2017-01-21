@@ -82,7 +82,7 @@ param(
     }
 
 if ($success) {
-      $Module = 'XKCD'
+      $Module = 'Powershell-XKCD'
       $Publish = $true
       $Version = $Env:APPVEYOR_BUILD_VERSION
 
