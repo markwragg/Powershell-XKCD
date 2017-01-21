@@ -90,10 +90,7 @@ if ($success) {
 
       If ($Version -and $Version -ne '0.0.1') {
           Try {
-              $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
-              $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
-              [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
-              
+              Update-ModuleManifest -Path ($ModuleData.Path) -ModuleVersion $Version
               Write-Verbose "Module manifest updated with -ModuleVersion $Version"
 
               If ($Publish) {   
