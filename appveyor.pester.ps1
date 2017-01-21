@@ -98,7 +98,8 @@ if ($success) {
       [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ModuleManifestPath
 
       Write-Verbose "Module manifest updated with -ModuleVersion $Version"
-
+      Get-Content $ModuleManifestPath -Raw
+      
       If ($Publish) {   
 
         If ($env:APPVEYOR_REPO_BRANCH -notmatch 'master')
