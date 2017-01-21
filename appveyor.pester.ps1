@@ -90,12 +90,15 @@ if ($success) {
 
       If ($Version -and $Version -ne '0.0.1') {
           Try {
-              Update-ModuleManifest -Path ($ModuleData.Path) -ModuleVersion $Version
+              $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
+              $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
+              [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
+              
               Write-Verbose "Module manifest updated with -ModuleVersion $Version"
 
               If ($Publish) {   
                   Try {
-                      Publish-Module -Name $Module -NuGetApiKey $Env:PSGalleryKey 
+                      Publish-Module -Name $Module -NuGetApiKey ($env:PSGalleryKey)
                       Write-Verbose "Published $Module to PSGallery"
                   } Catch { 
                       Write-Error "Could not publish to PSGallery." -Category ConnectionError
