@@ -82,11 +82,15 @@ param(
     }
 
 if ($success) {
-      $Module = 'Powershell-XKCD'
+      $Module = 'PowerShell-XKCD'
       $Publish = $true
       
       $ModuleData = (Get-Module $Module)
-      $Version = $ModuleData.Version
+      Write-Host $ModuleData
+      
+      $Version = [version]$ModuleData.Version
+      
+      
       
       Write-Host $Version
       Write-Host $env:APPVEYOR_BUILD_NUMBER
