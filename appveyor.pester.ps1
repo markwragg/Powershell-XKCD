@@ -89,7 +89,9 @@ if ($success) {
       Write-Host $env:APPVEYOR_BUILD_NUMBER
      
       $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
+      $ModuleManifestPath
       $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
+      $ModuleManifest
       
       $ModuleManifest -match "ModuleVersion = \s*'([^']+)"
       [version]$Version = $Matches[1]
