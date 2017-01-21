@@ -82,7 +82,7 @@ param(
     }
 
 if ($success) {
-    $Module = 'XKCD'
+      $Module = 'XKCD'
       $Publish = $true
       $Version = $Env:APPVEYOR_BUILD_VERSION
 
@@ -90,7 +90,10 @@ if ($success) {
 
       If ($Version -and $Version -ne '0.0.1') {
           Try {
-              Update-ModuleManifest -Path ($ModuleData.Path) -ModuleVersion $Version
+              $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
+              $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
+              [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
+              
               Write-Verbose "Module manifest updated with -ModuleVersion $Version"
 
               If ($Publish) {   
