@@ -85,22 +85,16 @@ if ($success) {
       $Module = 'PowerShell-XKCD'
       $Publish = $true
       
-      Import-Module $Module
-      
-      $ModuleData = (Get-Module $Module)
-      Write-Host $ModuleData
-      
-      $Version = [version]$ModuleData.Version
-      
-      
-      
       Write-Host $Version
       Write-Host $env:APPVEYOR_BUILD_NUMBER
-      
-      $NewVersion = New-Object System.Version ($Version.Major, $Version.Minor, $env:APPVEYOR_BUILD_NUMBER, 0)
-      
+     
       $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
       $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
+      
+      $ModuleManifest -match "ModuleVersion = \s*'([^']+)"
+      [version]$Version = $Matches[1]
+      $NewVersion = New-Object System.Version ($Version.Major, $Version.Minor, $env:APPVEYOR_BUILD_NUMBER, 0)
+      
       [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ModuleManifestPath
 
       Write-Verbose "Module manifest updated with -ModuleVersion $Version"
