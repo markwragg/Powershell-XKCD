@@ -87,7 +87,8 @@ if ($success) {
       $Version = $Env:APPVEYOR_BUILD_VERSION
 
       $ModuleData = (Get-Module $Module)
-
+      $ModuleData
+      
       If ($Version -and $Version -ne '0.0.1') {
           #Try {
               $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
@@ -110,6 +111,7 @@ if ($success) {
 
                 Write-Host 'Publishing module to Powershell Gallery'
                 #Uncomment the below line, make sure you set the variables in appveyor.yml
+                Dir $ProjectRoot -Recurse
                 Publish-Module -Path $ProjectRoot -NuGetApiKey $env:PSGalleryKey
               }
 
