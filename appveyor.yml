@@ -1,5 +1,9 @@
 # See http://www.appveyor.com/docs/appveyor-yml for many more options
 
+environment:
+  PSGalleryKey:
+    secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr
+
 # Skip on updates to the readme.
 # We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
 skip_commits:
@@ -18,5 +22,33 @@ test_script:
 # Finalize pass - collect and upload results
   - ps: . .\appveyor.pester.ps1 -Finalize
 
-deploy:
-# Code to push to PS Gallery here. Assuming this only happens if tests pass, otherwise maybe need to use on_success?
+on_success:
+#Deploy to PS Gallery here, using PSGalleryKey env var
+  - ps: |
+    $Module = 'XKCD'
+    $Publish = $true
+    $Version = $Env:APPVEYOR_BUILD_VERSION
+
+    $ModuleData = (Get-Module $Module)
+    
+    If ($Version -and $Version -ne '0.0.1') {
+        Try {
+            Update-ModuleManifest -Path ($ModuleData.Path) -ModuleVersion $Version
+            Write-Verbose "Module manifest updated with -ModuleVersion $Version"
+
+            If ($Publish) {   
+                Try {
+                    Publish-Module -Name $Module -NuGetApiKey $Env:PSGalleryKey 
+                    Write-Verbose "Published $Module to PSGallery"
+                } Catch { 
+                    Write-Error "Could not publish to PSGallery." -Category ConnectionError
+                }
+            }
+
+        } Catch { 
+            Write-Error "Could not update module manifest." -Category ConnectionError
+        }
+
+    }Else{
+        Write-Error "No version specified." -Category InvalidArgument
+    }
