@@ -88,7 +88,10 @@ if ($success) {
       $ModuleData = (Get-Module $Module)
       $Version = $ModuleData.Version
       
-      $NewVersion = New-Object System.Version ($Version.Major, $Version.Minor, $env:APPVEYOR_BUILD_NUMBER,  $Version.Revision)
+      Write-Host $Version
+      Write-Host $env:APPVEYOR_BUILD_NUMBER
+      
+      $NewVersion = New-Object System.Version ($Version.Major, $Version.Minor, $env:APPVEYOR_BUILD_NUMBER, 0)
       
       $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
       $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
