@@ -15,3 +15,6 @@ test_script:
   - ps: . .\appveyor.pester.ps1
 # Finalize pass - collect and upload results
   - ps: . .\appveyor.pester.ps1 -Finalize
+
+after_test:
+# Code to push to PS Gallery here
