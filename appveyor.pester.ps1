@@ -82,7 +82,7 @@ param(
     }
 
 if ($success) {
-      $Module = 'PowerShell-XKCD'
+      $Module = 'XKCD'
       $Publish = $true
       
       Write-Host $Version
