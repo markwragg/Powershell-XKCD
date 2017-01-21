@@ -110,7 +110,7 @@ if ($success) {
             exit;
         }
 
-        $ModulePath = Split-Path $pwd
+        $ModulePath = Split-Path $PSScriptRoot
         Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
         $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
         
