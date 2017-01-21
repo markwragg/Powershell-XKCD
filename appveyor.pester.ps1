@@ -89,7 +89,7 @@ if ($success) {
       $ModuleData = (Get-Module $Module)
 
       If ($Version -and $Version -ne '0.0.1') {
-          Try {
+          #Try {
               $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
               $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
               [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
@@ -105,9 +105,9 @@ if ($success) {
                   #}
               }
 
-          } Catch { 
-              Write-Error "Could not update module manifest." -Category ConnectionError
-          }
+          #} Catch { 
+          #    Write-Error "Could not update module manifest." -Category ConnectionError
+          #}
 
       }Else{
           Write-Error "No version specified." -Category InvalidArgument
