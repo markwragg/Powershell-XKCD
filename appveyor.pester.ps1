@@ -84,42 +84,33 @@ param(
 if ($success) {
       $Module = 'Powershell-XKCD'
       $Publish = $true
-      $Version = $Env:APPVEYOR_BUILD_VERSION
-
-      $ModuleData = (Get-Module $Module)
-      $ModuleData
       
-      If ($Version -and $Version -ne '0.0.1') {
-          #Try {
-              $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
-              $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
-              [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
-              
-              Write-Verbose "Module manifest updated with -ModuleVersion $Version"
+      $ModuleData = (Get-Module $Module)
+      $Version = $ModuleData.Version
+      
+      $NewVersion = "($Version.Major).($Version.Minor).($env:APPVEYOR_BUILD_NUMBER).($Version.Revision)."
+      
+      $ModuleManifestPath = Join-Path -path "$pwd" -ChildPath ("$Module"+'.psd1')
+      $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
+      [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ModuleManifestPath
 
-              If ($Publish) {   
-                
-                If ($env:APPVEYOR_REPO_BRANCH -notmatch 'master')
-                {
-                    Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting"
-                    exit;
-                }
+      Write-Verbose "Module manifest updated with -ModuleVersion $Version"
 
-                $ModulePath = Split-Path $pwd
-                Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
-                $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
+      If ($Publish) {   
 
-                Write-Host 'Publishing module to Powershell Gallery'
-                #Uncomment the below line, make sure you set the variables in appveyor.yml
-                Dir $ProjectRoot -Recurse | ft
-                Publish-Module -Name "PowerShell-XKCD" -NuGetApiKey $env:PSGalleryKey
-              }
+        If ($env:APPVEYOR_REPO_BRANCH -notmatch 'master')
+        {
+            Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting"
+            exit;
+        }
 
-          #} Catch { 
-          #    Write-Error "Could not update module manifest." -Category ConnectionError
-          #}
+        $ModulePath = Split-Path $pwd
+        Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
+        $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
 
-      }Else{
-          Write-Error "No version specified." -Category InvalidArgument
+        Write-Host 'Publishing module to Powershell Gallery'
+        #Uncomment the below line, make sure you set the variables in appveyor.yml
+        Dir $ProjectRoot -Recurse | ft
+        Publish-Module -Name "PowerShell-XKCD" -NuGetApiKey $env:PSGalleryKey
       }
 }
