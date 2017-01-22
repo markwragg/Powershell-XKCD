@@ -8,11 +8,11 @@ $res             = Invoke-Pester -Script .\Tests\*.Tests.ps1 -OutputFormat NUnit
 #Workaround for https://github.com/appveyor/ci/issues/1271
 [xml]$content = Get-Content $testResultsFile
 $content.'test-results'.'test-suite'.type = "Powershell"
-$content.Save($testResultsFile)
+$content.Save('C:\projects\Powershell-XKCD\TestsResults.xml')
 #Remove workaround when issue fixed
 
 Write-Host 'Uploading results'
-(New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
+#(New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
 
 # Validate
 If (($res.FailedCount -gt 0) -or ($res.PassedCount -eq 0)) { 
