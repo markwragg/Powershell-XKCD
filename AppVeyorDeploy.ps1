@@ -1,30 +1,33 @@
-﻿#---------------------------------# 
-# Header                          # 
-#---------------------------------# 
 Write-Host 'Running AppVeyor deploy script' -ForegroundColor Yellow
 
-#---------------------------------# 
-# Update module manifest          # 
-#---------------------------------# 
-Write-Host 'Creating new module manifest'
-$ModuleManifestPath = Join-Path -path "$pwd\$env:ModuleName" -ChildPath ("$env:ModuleName"+'.psd1')
-$ModuleManifest     = Get-Content $ModuleManifestPath -Raw
-
-[regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
-
-#---------------------------------# 
-# Publish to PS Gallery           # 
-#---------------------------------# 
 if ($env:APPVEYOR_REPO_BRANCH -notmatch 'master')
 {
-    Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting"
+    Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting."
     exit;
 }
 
-$ModulePath = Split-Path "$pwd\$env:ModuleName"
-Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
-$env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
+# Check module for differences 
+Save-Module -Name $env:ModuleName -Path .\
 
-Write-Host 'Publishing module to Powershell Gallery'
-#Uncomment the below line, make sure you set the variables in appveyor.yml
-Publish-Module -Name $env:ModuleName -NuGetApiKey $env:NuGetApiKey
+$GitModuleContents = Get-ChildItem -Exclude *.psd1 .\$env:ModuleName\    | Where-Object { -not $_.PsIsContainer } | Get-Content
+$PSGModuleContents = Get-ChildItem -Exclude *.psd1 .\$env:ModuleName\*\* | Where-Object { -not $_.PsIsContainer } | Get-Content
+
+$Differences = Compare-Object -ReferenceObject $GitModuleContents -DifferenceObject $PSGModuleContents
+
+If ($Differences){
+    # Update module manifest
+    Write-Host 'Creating new module manifest'
+    $ModuleManifestPath = Join-Path -path "$pwd\$env:ModuleName" -ChildPath ("$env:ModuleName"+'.psd1')
+    $ModuleManifest     = Get-Content $ModuleManifestPath -Raw
+    [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$env:APPVEYOR_BUILD_VERSION'") | Out-File -LiteralPath $ModuleManifestPath
+
+    # Publish to PS Gallery
+    $ModulePath = Split-Path "$pwd\$env:ModuleName"
+    Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
+    $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
+
+    Write-Host 'Publishing module to Powershell Gallery.'
+    Publish-Module -Name $env:ModuleName -NuGetApiKey $env:NuGetApiKey
+} Else {
+    Write-Host 'The module is unchanged, publishing skipped.'
+}
