@@ -4,7 +4,7 @@
 version: 1.4.{build}
 os: WMF 5
 install:
-  - ps: . .\AppVeyor\AppVeyorInstall.ps1
+  - ps: . .\AppVeyorInstall.ps1
 
 environment:
   NuGetApiKey:
@@ -15,16 +15,16 @@ environment:
 #      build configuration        # 
 #---------------------------------# 
 build_script: 
-  - ps: . .\AppVeyor\AppVeyorBuild.ps1
+  - ps: . .\AppVeyorBuild.ps1
 
 #---------------------------------# 
 #      test configuration         # 
 #---------------------------------# 
 test_script: 
-  - ps: . .\AppVeyor\AppVeyorTest.ps1
+  - ps: . .\AppVeyorTest.ps1
 
 #---------------------------------# 
 #      deployment configuration   # 
 #---------------------------------# 
 deploy_script: 
-  - ps: . .\AppVeyor\AppveyorDeploy.ps1
+  - ps: . .\AppveyorDeploy.ps1
