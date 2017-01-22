@@ -1,6 +1,8 @@
 # Powershell-XKCD
 A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ http://xkcd.com.
 
+![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/9qnefark9fl1gctj?svg=true)
+
 ##XKCD 
 XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: http://xkcd.com/license.html.
 
