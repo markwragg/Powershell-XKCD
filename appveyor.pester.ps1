@@ -97,7 +97,7 @@ if ($success) {
       [version]$Version = $Matches[1]
       $NewVersion = New-Object System.Version ($Version.Major, $Version.Minor, $env:APPVEYOR_BUILD_NUMBER, 0)
       
-      [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ModuleManifestPath
+      #[regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ModuleManifestPath
 
       Write-Verbose "Module manifest updated with -ModuleVersion $Version"
       Get-Content $ModuleManifestPath -Raw
