@@ -8,7 +8,7 @@ $res             = Invoke-Pester -Script .\Tests\*.Tests.ps1 -OutputFormat NUnit
 #Workaround for https://github.com/appveyor/ci/issues/1271
 [xml]$content = Get-Content $testResultsFile
 $content.'test-results'.'test-suite'.type = "Powershell"
-$content.Save($testResultsFile)
+$content.Save('C:\projects\powershell-xkcd\TestsResults.xml')
 #Remove workaround when issue fixed
 
 Write-Host 'Uploading results'
