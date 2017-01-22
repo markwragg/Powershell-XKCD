@@ -112,7 +112,7 @@ if ($success) {
 
         $ModulePath = Split-Path $PSScriptRoot
         Write-Host "Adding $ModulePath to 'psmodulepath' PATH variable"
-        $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
+        $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath + ';C:\projects\powershell-xkcd'
         
         $env:psmodulepath
         
