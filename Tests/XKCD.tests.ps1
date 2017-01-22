@@ -1,4 +1,4 @@
-Import-Module ..\XKCD.psm1 -Force
+Import-Module XKCD -Force
 
 Describe 'Basic Tests' {
     $Latest = Get-XKCD
