@@ -1,23 +1,30 @@
-# See http://www.appveyor.com/docs/appveyor-yml for many more options
+#---------------------------------# 
+#      environment configuration  # 
+#---------------------------------# 
+version: 1.4.{build}
+os: WMF 5
+install:
+  - ps: . .\AppVeyor\AppVeyorInstall.ps1
 
 environment:
-  PSGalleryKey:
-    secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr
+  NuGetApiKey:
+    secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr #This is secured
+  MyNonSecureVar: NonSecure
+  ModuleName: xkcd
+#---------------------------------# 
+#      build configuration        # 
+#---------------------------------# 
+build_script: 
+  - ps: . .\AppVeyor\AppVeyorBuild.ps1
 
-# Skip on updates to the readme.
-# We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
-skip_commits:
-  message: /updated readme.*/
+#---------------------------------# 
+#      test configuration         # 
+#---------------------------------# 
+test_script: 
+  - ps: . .\AppVeyor\AppVeyorTest.ps1
 
-install:
-  - cinst pester
-  - ps: Install-PackageProvider -Name NuGet -Force
-  - ps: Install-Module -Name PSScriptAnalyzer -Force
-
-build: false
-
-test_script:
-# Test with native PS version
-  - ps: . .\appveyor.pester.ps1 -Verbose
-# Finalize pass - collect and upload results
-  - ps: . .\appveyor.pester.ps1 -Finalize -Success -Verbose
+#---------------------------------# 
+#      deployment configuration   # 
+#---------------------------------# 
+deploy_script: 
+  - ps: . .\AppVeyor\AppveyorDeploy.ps1
