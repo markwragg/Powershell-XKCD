@@ -119,6 +119,6 @@ if ($success) {
         Write-Host 'Publishing module to Powershell Gallery'
         #Uncomment the below line, make sure you set the variables in appveyor.yml
         Dir $ProjectRoot -Recurse | ft
-        Publish-Module -Name $module -NuGetApiKey $env:PSGalleryKey
+        Publish-Module -Path 'C:\projects\powershell-xkcd\xkcd' -NuGetApiKey $env:PSGalleryKey
       }
 }
