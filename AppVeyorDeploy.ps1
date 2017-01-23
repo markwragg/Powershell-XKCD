@@ -1,16 +1,20 @@
 Write-Host 'Running AppVeyor deploy script' -ForegroundColor Yellow
 
-if ($env:APPVEYOR_REPO_BRANCH -notmatch 'master')
-{
+If ($env:APPVEYOR_REPO_BRANCH -notmatch 'master'){
     Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting."
     exit;
+}
+
+Function Get-ModuleContents {
+    Param ([string]$Path)
+    Get-ChildItem -Exclude *.psd1 $Path | Where-Object { -not $_.PsIsContainer } | Get-Content
 }
 
 # Check module for differences 
 Save-Module -Name $env:ModuleName -Path .\
 
-$GitModuleContents = Get-ChildItem -Exclude *.psd1 .\$env:ModuleName\    | Where-Object { -not $_.PsIsContainer } | Get-Content
-$PSGModuleContents = Get-ChildItem -Exclude *.psd1 .\$env:ModuleName\*\* | Where-Object { -not $_.PsIsContainer } | Get-Content
+$GitModuleContents = Get-ModuleContents .\$env:ModuleName\
+$PSGModuleContents = Get-ModuleContents .\$env:ModuleName\*\*
 
 $Differences = Compare-Object -ReferenceObject $GitModuleContents -DifferenceObject $PSGModuleContents
 
