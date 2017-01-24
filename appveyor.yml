@@ -7,7 +7,7 @@ install:
 environment:
   NuGetApiKey:
     secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr #This is secured
-  ModulesToPublish: 'xkcd','test','blah'
+  ModulesToPublish: 'xkcd'
 
 build_script: 
   - ps: . .\AppVeyor.ps1 -Build
