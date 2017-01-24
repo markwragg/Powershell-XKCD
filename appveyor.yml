@@ -2,18 +2,18 @@
 version: 1.4.{build}
 os: WMF 5
 install:
-  - ps: . .\AppVeyor.ps1 -Install
+  - ps: . .\build.ps1 -Install
 
 environment:
   NuGetApiKey:
     secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr #This is secured
-  ModulesToPublish: 'xkcd'
+  ModulesToPublish: '*'
 
 build_script: 
-  - ps: . .\AppVeyor.ps1 -Build
+  - ps: . .\build.ps1 -Build
 
 test_script: 
-  - ps: . .\AppVeyor.ps1 -Test
+  - ps: . .\build.ps1 -Test
 
 deploy_script: 
-  - ps: . .\AppVeyor.ps1 -Deploy
+  - ps: . .\build.ps1 -Deploy
