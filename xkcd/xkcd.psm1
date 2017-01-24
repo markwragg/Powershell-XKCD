@@ -15,8 +15,8 @@ This command returns the details of the 42nd XKCD comic.
 PS C:\>Get-XKCD -Random
 This command returns the details of a random XKCD comic from the set of all available comics.    
 .EXAMPLE
-PS C:\>Get-XKCD -Random -Min 100 -Max 200
-This command returns a random comic that is numbered between 100 and 200.    
+PS C:\>Get-XKCD -Random -Min 100 -Max 150
+This command returns a random comic that is numbered between 100 and 150.    
 .EXAMPLE
 PS C:\>Get-XKCD -Newest 5
 This command returns the details of the latest 5 comics.    
