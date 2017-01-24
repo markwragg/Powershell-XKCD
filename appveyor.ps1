@@ -23,8 +23,6 @@ If ($Install) {
 
 
 If ($Build) {
-    If ($env:ModulesToPublish) { $ModulesToPublish = $env:ModulesToPublish.Split(',') }
-    
     Write-Host 'Running build script' -ForegroundColor Yellow
     "ModulesToPublish : $ModulesToPublish"
 
@@ -69,11 +67,11 @@ If ($Deploy) {
         "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting."
         Exit
     }
-    "Current working directory: $pwd"
-
+    
+    If ($env:ModulesToPublish) { $ModulesToPublish = $env:ModulesToPublish.Split(',') }
+    
     $ModulePaths = $ModulesToPublish | ForEach-Object { Get-ChildItem -Include "$_.psd1" -Recurse }  
-    "ModulePaths: $ModulePaths"
-
+    
     $ModulePaths | ForEach-Object {
         
         $Module = $_.BaseName
