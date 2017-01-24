@@ -90,7 +90,7 @@ If ($Deploy) {
 
                     Import-Module $Module
 
-                    $CurVersion = Get-Module $Module | Select -ExpandProperty Version            
+                    $CurVersion = Get-Module $Module | Select-Object -ExpandProperty Version            
                     $NewVersion = New-Object -TypeName System.Version -ArgumentList $CurVersion.Major, $CurVersion.Minor, ($CurVersion.Build + 1), 0
 
                 } Else {
