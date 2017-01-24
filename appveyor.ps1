@@ -38,7 +38,7 @@ If ($Build) {
 
 If ($Test) {
     Write-Host 'Running AppVeyor test script' -ForegroundColor Yellow
-    Write-Host "Current working directory: $pwd"
+    "Current working directory: $pwd"
 
     $testResultsFile = 'TestsResults.xml'
     $Results = Invoke-Pester -Script .\Tests\*.Tests.ps1 -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
@@ -50,7 +50,7 @@ If ($Test) {
         $Content.Save("$(Join-Path $pwd $testResultsFile)")
         #--Remove workaround when issue 1271 fixed
 
-        Write-Host 'Uploading results'
+        "Uploading results to AppVeyor Job $($env:APPVEYOR_JOB_ID)"
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $testResultsFile))
     }
 
@@ -69,9 +69,11 @@ If ($Deploy) {
         "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting."
         Exit
     }
-    
+    "Current working directory: $pwd"
+
     $ModulePaths = $ModulesToPublish | ForEach-Object { Get-ChildItem -Include "$_.psd1" -Recurse }  
-    
+    "ModulePaths: $ModulePaths"
+
     $ModulePaths | ForEach-Object {
         
         $Module = $_.BaseName
