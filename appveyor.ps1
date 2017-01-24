@@ -10,9 +10,9 @@ Param(
 If ($Install) {
     Write-Host 'Running installation script' -ForegroundColor Yellow
 
-    #'Installing NuGet PackageProvide'
-    #$pkg = Install-PackageProvider -Name NuGet -Force
-    #"Installed NuGet version '$($pkg.version)'" 
+    'Installing NuGet PackageProvide'
+    $pkg = Install-PackageProvider -Name NuGet -Force
+    "Installed NuGet version '$($pkg.version)'" 
 
     'Installing Pester'
     Install-Module -Name Pester -Repository PSGallery -Force
