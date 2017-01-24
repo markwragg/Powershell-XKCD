@@ -1,12 +1,15 @@
-#environment configuration
+#Environment configuration. You only need to set version if you need to exceed an existing version # in PS Gallery
 version: 1.4.{build}
 os: WMF 5
+
 install:
   - ps: . .\build.ps1 -Install
 
 environment:
   NuGetApiKey:
-    secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr #This is secured
+    secure: +lqWVtVRayO6KNlJeu9lrnzmtGXreNPIr1Fn3dhXxYTJAHHAOPCPVWvFVkRX7wlr
+
+  #Name of module/s to publish in PS Gallery. Use '' for none, '*' for all or a comma separated list: 'orange,pear'
   ModulesToPublish: '*'
 
 build_script: 

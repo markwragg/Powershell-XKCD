@@ -1,28 +1,26 @@
 Param(
     [cmdletbinding()]
-    [string[]]$ModulesToPublish = $env:ModulesToPublish,
+    [string[]]$ModulesToPublish,
+    [string]$NuGetApiKey,
     [switch]$Build,
     [switch]$Install,
     [switch]$Test,
-    [Parameter(ParameterSetName='Deploy')][switch]$Deploy,
-    [Parameter(ParameterSetName='Deploy')][string]$NuGetApiKey = $env:NuGetApiKey
+    [switch]$Deploy
 )
-
-If ($ModulesToPublish) { $ModulesToPublish = $ModulesToPublish.Split(',') }
-
 
 If ($Build) {
 
     If ($env:APPVEYOR){
-        "Build version    : $env:APPVEYOR_BUILD_VERSION"
-        "Author           : $env:APPVEYOR_REPO_COMMIT_AUTHOR"
-        "Branch           : $env:APPVEYOR_REPO_BRANCH"
+        Write-Host "Build Version    : $env:APPVEYOR_BUILD_VERSION"
+        Write-Host "Author           : $env:APPVEYOR_REPO_COMMIT_AUTHOR"
+        Write-Host "Branch           : $env:APPVEYOR_REPO_BRANCH"
     }
-        "ModulesToPublish : $ModulesToPublish"
+        Write-Host "ModulesToPublish : $ModulesToPublish"
 }
 
 
 If ($Install) {
+
     Write-Host 'Installing NuGet Package Provider'
     Install-PackageProvider -Name NuGet -Force
     
@@ -35,6 +33,7 @@ If ($Install) {
 
 
 If ($Test) {
+
     $testResultsFile = 'TestsResults.xml'
     $Results = Invoke-Pester -Script .\Tests\*.Tests.ps1 -OutputFormat NUnitXml -OutputFile $testResultsFile -PassThru
 
@@ -60,27 +59,41 @@ If ($Test) {
 If ($Deploy) {
     
     If ($env:APPVEYOR -and $env:APPVEYOR_REPO_BRANCH -notmatch 'master') {
-        Write-Host "Finished testing of branch: $env:APPVEYOR_REPO_BRANCH - Exiting." -ForegroundColor
+        Write-Host "Finished testing of branch $env:APPVEYOR_REPO_BRANCH - Exiting." -ForegroundColor Green
         Exit
     }
     
+    If (!$ModulesToPublish) {
+        Write-Host "No modules are configured to publish in appveyor.yml - Exiting." -ForegroundColor Green
+        Exit
+    }
+
+    If ($env:ModulesToPublish) { $ModulesToPublish = $env:ModulesToPublish }
+    If ($ModulesToPublish)     { $ModulesToPublish = $ModulesToPublish.Split(',') }
+    If ($env:NuGetApiKey)      { $NuGetApiKey = $env:NuGetApiKey }
+
     $ModulesToPublish | ForEach-Object {
         
-        $ModuleManifest = Get-ChildItem "$pwd\$Module\*.psd1"
+        $ModuleManifest = Get-ChildItem "$pwd\$_\*.psd1"
         
         If ($ModuleManifest) {
 
             $Module           = $ModuleManifest.BaseName
             $ModulePath       = $ModuleManifest.Directory
             $ManifestFullName = $ModuleManifest.FullName
-
-            Write-Host "$($Module) : Checking module for differences with existing PowerShell Gallery version"
-            Save-Module -Name $Module -Path .\
-
-            $ModuleContents    = Get-ChildItem -Exclude *.psd1 "$ModulePath\" | Where-Object { -not $_.PsIsContainer } | Get-Content
-            $PSGModuleContents = Get-ChildItem -Exclude *.psd1 "$ModulePath\*\*" | Where-Object { -not $_.PsIsContainer } | Get-Content
-
-            Remove-Item "$ModulePath\*\*" -Recurse -Force
+            $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
+                        
+            Write-Host "$Module : Checking module for differences with existing PowerShell Gallery version."
+            
+            Try {
+                Save-Module -Name $Module -Path .\ -ErrorAction Stop
+                $ModuleContents    = Get-ChildItem -Exclude *.psd1 "$ModulePath\" | Where-Object { -not $_.PsIsContainer } -ErrorAction Stop | Get-Content
+                $PSGModuleContents = Get-ChildItem -Exclude *.psd1 "$ModulePath\*\*" | Where-Object { -not $_.PsIsContainer } -ErrorAction Stop | Get-Content
+            } Catch {
+                Throw "$Module : Could not get the contents of the local or Gallery module."
+            } Finally {
+                Remove-Item "$ModulePath\*\*" -Recurse -Force
+            }
 
             $Differences = Compare-Object $ModuleContents $PSGModuleContents
 
@@ -88,30 +101,36 @@ If ($Deploy) {
             
                 If (!$env:APPVEYOR_BUILD_VERSION) { 
 
-                    Import-Module $Module
-
-                    $CurVersion = Get-Module $Module | Select-Object -ExpandProperty Version            
-                    $NewVersion = New-Object -TypeName System.Version -ArgumentList $CurVersion.Major, $CurVersion.Minor, ($CurVersion.Build + 1), 0
+                    Try{
+                        Import-Module $ManifestFullName -Force -ErrorAction Stop
+                    
+                        $CurVersion = Get-Module $Module | Select-Object -ExpandProperty Version            
+                        $NewVersion = New-Object -TypeName System.Version -ArgumentList $CurVersion.Major, $CurVersion.Minor, ($CurVersion.Build + 1), 0
+                    } Catch {
+                        Throw "$Module : Could not establish new module version. Publish failed."
+                    }
 
                 } Else {
                     $NewVersion = $env:APPVEYOR_BUILD_VERSION
                 }
+
+                If (!$NuGetApiKey) { Throw "NuGetApiKey not specified. Cannot publish to PowerShell Gallery." }
 
                 Write-Host "$Module : Updating module manifest to version $NewVersion"            
                         
                 $ModuleManifest = Get-Content $ManifestFullName -Raw
                 [regex]::replace($ModuleManifest,'(ModuleVersion = )(.*)',"`$1'$NewVersion'") | Out-File -LiteralPath $ManifestFullName
                
-                Write-Host "$Module : Publishing module to the PowerShell Gallery"
-
-                $env:psmodulepath = $env:psmodulepath + ';' + $ModulePath
-                Publish-Module -Name $Module -NuGetApiKey $NuGetApiKey
+                Write-Host "$Module : Publishing module to the PowerShell Gallery."
+                Publish-Module -Path $ModulePath -NuGetApiKey $NuGetApiKey
             } Else {
-                Write-Host "$Module : Could not locate a module manifest in $pwd\$Module\" -ForegroundColor Red
+                Write-Host "$Module : The module is already up to date in the Gallery - Exiting." -ForegroundColor Green
+                Exit
             }
 
         } Else {
-            Write-Host "$Module : The module is already up to date in the Gallery" -ForegroundColor Green
+            Throw "$Module : Could not locate a module manifest in $pwd\$Module\"      
         }
+        Write-Host "$Module published successfully." -ForegroundColor Green
     }
 }
