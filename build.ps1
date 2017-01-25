@@ -8,6 +8,11 @@ Param(
     [switch]$Deploy
 )
 
+If ($env:ModulesToPublish) { $ModulesToPublish = $env:ModulesToPublish }
+If ($ModulesToPublish)     { $ModulesToPublish = $ModulesToPublish.Split(',') }
+If ($env:NuGetApiKey)      { $NuGetApiKey = $env:NuGetApiKey }
+
+
 If ($Build) {
 
     If ($env:APPVEYOR){
@@ -62,15 +67,11 @@ If ($Deploy) {
         Write-Host "Finished testing of branch $env:APPVEYOR_REPO_BRANCH - Exiting." -ForegroundColor Green
         Exit
     }
-    
+ 
     If (!$ModulesToPublish) {
         Write-Host "No modules are configured to publish in appveyor.yml - Exiting." -ForegroundColor Green
         Exit
     }
-
-    If ($env:ModulesToPublish) { $ModulesToPublish = $env:ModulesToPublish }
-    If ($ModulesToPublish)     { $ModulesToPublish = $ModulesToPublish.Split(',') }
-    If ($env:NuGetApiKey)      { $NuGetApiKey = $env:NuGetApiKey }
 
     $ModulesToPublish | ForEach-Object {
         
@@ -110,9 +111,7 @@ If ($Deploy) {
                         Throw "$Module : Could not establish new module version. Publish failed."
                     }
 
-                } Else {
-                    $NewVersion = $env:APPVEYOR_BUILD_VERSION
-                }
+                } Else { $NewVersion = $env:APPVEYOR_BUILD_VERSION }
 
                 If (!$NuGetApiKey) { Throw "NuGetApiKey not specified. Cannot publish to PowerShell Gallery." }
 
