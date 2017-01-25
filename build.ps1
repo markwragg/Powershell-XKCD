@@ -27,7 +27,7 @@ If ($Build) {
 If ($Install) {
 
     Write-Host 'Installing NuGet Package Provider'
-    Install-PackageProvider -Name NuGet -Force
+    Install-PackageProvider -Name NuGet -Force | Out-Null
     
     Write-Host 'Installing Pester'
     Install-Module -Name Pester -Repository PSGallery -Force
