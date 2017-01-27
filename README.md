@@ -10,6 +10,14 @@ XKCD is a webcomic by Randall Munroe. Please respect the license of his work as 
 - The API provided by xkcd.com must be functional: https://xkcd.com/json.html
 - This script requires PowerShell 3.0 or above.
 
+##Installation
+
+This module is published in the PowerShell Gallery as [XKCD](https://www.powershellgallery.com/packages/XKCD/1.4.36.0) so if you have PowerShell 5 or the Package Management modules, it can be installed by entering the following in a PowerShell window:
+
+```
+Install-Module -Name XKCD
+```
+
 ##Usage Examples
 
 1) `Get-XKCD`
