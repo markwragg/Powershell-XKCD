@@ -3,14 +3,16 @@ A PowerShell function for accessing the XKCD API to get the details of and (opti
 
 ![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/9qnefark9fl1gctj?svg=true)
 
-##XKCD 
+## XKCD
+
 XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: http://xkcd.com/license.html.
 
-##Requirements
+## Requirements
+
 - The API provided by xkcd.com must be functional: https://xkcd.com/json.html
 - This script requires PowerShell 3.0 or above.
 
-##Installation
+## Installation
 
 This module is published in the PowerShell Gallery as [XKCD](https://www.powershellgallery.com/packages/XKCD/1.4.36.0) so if you have PowerShell 5 or the Package Management modules, it can be installed by entering the following in a PowerShell window:
 
@@ -18,7 +20,7 @@ This module is published in the PowerShell Gallery as [XKCD](https://www.powersh
 Install-Module -Name XKCD
 ```
 
-##Usage Examples
+## Usage Examples
 
 1) `Get-XKCD`
 
