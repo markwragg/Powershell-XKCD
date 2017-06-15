@@ -2,16 +2,11 @@
 # Init some things
 Properties {
     # Find the build folder based on build system
-        $ProjectRoot = $ENV:BHProjectPath
-        if(-not $ProjectRoot)
-        {
-            $ProjectRoot = $PSScriptRoot
-        }
-
-    $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
-    $PSVersion = $PSVersionTable.PSVersion.Major
-    $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
-    $lines = '----------------------------------------------------------------------'
+    $ProjectRoot = $ENV:BHProjectPath
+    if(-not $ProjectRoot)
+    {
+        $ProjectRoot = $PSScriptRoot
+    }
 
     $Verbose = @{}
     if($ENV:BHCommitMessage -match "!verbose")
@@ -23,7 +18,7 @@ Properties {
 Task Default -Depends Deploy
 
 Task Init {
-    $lines
+    '----------------------------------------------------------------------'
     Set-Location $ProjectRoot
     "Build System Details:"
     Get-Item ENV:BH*
@@ -31,7 +26,12 @@ Task Init {
 }
 
 Task Test -Depends Init  {
-    $lines
+    '----------------------------------------------------------------------'
+    
+    $Timestamp = Get-date -uformat "%Y%m%d-%H%M%S"
+    $PSVersion = $PSVersionTable.PSVersion.Major
+    $TestFile = "TestResults_PS$PSVersion`_$TimeStamp.xml"
+        
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
     # Gather test results. Store them in a variable and file
@@ -57,12 +57,12 @@ Task Test -Depends Init  {
 }
 
 Task Build -Depends Test {
-    $lines
+    '----------------------------------------------------------------------'
     #Set-ModuleFunctions
 }
 
 Task Deploy -Depends Build {
-    $lines
+    '----------------------------------------------------------------------'
 
     # Update Manifest version number
     $ManifestPath = $Env:BHPSModuleManifest
