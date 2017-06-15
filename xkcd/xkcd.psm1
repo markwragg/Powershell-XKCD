@@ -1,9 +1,11 @@
-# Public functions
-@( Get-ChildItem -Path "$PSScriptRoot\Public\*.ps1" ) | ForEach-Object {
-    . $_.FullName
-}
+'Public','Private' | ForEach-Object {
 
-# Private functions
-@( Get-ChildItem -Path "$PSScriptRoot\Private\*.ps1" ) | ForEach-Object {
-    . $_.FullName
+    If (Test-Path "$PSScriptRoot\$_\"){
+        
+        #Load functions
+        @( Get-ChildItem -Path "$PSScriptRoot\$_\*.ps1" ) | ForEach-Object {
+            . $_.FullName
+        }
+    }
+
 }
