@@ -53,7 +53,7 @@ Describe 'Unit Tests' {
 }
 
 
-Describe 'Integration Tests' {
+Describe 'Integration Tests' -tag 'Integration' {
 
     Context 'Module Tests' {
         
