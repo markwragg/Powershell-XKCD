@@ -1,7 +1,7 @@
 # Powershell-XKCD
 A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ http://xkcd.com.
 
-![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/9qnefark9fl1gctj?svg=true)
+![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/9qnefark9fl1gctj?svg=true) ![Test Coverage](https://img.shields.io/badge/coverage.svg?)
 
 ## XKCD
 
