@@ -12,7 +12,7 @@
 RootModule = 'xkcd.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.4.55'
+ModuleVersion = '1.4.56'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
