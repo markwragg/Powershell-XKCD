@@ -78,7 +78,7 @@ Task Build -Depends Test {
     
         if ($PSCmdlet.ShouldProcess($TextFilePath)) {
             $ReadmeContent = (Get-Content $TextFilePath)
-            $ReadmeContent = $ReadmeContent -replace "!\[Test Coverage\].+\)", "![Test Coverage](https://img.shields.io/badge/coverage-$CodeCoverage%25-$BadgeColor.svg?build=$env:APPVEYOR_BUILD_VERSION" 
+            $ReadmeContent = $ReadmeContent -replace "!\[Test Coverage\].+\)", "![Test Coverage](https://img.shields.io/badge/coverage-$CodeCoverage%25-$BadgeColor.svg?build=$env:APPVEYOR_BUILD_VERSION)" 
             $ReadmeContent | Set-Content -Path $TextFilePath
         }
     }
