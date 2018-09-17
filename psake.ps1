@@ -66,7 +66,7 @@ Task Build -Depends Test {
             $CodeCoverage = 0,
             
             [string]
-            $TextFilePath = "$Env:BHProjectPath/Readme.md"
+            $TextFilePath = "$Env:BHProjectPath/README.md"
         )
 
         $BadgeColor = switch ($CodeCoverage) {
