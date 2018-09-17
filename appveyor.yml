@@ -9,7 +9,7 @@ environment:
 
 # Allow WMF5 (i.e. PowerShellGallery functionality)
 os:
-  - Ubuntu
+  - Visual Studio 2017
 
 # Skip on updates to the readme.
 # We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
@@ -24,7 +24,7 @@ test_script:
 
 on_success:
   - git config --global credential.helper store
-  - ps: Add-Content "$HOME\.git-credentials" "https://$($env:GitToken):x-oauth-basic@github.com`n"
+  - pwsh: Add-Content "$HOME\.git-credentials" "https://$($env:GitToken):x-oauth-basic@github.com`n"
   - git config --global user.email "build@appveyor.com"
   - git config --global user.name "Appveyor"
   - git checkout %APPVEYOR_REPO_BRANCH%
