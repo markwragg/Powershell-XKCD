@@ -8,7 +8,8 @@ environment:
     secure: m8fv0iJ0CQHaQsAGgdlOe+M/oI8CcDls9BBG19oeUB3NZEsVCc4px9iZQIIIZSr6
 
 # Allow WMF5 (i.e. PowerShellGallery functionality)
-os: WMF 5
+os:
+  - Ubuntu
 
 # Skip on updates to the readme.
 # We can force this by adding [skip ci] or [ci skip] anywhere in commit message 
@@ -19,7 +20,7 @@ build: false
 
 #Kick off the CI/CD pipeline
 test_script:
-  - ps: . .\build.ps1
+  - pwsh: . .\build.ps1
 
 on_success:
   - git config --global credential.helper store
