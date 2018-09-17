@@ -1,11 +1,10 @@
-'Public','Private' | ForEach-Object {
+$Public = @( Get-ChildItem -Path "$PSScriptRoot/Public/*.ps1" -Recurse )
 
-    If (Test-Path "$PSScriptRoot\$_\"){
-
-        #Load functions
-        @( Get-ChildItem -Path "$PSScriptRoot\$_\*.ps1" ) | ForEach-Object {
-            . $_.FullName
-        }
+@($Public) | ForEach-Object {
+    try {
+        . $_.FullName
     }
-
+    catch {
+        Write-Error -Message "Failed to import function $($_.FullName): $_"
+    }
 }

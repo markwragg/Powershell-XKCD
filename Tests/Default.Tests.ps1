@@ -1,6 +1,6 @@
 ﻿# PSScriptAnalyzer tests
-$Scripts = Get-ChildItem “$PSScriptRoot\..\” -Filter ‘*.ps1’ -Recurse | Where-Object { $_.name -NotMatch 'tests.ps1' -and $_.name -NotIn 'build.ps1','psake.ps1' }
-$Modules = Get-ChildItem “$PSScriptRoot\..\” -Filter ‘*.psm1’ -Recurse
+$Scripts = Get-ChildItem “$PSScriptRoot/../” -Filter ‘*.ps1’ -Recurse | Where-Object { $_.name -NotMatch 'tests.ps1' -and $_.name -NotIn 'build.ps1','psake.ps1' }
+$Modules = Get-ChildItem “$PSScriptRoot/../” -Filter ‘*.psm1’ -Recurse
 $Rules   = Get-ScriptAnalyzerRule
 
 If ($Modules.count -gt 0) {

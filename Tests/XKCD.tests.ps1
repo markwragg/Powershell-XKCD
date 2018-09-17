@@ -1,8 +1,8 @@
 $moduleName = 'XKCD'
-$projectRoot = Resolve-Path "$PSScriptRoot\.."
-$moduleRoot = Split-Path (Resolve-Path "$projectRoot\$moduleName\$moduleName.psm1")
+$projectRoot = Resolve-Path "$PSScriptRoot/.."
+$moduleRoot = Split-Path (Resolve-Path "$projectRoot/$moduleName/$moduleName.psm1")
 
-Import-Module "$(Resolve-Path "$projectRoot\$moduleName\$moduleName.psm1")"
+Import-Module "$(Resolve-Path "$projectRoot/$moduleName/$moduleName.psm1")"
 
 Describe 'Unit Tests' {
 
