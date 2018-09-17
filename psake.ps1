@@ -34,7 +34,7 @@ Task Test -Depends Init  {
     "`n`tSTATUS: Testing with PowerShell $PSVersion"
 
     # Gather test results. Store them in a variable and file
-    $CodeFiles = (Get-ChildItem $ENV:BHModulePath -Recurse -Include "*.psm1","*.ps1").FullName
+    $CodeFiles = (Get-ChildItem $ENV:BHModulePath -Recurse -Include '*.psm1','*.ps1' -Exclude 'psake.ps1','build.ps1').FullName
     $Script:TestResults = Invoke-Pester -Path $ProjectRoot\Tests -CodeCoverage $CodeFiles -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile" -ExcludeTag Integration
 
     # In Appveyor?  Upload our tests! #Abstract this into a function?
@@ -68,21 +68,21 @@ Task Build -Depends Test {
             [string]
             $TextFilePath = "$Env:BHProjectPath\Readme.md"
         )
-    
+
         $BadgeColor = switch ($CodeCoverage) {
             {$_ -in 90..100} { 'brightgreen' }
             {$_ -in 75..89}  { 'yellow' }
             {$_ -in 60..74}  { 'orange' }
             default          { 'red' }
         }
-    
+
         if ($PSCmdlet.ShouldProcess($TextFilePath)) {
             $ReadmeContent = (Get-Content $TextFilePath)
             $ReadmeContent = $ReadmeContent -replace "!\[Test Coverage\].+\)", "![Test Coverage](https://img.shields.io/badge/coverage-$CodeCoverage%25-$BadgeColor.svg?maxAge=60)" 
             $ReadmeContent | Set-Content -Path $TextFilePath
         }
     }
-    
+
     $CoveragePercent = [math]::floor(100 - (($Script:TestResults.CodeCoverage.NumberOfCommandsMissed / $Script:TestResults.CodeCoverage.NumberOfCommandsAnalyzed) * 100))
 
     "`n`tSTATUS: Running Update-CodeCoveragePercent to update Readme.md with $CoveragePercent% code coverage badge"
@@ -108,7 +108,7 @@ Task Deploy -Depends Build {
     $FunctionList = @((Get-ChildItem -File -Recurse -Path .\$Env:BHProjectName\Public).BaseName)
 
     Update-ModuleManifest -Path $ManifestPath -ModuleVersion $NewVersion -FunctionsToExport $functionList
-    
+
     $Params = @{
         Path = $ProjectRoot
         Force = $true

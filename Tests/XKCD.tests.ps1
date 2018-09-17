@@ -72,7 +72,7 @@ Describe 'Integration Tests' -tag 'Integration' {
         }
 
         It 'Get-XKCD returns an integer for num' {
-            $Default.num | Should BeOfType [int]
+            $Default.num | Should BeOfType [long]
         }
 
         It "Get-XKCD returns a string for img" {
@@ -89,7 +89,7 @@ Describe 'Integration Tests' -tag 'Integration' {
         }
 
         It 'Get-XKCD -Random returns an integer for num' {
-            $Random.num | Should BeOfType [int]
+            $Random.num | Should BeOfType [long]
         }
 
         It "Get-XKCD -Random returns a string for img" {
@@ -106,7 +106,7 @@ Describe 'Integration Tests' -tag 'Integration' {
         }
 
         It 'Get-XKCD -Newest 5 returns an integer for num' {
-            $Newest.num | Should BeOfType [int]
+            $Newest.num | Should BeOfType [long]
         }
 
         It "Get-XKCD -Newest 5 returns a string for img" {
