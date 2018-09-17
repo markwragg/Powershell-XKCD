@@ -2,7 +2,7 @@ if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Pat
 
 $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../"
-$Module = 'XKCD'
+$Module = 'xkcd'
 
 If (-not (Get-Module $Module)) { Import-Module "$Root/$Module" -Force }
 
@@ -60,7 +60,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
     Context 'Module Tests' {
         
         It "Module '$Module' imports cleanly" {
-            {Import-Module (Join-Path $Root "$Module.psm1") -force } | Should Not Throw
+            { Import-Module "$Root/$Module" -force } | Should Not Throw
         }
 
     }
