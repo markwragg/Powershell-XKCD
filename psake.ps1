@@ -35,17 +35,17 @@ Task Test -Depends Init  {
 
     # Gather test results. Store them in a variable and file
     $CodeFiles = (Get-ChildItem $ENV:BHModulePath -Recurse -Include '*.psm1','*.ps1' -Exclude 'psake.ps1','build.ps1').FullName
-    $Script:TestResults = Invoke-Pester -Path $ProjectRoot\Tests -CodeCoverage $CodeFiles -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot\$TestFile" -ExcludeTag Integration
+    $Script:TestResults = Invoke-Pester -Path $ProjectRoot/Tests -CodeCoverage $CodeFiles -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot/$TestFile" -ExcludeTag Integration
 
     # In Appveyor?  Upload our tests! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')
     {
         (New-Object 'System.Net.WebClient').UploadFile(
             "https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)",
-            "$ProjectRoot\$TestFile" )
+            "$ProjectRoot/$TestFile" )
     }
 
-    Remove-Item "$ProjectRoot\$TestFile" -Force -ErrorAction SilentlyContinue
+    Remove-Item "$ProjectRoot/$TestFile" -Force -ErrorAction SilentlyContinue
 
     # Failed tests?
     # Need to tell psake or it will proceed to the deployment. Danger!
