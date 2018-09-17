@@ -1,10 +1,12 @@
-$moduleName = 'XKCD'
-$projectRoot = Resolve-Path "$PSScriptRoot/.."
-$moduleRoot = Split-Path (Resolve-Path "$projectRoot/$moduleName/$moduleName.psm1")
+if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
-Import-Module "$(Resolve-Path "$projectRoot/$moduleName/$moduleName.psm1")"
+$PSVersion = $PSVersionTable.PSVersion.Major
+$Root = "$PSScriptRoot/../"
+$Module = 'XKCD'
 
-Describe 'Unit Tests' {
+If (-not (Get-Module $Module)) { Import-Module "$Root/$Module" -Force }
+
+Describe "Unit Tests PS$PSVersion" {
 
     Context 'Parameter Input Tests' {
 
@@ -53,12 +55,12 @@ Describe 'Unit Tests' {
 }
 
 
-Describe 'Integration Tests' -tag 'Integration' {
+Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
     Context 'Module Tests' {
         
-        It "Module '$moduleName' imports cleanly" {
-            {Import-Module (Join-Path $moduleRoot "$moduleName.psm1") -force } | Should Not Throw
+        It "Module '$Module' imports cleanly" {
+            {Import-Module (Join-Path $Root "$Module.psm1") -force } | Should Not Throw
         }
 
     }
