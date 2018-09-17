@@ -66,7 +66,7 @@ Task Build -Depends Test {
             $CodeCoverage = 0,
             
             [string]
-            $TextFilePath = "$Env:BHProjectPath\Readme.md"
+            $TextFilePath = "$Env:BHProjectPath/Readme.md"
         )
 
         $BadgeColor = switch ($CodeCoverage) {
@@ -105,7 +105,7 @@ Task Deploy -Depends Build {
     }
     "New Version: $NewVersion"
 
-    $FunctionList = @((Get-ChildItem -File -Recurse -Path .\$Env:BHProjectName\Public).BaseName)
+    $FunctionList = @((Get-ChildItem -File -Recurse -Path ./$Env:BHProjectName/Public).BaseName)
 
     Update-ModuleManifest -Path $ManifestPath -ModuleVersion $NewVersion -FunctionsToExport $functionList
 
