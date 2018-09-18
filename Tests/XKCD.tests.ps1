@@ -67,7 +67,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
     
     Context 'Default Comic Tests' {
     
-        $Default = Get-XKCD
+        $Default = Get-XKCD -Download -Path $TestDrive
 
         It 'Get-XKCD returns a PSCustomObject' {
             $Default | Should BeOfType 'System.Management.Automation.PSCustomObject'

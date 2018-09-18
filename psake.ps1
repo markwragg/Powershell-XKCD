@@ -35,7 +35,7 @@ Task Test -Depends Init  {
 
     # Gather test results. Store them in a variable and file
     $CodeFiles = (Get-ChildItem $ENV:BHModulePath -Recurse -Include '*.psm1','*.ps1' -Exclude 'psake.ps1','build.ps1').FullName
-    $Script:TestResults = Invoke-Pester -Path $ProjectRoot/Tests -CodeCoverage $CodeFiles -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot/$TestFile" -ExcludeTag Integration
+    $Script:TestResults = Invoke-Pester -Path $ProjectRoot/Tests -CodeCoverage $CodeFiles -PassThru -OutputFormat NUnitXml -OutputFile "$ProjectRoot/$TestFile"
 
     # In Appveyor?  Upload our tests! #Abstract this into a function?
     If($ENV:BHBuildSystem -eq 'AppVeyor')

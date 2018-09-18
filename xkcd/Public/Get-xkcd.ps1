@@ -38,30 +38,41 @@
     [cmdletbinding(DefaultParameterSetName = 'Specific', SupportsShouldProcess = $true)]
     Param (
         #Gets a random comic.
-        [Parameter(ParameterSetName = 'Random')][switch]$Random,
+        [Parameter(ParameterSetName = 'Random')]
+        [switch]
+        $Random,
 
         #Use with -Random to define a lower bound range within which to return a comic.
-        [Parameter(ParameterSetName = 'Random')][int]$Min = 1,
+        [Parameter(ParameterSetName = 'Random')]
+        [int]
+        $Min = 1,
 
         #Use with -Random to define an upper bound range within which to return a comic. -Max is the latest comic number by default.
-        [Parameter(ParameterSetName = 'Random')][int]$Max = (Invoke-RestMethod "http://xkcd.com/info.0.json").num,
+        [Parameter(ParameterSetName = 'Random')
+        ][int]
+        $Max,
 
         #Gets the specified number of the most recent comics.
-        [Parameter(ParameterSetName = 'Newest')][int]$Newest,
+        [Parameter(ParameterSetName = 'Newest')]
+        [int]
+        $Newest,
 
         #Downloads the images of all returned comics to the local computer.
-        [switch]$Download,
+        [switch]
+        $Download,
 
         #Use with -Download to specify a local directory to download to. By default this is the current working directory.
-        [ValidateScript( {Test-Path $_ -PathType 'Container'})]
-        [string]$Path = $PWD,
+        [string]
+        $Path = $PWD,
 
         #Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline = $True, Position = 0)][int[]]$Num = $Max
     )
     Begin {
-        If ($Random) { $Num = Get-Random -min $Min -max $Max }
-        If ($Newest) { $Num = (($Max - $Newest) + 1)..$Max }
+        If (-not $Max) { $Max = (Invoke-RestMethod "http://xkcd.com/info.0.json").num }
+        If ($Random)   { $Num = Get-Random -min $Min -max $Max }
+        If ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
+        If (-not $Num) { $Num = $Max }
     }
     Process {
         $Num | ForEach-Object {
