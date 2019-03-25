@@ -10,8 +10,16 @@ Function Find-XKCD {
         performed against the local cache.
 
     .EXAMPLE
-        PS> Find-XKCD -Query 'Spider'
-        
+        Find-XKCD -Query 'Spider' | Format-Table
+
+        Returns any comics with the word 'Spider' in the title as a table.
+    
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' | Get-XKCD -Open
+
+        Returns any comics with the word 'Spider' in the title and then pipes the result to Get-XKCD which opens
+        them in the default browser.
+
     .LINK
         https://xkcd.com/json.html
     #>

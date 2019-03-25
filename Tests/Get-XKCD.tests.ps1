@@ -74,7 +74,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
 
         It 'Get-XKCD returns an integer for num' {
-            $Default.num | Should BeOfType [long]
+            $Default.num | Should BeOfType [int]
         }
 
         It "Get-XKCD returns a string for img" {
@@ -91,7 +91,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
 
         It 'Get-XKCD -Random returns an integer for num' {
-            $Random.num | Should BeOfType [long]
+            $Random.num | Should BeOfType [int]
         }
 
         It "Get-XKCD -Random returns a string for img" {
@@ -108,7 +108,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
 
         It 'Get-XKCD -Newest 5 returns an integer for num' {
-            $Newest.num | Should BeOfType [long]
+            $Newest.num | Should BeOfType [int]
         }
 
         It "Get-XKCD -Newest 5 returns a string for img" {

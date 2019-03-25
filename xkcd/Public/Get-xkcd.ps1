@@ -61,12 +61,18 @@
         [switch]
         $Download,
 
+        #Opens the comic/s in your default web browser
+        [switch]
+        $Open,
+
         #Use with -Download to specify a local directory to download to. By default this is the current working directory.
         [string]
         $Path = $PWD,
 
         #Gets the specified comics. Accepts array input.
-        [Parameter(ParameterSetName = 'Specific', ValueFromPipeline = $True, Position = 0)][int[]]$Num = $Max
+        [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [int[]]
+        $Num = $Max
     )
     Begin {
         If (-not $Max) { $Max = (Invoke-RestMethod "http://xkcd.com/info.0.json").num }
@@ -77,7 +83,12 @@
     Process {
         $Num | ForEach-Object {
             $Comic = Invoke-RestMethod "http://xkcd.com/$_/info.0.json"
-            If ($Download -and $PSCmdlet.ShouldProcess($Comic.img, "Save as $_.jpg")) { Invoke-WebRequest $Comic.img -OutFile $(Join-Path $Path "$_.jpg") }
+            If ($Download -and $PSCmdlet.ShouldProcess($Comic.img, "Save as $_.jpg")) { 
+                Invoke-WebRequest $Comic.img -OutFile $(Join-Path $Path "$_.jpg") 
+            }
+            if ($Open) {
+                Start-Process "http://xkcd.com/$_"
+            }
 
             Return $Comic
         }
