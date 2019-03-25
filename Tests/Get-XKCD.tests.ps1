@@ -73,10 +73,6 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Default | Should BeOfType 'System.Management.Automation.PSCustomObject'
         }
 
-        It 'Get-XKCD returns an integer for num' {
-            $Default.num | Should BeOfType [int]
-        }
-
         It "Get-XKCD returns a string for img" {
             $Default.img | Should BeOfType [string]
         }
@@ -90,10 +86,6 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Random | Should BeOfType 'System.Management.Automation.PSCustomObject'
         }
 
-        It 'Get-XKCD -Random returns an integer for num' {
-            $Random.num | Should BeOfType [int]
-        }
-
         It "Get-XKCD -Random returns a string for img" {
             $Random.img | Should BeOfType [string]
         }
@@ -105,10 +97,6 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         It 'Get-XKCD -Newest 5 returns a PSCustomObject' {
             $Newest | Should BeOfType 'System.Management.Automation.PSCustomObject'
-        }
-
-        It 'Get-XKCD -Newest 5 returns an integer for num' {
-            $Newest.num | Should BeOfType [int]
         }
 
         It "Get-XKCD -Newest 5 returns a string for img" {
