@@ -72,7 +72,10 @@
         #Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
         [int[]]
-        $Num = $Max
+        $Num = $Max,
+
+        [switch]
+        $Force
     )
     Begin {
         If (-not $Max) { $Max = (Invoke-RestMethod "http://xkcd.com/info.0.json").num }
@@ -87,9 +90,13 @@
                 Invoke-WebRequest $Comic.img -OutFile $(Join-Path $Path "$_.jpg") 
             }
             if ($Open) {
-                Start-Process "http://xkcd.com/$_"
+                if ($Num.count -ge 10 -and -not $Force) {
+                    if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
+                }
+                if ($confirmation -eq 'y' -or $Num.count -lt 10 -or $Force) {
+                    Start-Process "http://xkcd.com/$_"
+                }
             }
-
             Return $Comic
         }
     }
