@@ -13,7 +13,7 @@ Function Update-XKCDCache {
     .LINK
         https://xkcd.com/json.html
     #>
-    [cmdletbinding()]
+    [cmdletbinding(SupportsShouldProcess)]
     Param(
         [string]
         $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
