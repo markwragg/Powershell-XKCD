@@ -88,6 +88,9 @@ Task Build -Depends Test {
     "`n`tSTATUS: Running Update-CodeCoveragePercent to update Readme.md with $CoveragePercent% code coverage badge"
     Update-CodeCoveragePercent -CodeCoverage $CoveragePercent
     "`n"
+    "`n`tSTATUS: Running Update-XKCDCache to refresh cache file with latest comics"
+    Update-XKCDCache -Verbose
+    
 }
 
 Task Deploy -Depends Build {

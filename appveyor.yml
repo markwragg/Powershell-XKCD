@@ -31,5 +31,6 @@ on_success:
   - git pull
   - git add *.psd1
   - git add *.md
+  - git add *.json
   - git commit -m "[skip ci] AppVeyor Build %APPVEYOR_BUILD_VERSION%"
   - git push
