@@ -7,8 +7,13 @@ Function Update-XKCDCache {
         The Update-XKCDCache cmdlet updates the local cahce of the XKCD comic API with any new data from the server.
         The cahce is stored within the module script directory as XKCD.json.
 
+    .PARAMETER CachePath
+        Optional: Specify a path for where to create/update the XKCD cache. By default this is within the module path.
+
     .EXAMPLE
         Update-XKCDCache
+
+        Updates the local XKCD.json file with full data from the XKCD API.
 
     .LINK
         https://xkcd.com/json.html
