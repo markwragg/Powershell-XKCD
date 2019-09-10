@@ -25,10 +25,12 @@ Function Find-XKCD {
     #>
     [cmdletbinding()]
     Param(
+        # The search string to find
         [Parameter(Mandatory)]
         [string]
         $Query,
 
+        # Path to where comic data is cached
         [string]
         $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
     )
