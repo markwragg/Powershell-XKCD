@@ -8,19 +8,19 @@ Optionally can download the comic images.
 
 ### Specific (Default)
 ```
-Get-XKCD [-Download] [-Open] [-Path <String>] [[-Num] <Int32[]>] [-Force] [-WhatIf] [-Confirm]
+Get-XKCD [-Download] [-Open] [-Path <String>] [-HighQuality] [[-Num] <Int32[]>] [-Force] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
 ### Random
 ```
-Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Path <String>] [-Force] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Path <String>] [-HighQuality] [-Force]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
 ```
-Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Path <String>] [-Force] [-WhatIf] [-Confirm]
+Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Path <String>] [-HighQuality] [-Force] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
@@ -84,6 +84,16 @@ Get-XKCD (1..10) -Download -Path C:\Comics
 This command returns the details of comic numbers 1 to 10 and downloads each comics image to C:\Comics.
 
 ### EXAMPLE 8
+```
+Get-XKCD -Download -HighQuality
+```
+
+This command returns the details of the latest comic and downloads the higher resolution (_2x) version of the
+image, if one is available.
+Older comics that do not have a higher resolution version are downloaded at the
+standard quality instead.
+
+### EXAMPLE 9
 ```
 1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 ```
@@ -195,6 +205,23 @@ Aliases:
 Required: False
 Position: Named
 Default value: $PWD
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HighQuality
+Use with -Download to download the higher resolution (_2x) version of the image, where available.
+Comics
+that do not have a higher resolution version are downloaded at the standard quality instead.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
