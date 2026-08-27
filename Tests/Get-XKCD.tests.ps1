@@ -153,4 +153,51 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             Get-XKCD -Num 1 -Show | Should BeNullOrEmpty
         }
     }
+
+    Context 'Random Range Tests' {
+
+        It 'Get-XKCD -Random -Min -Max returns a comic within the specified range' {
+            $RandomInRange = Get-XKCD -Random -Min 100 -Max 150
+            $RandomInRange.num | Should BeGreaterThan 99
+            $RandomInRange.num | Should BeLessThan 151
+        }
+    }
+
+    Context 'Open Tests' {
+
+        # -Scope It keeps each assertion's call count limited to its own test, since mock call
+        # history otherwise accumulates for the duration of the Context.
+
+        It 'Get-XKCD -Open -Force opens the comic without prompting for confirmation' {
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCD -Num 1 -Open -Force } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 1 -Exactly -Scope It -ParameterFilter { $FilePath -eq 'https://xkcd.com/1' }
+        }
+
+        It 'Get-XKCD -Open opens fewer than 10 comics without prompting for confirmation' {
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCD -Num 2 -Open } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 1 -Exactly -Scope It -ParameterFilter { $FilePath -eq 'https://xkcd.com/2' }
+        }
+
+        It 'Get-XKCD -Open prompts for confirmation and opens comics when 10 or more are requested and confirmed' {
+            Mock -ModuleName $Module Read-Host { 'y' }
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCD -Num (11..20) -Open } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Read-Host -Times 1 -Exactly -Scope It
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 10 -Exactly -Scope It -ParameterFilter { $FilePath -match '^https://xkcd\.com/1[1-9]$|^https://xkcd\.com/20$' }
+        }
+
+        It 'Get-XKCD -Open prompts for confirmation and does not open comics when declined' {
+            Mock -ModuleName $Module Read-Host { 'n' }
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCD -Num (21..30) -Open } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Read-Host -Times 1 -Exactly -Scope It
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 0 -Exactly -Scope It -ParameterFilter { $FilePath -match '^https://xkcd\.com/2[1-9]$|^https://xkcd\.com/30$' }
+        }
+    }
 }

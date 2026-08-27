@@ -44,6 +44,7 @@ Function Find-XKCD {
         [string]
         $Query,
 
+        # Search the full text of the comic data, not just the title
         [switch]
         $FullSearch,
 
