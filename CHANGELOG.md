@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.5.0] - 2026-08-27
 
 * Adds a new `Show-XKCD` cmdlet which displays a comic's title, image, and alt text directly in the console. The image is rendered inline if your terminal supports the Sixel, Kitty, or iTerm2 graphics protocol.
 * Adds a `-Show` switch to `Get-XKCD` as a shorthand for `Get-XKCD | Show-XKCD`. Note that when `-Show` is used the comic object is not returned.
