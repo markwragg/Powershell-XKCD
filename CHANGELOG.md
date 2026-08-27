@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.5.3] - 2026-08-27
 
 * Fixes VS Code image detection: `WT_SESSION` (set by Windows Terminal) is now checked after `TERM_PROGRAM -eq 'vscode'` rather than before, since `WT_SESSION` can be inherited into VS Code's integrated terminal (e.g. when VS Code itself is launched from within a Windows Terminal session) and was previously suppressing the one-time "enable terminal.integrated.enableImages" warning.
 
