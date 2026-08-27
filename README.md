@@ -70,6 +70,8 @@ This calls Get-XKCD 10 times in a foreach loop, returning the number and image U
 
 Displays the comic's title, image, and alt text directly in the console instead of returning the comic object. The image is only rendered if your terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol; otherwise you'll still see the title and alt text.
 
+![alt text](Media/show-xkcd-example.png)
+
 9) `Show-XKCD 2000` or `Get-XKCD -Random | Show-XKCD`
 
 Show-XKCD accepts the same -Num parameter as Get-XKCD (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
