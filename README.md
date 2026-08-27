@@ -30,12 +30,12 @@ By default (and with no specified parameters) the function will return a PowerSh
 ```
 month      : 1
 num        : 1786
-link       : 
+link       :
 year       : 2017
-news       : 
+news       :
 safe_title : Trash
-transcript : 
-alt        : Plus, time's all weird in there, so most of it probably broke down and decomposed hundreds of years ago. Which reminds me, I've been meaning to get in touch 
+transcript :
+alt        : Plus, time's all weird in there, so most of it probably broke down and decomposed hundreds of years ago. Which reminds me, I've been meaning to get in touch
              with Yucca Mountain to see if they're interested in a partnership.
 img        : http://imgs.xkcd.com/comics/trash.png
 title      : Trash
@@ -66,6 +66,14 @@ Use the -Download switch to download the image/s of the returned comics. Optiona
 
 This calls Get-XKCD 10 times in a foreach loop, returning the number and image URL of 10 random comics from the first 100 comics and presenting them as an autosized table.
 
+8) `Get-XKCD -Show` or `Show-XKCD`
+
+Displays the comic's title, image, and alt text directly in the console instead of returning the comic object. The image is only rendered if your terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol; otherwise you'll still see the title and alt text.
+
+9) `Show-XKCD 2000` or `Get-XKCD -Random | Show-XKCD`
+
+Show-XKCD accepts the same -Num parameter as Get-XKCD (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
+
 ## Contributions
 
-Code contrbutions and pull requests are welcomed. Please note this function is also intended to represent a (hopefully) best practice example of a cmdlet which respects the pipeline and an example of how to utilise Parameter Sets to provide a dynamic set of functionality.
+Code contrbutions via issues and/or pull requests are welcomed, see [CONTRIBUTING.md](CONTRIBUTING.md) for further guidance.

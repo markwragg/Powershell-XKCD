@@ -142,4 +142,15 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Newest.Count | Should Be 5
         }
     }
+
+    Context 'Show Tests' {
+
+        It 'Get-XKCD -Show does not throw' {
+            { Get-XKCD -Num 1 -Show } | Should Not Throw
+        }
+
+        It 'Get-XKCD -Show does not return the comic object' {
+            Get-XKCD -Num 1 -Show | Should BeNullOrEmpty
+        }
+    }
 }

@@ -53,6 +53,13 @@
         standard quality instead.
 
     .EXAMPLE
+        Get-XKCD -Show
+
+        This command displays the title, image, and alt text of the latest comic directly in the console (image
+        display requires your terminal to support the Sixel, Kitty, or iTerm2 inline image protocol). Unlike other
+        parameter combinations, -Show does not return the comic object.
+
+    .EXAMPLE
         1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 
         This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
@@ -89,6 +96,11 @@
         # Opens the comic/s in your default web browser
         [switch]
         $Open,
+
+        # Displays the comic's title, image, and alt text in the console instead of returning the comic object. Image
+        # display requires your terminal to support the Sixel, Kitty, or iTerm2 inline image graphics protocol.
+        [switch]
+        $Show,
 
         # Use with -Download to specify a local directory to download to. By default this is the current working directory.
         [string]
@@ -141,6 +153,10 @@
                 }
             }
 
+            if ($Show) {
+                Show-XKCD -Num $ID -HighQuality:$HighQuality
+            }
+
             if ($Open) {
                 if ($Num.count -ge 10 -and -not $Force) {
                     if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
@@ -150,7 +166,9 @@
                 }
             }
 
-            return $Comic
+            if (-not $Show) {
+                return $Comic
+            }
         }
     }
 }
