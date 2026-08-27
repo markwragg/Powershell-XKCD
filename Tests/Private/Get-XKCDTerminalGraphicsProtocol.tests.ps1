@@ -123,6 +123,14 @@ Describe "Unit Tests PS$PSVersion" {
             }
         }
 
+        It "Still warns when WT_SESSION is also set (e.g. inherited from launching VS Code inside Windows Terminal)" {
+            $env:WT_SESSION = [guid]::NewGuid().ToString()
+            InModuleScope $Module {
+                Get-XKCDTerminalGraphicsProtocol -WarningVariable 'script:CapturedWarning' -WarningAction SilentlyContinue | Should Be 'Sixel'
+                $script:CapturedWarning | Should Match 'terminal.integrated.enableImages'
+            }
+        }
+
         It 'Warns on the first call that VS Code images must be explicitly enabled' {
             InModuleScope $Module {
                 Get-XKCDTerminalGraphicsProtocol -WarningVariable 'script:CapturedWarning' -WarningAction SilentlyContinue | Out-Null
