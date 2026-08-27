@@ -44,7 +44,7 @@ day        : 16
 
 2) `Get-XKCD 1` or `Get-XKCD -num 1`
 
-Specify the number of specifc comic/s you want to access via the -num parameter (this is a positional parameter so it doesn't need to be explicitly used).
+Specify the number of specific comic/s you want to access via the -num parameter (this is a positional parameter so it doesn't need to be explicitly used).
 
 3) `Get-XKCD -Random` or `Get-XKCD -Random -Min 1 -Max 10`
 
@@ -56,7 +56,7 @@ Use the -Newest switch to get a specified number of the newest comics. Note this
 
 5) `Get-XKCD 1,5,10` or `10..20 | Get-XKCD`
 
-The number paramater accepts array input and pipeline input, so you can use either to return a specific selection in one hit.
+The number parameter accepts array input and pipeline input, so you can use either to return a specific selection in one hit.
 
 6) `Get-XKCD -Download` or `Get-XKCD 1337 -Download -Path C:\XKCD`
 
@@ -76,6 +76,30 @@ Displays the comic's title, image, and alt text directly in the console instead 
 
 Show-XKCD accepts the same -Num parameter as Get-XKCD (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
 
+10) `Find-XKCD -Query 'Spider'`
+
+Searches comic titles for the specified text and returns any matches. This builds a local cache of the comic data on first use (and refreshes it automatically if it's out of date), so subsequent searches are fast. Add -FullSearch to match against the whole comic object (e.g. the alt text and transcript) instead of just the title.
+
+11) `'romance','math' | Find-XKCD | Group-Object query`
+
+Find-XKCD accepts multiple queries via the pipeline, and tags each result with a `query` NoteProperty so you can group or filter the combined results by search term.
+
+12) `Find-XKCD -Query 'Spider' | Get-XKCD -Open` or `Find-XKCD -Query 'Spider' | Get-XKCD -Show`
+
+Find-XKCD's results can be piped straight into Get-XKCD, e.g. to open matching comics in your browser or display them in the console.
+
+13) `Update-XKCDCache`
+
+Creates the local comic cache used by Find-XKCD and Get-XKCDCache if it doesn't already exist, or refreshes it with any comics published since it was last updated. Find-XKCD refreshes this cache automatically, so you don't usually need to run this yourself -- unless you're using Get-XKCDCache, which only warns if the cache is out of date rather than refreshing it for you.
+
+14) `Get-XKCDCache` or `Get-XKCDCache -Num 4,5,6`
+
+Returns comics straight from the local cache instead of querying the API for each one, so it's a much faster way to work with comics you've already cached. With no parameters it returns every cached comic; use -Num (or pipe comic numbers in) to return specific ones.
+
+15) `Get-XKCDCache | Where-Object year -eq 2010`
+
+Because Get-XKCDCache returns the whole local cache as objects, you can use Where-Object, Sort-Object, Group-Object etc. to query across every comic at once, e.g. to find every comic published in a given year.
+
 ## Contributions
 
-Code contrbutions via issues and/or pull requests are welcomed, see [CONTRIBUTING.md](CONTRIBUTING.md) for further guidance.
+Code contributions via issues and/or pull requests are welcomed, see [CONTRIBUTING.md](CONTRIBUTING.md) for further guidance.
