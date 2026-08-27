@@ -90,4 +90,52 @@ Describe "Unit Tests PS$PSVersion" {
             }
         }
     }
+
+    Context 'VS Code Detection Tests' {
+
+        # Preserve the real environment so detection of the terminal running these tests doesn't leak in/out
+        $OriginalTerm = $env:TERM
+        $OriginalKittyWindowId = $env:KITTY_WINDOW_ID
+        $OriginalTermProgram = $env:TERM_PROGRAM
+        $OriginalWtSession = $env:WT_SESSION
+
+        BeforeEach {
+            $env:TERM = $null
+            $env:KITTY_WINDOW_ID = $null
+            $env:TERM_PROGRAM = 'vscode'
+            $env:WT_SESSION = $null
+
+            # The "warn once" flag is module-scoped so it survives across calls within a session; reset it
+            # before each test here so each test can rely on knowing whether it's the "first" call or not.
+            InModuleScope $Module { $script:XKCDVSCodeImagesWarned = $null }
+        }
+
+        AfterEach {
+            $env:TERM = $OriginalTerm
+            $env:KITTY_WINDOW_ID = $OriginalKittyWindowId
+            $env:TERM_PROGRAM = $OriginalTermProgram
+            $env:WT_SESSION = $OriginalWtSession
+        }
+
+        It "Returns 'Sixel' when TERM_PROGRAM is 'vscode'" {
+            InModuleScope $Module {
+                Get-XKCDTerminalGraphicsProtocol -WarningAction SilentlyContinue | Should Be 'Sixel'
+            }
+        }
+
+        It 'Warns on the first call that VS Code images must be explicitly enabled' {
+            InModuleScope $Module {
+                Get-XKCDTerminalGraphicsProtocol -WarningVariable 'script:CapturedWarning' -WarningAction SilentlyContinue | Out-Null
+                $script:CapturedWarning | Should Match 'terminal.integrated.enableImages'
+            }
+        }
+
+        It 'Does not warn again on a subsequent call within the same session' {
+            InModuleScope $Module {
+                Get-XKCDTerminalGraphicsProtocol -WarningAction SilentlyContinue | Out-Null
+                Get-XKCDTerminalGraphicsProtocol -WarningVariable 'script:CapturedWarning' -WarningAction SilentlyContinue | Out-Null
+                $script:CapturedWarning | Should BeNullOrEmpty
+            }
+        }
+    }
 }
