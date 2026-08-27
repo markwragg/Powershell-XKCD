@@ -2,11 +2,11 @@
 
 [![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.Powershell-XKCD?branchName=master)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=9&branchName=master) ![Test Coverage](https://img.shields.io/badge/coverage-60%25-orange.svg?maxAge=60)
 
-A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ http://xkcd.com.
+A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ https://xkcd.com.
 
 ## XKCD
 
-XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: http://xkcd.com/license.html.
+XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: https://xkcd.com/license.html.
 
 ## Requirements
 
@@ -37,7 +37,7 @@ safe_title : Trash
 transcript :
 alt        : Plus, time's all weird in there, so most of it probably broke down and decomposed hundreds of years ago. Which reminds me, I've been meaning to get in touch
              with Yucca Mountain to see if they're interested in a partnership.
-img        : http://imgs.xkcd.com/comics/trash.png
+img        : https://imgs.xkcd.com/comics/trash.png
 title      : Trash
 day        : 16
 ```
