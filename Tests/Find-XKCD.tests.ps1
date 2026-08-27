@@ -55,8 +55,8 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         $Multiple = 'Spiders', 'Robots' | Find-XKCD
 
         It 'Find-XKCD accepts multiple queries via the pipeline' {
-            ($Multiple | Where-Object query -eq 'Spiders').Count | Should Be 4
-            ($Multiple | Where-Object query -eq 'Robots').Count | Should Be 1
+            @($Multiple | Where-Object query -eq 'Spiders').Count | Should Be 4
+            @($Multiple | Where-Object query -eq 'Robots').Count | Should Be 1
         }
     }
 
@@ -66,11 +66,11 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         $FullSearch = Find-XKCD -Query 'guitar' -FullSearch
 
         It 'Find-XKCD without -FullSearch only matches against the title' {
-            $TitleOnly.Count | Should Be 1
+            @($TitleOnly).Count | Should Be 1
         }
 
         It 'Find-XKCD -FullSearch matches against the whole comic object, not just the title' {
-            $FullSearch.Count | Should Be 10
+            @($FullSearch).Count | Should Be 10
         }
 
         It "Find-XKCD -FullSearch still tags each result with a 'query' NoteProperty" {

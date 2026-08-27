@@ -52,4 +52,17 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             { Get-XKCD -Num 5 | Show-XKCD } | Should Not Throw
         }
     }
+
+    Context 'High Quality Tests' {
+
+        # Comic 3290 is known to have a higher resolution (_2x) version available
+        It 'Show-XKCD -HighQuality displays the larger _2x image when available' {
+            { Show-XKCD -Num 3290 -HighQuality } | Should Not Throw
+        }
+
+        # Comic 1 does not have a higher resolution version available, so should fall back to standard quality
+        It 'Show-XKCD -HighQuality falls back to standard quality when no _2x image is available' {
+            { Show-XKCD -Num 1 -HighQuality -WarningAction SilentlyContinue } | Should Not Throw
+        }
+    }
 }

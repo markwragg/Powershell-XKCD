@@ -33,6 +33,13 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
+    Context 'Default CachePath Tests' {
+
+        It 'Uses the module-relative cache path when -CachePath is not specified' {
+            { Update-XKCDCache } | Should Not Throw
+        }
+    }
+
     Context 'Cache Already Up To Date Tests' {
 
         Mock -ModuleName $Module Invoke-RestMethod {
