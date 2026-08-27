@@ -1,7 +1,7 @@
 # Find-XKCD
 
 ## SYNOPSIS
-Retrieves the details of comics @ http://xkcd.com/ based on whether a specified search string appears
+Retrieves the details of comics @ https://xkcd.com/ based on whether a specified search string appears
 in the title text.
 
 ## SYNTAX

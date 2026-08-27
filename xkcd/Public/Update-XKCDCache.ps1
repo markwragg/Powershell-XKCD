@@ -24,16 +24,16 @@ Function Update-XKCDCache {
         $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
     )
 
-    $Max = (Invoke-RestMethod http://xkcd.com/info.0.json).num
+    $Max = (Invoke-RestMethod https://xkcd.com/info.0.json).num
 
     if (-not (Test-Path $CachePath)) {
         Write-Warning 'Local cache file not found. Recreating a local cache of the comic data. This might take a few minutes..'
 
         $AllComics = ForEach ($Comic in 1..$Max) {
             Write-Progress -Activity "Creating cache" -Status "Reading comic #$Comic" -PercentComplete (($Comic / $Max) * 100)
-            Invoke-RestMethod "http://xkcd.com/$Comic/info.0.json"
+            Invoke-RestMethod "https://xkcd.com/$Comic/info.0.json"
         }
-    
+
         $AllComics | ConvertTo-Json | Out-File $CachePath
     }
     Else {
@@ -47,7 +47,7 @@ Function Update-XKCDCache {
 
         ForEach ($Comic in $LastComic..$Max) {
             Write-Progress -Activity "Refreshing cache" -Status "Reading comic #$Comic" -PercentComplete (($Comic / $Max) * 100)
-            $AllComics += (Invoke-RestMethod "http://xkcd.com/$Comic/info.0.json")
+            $AllComics += (Invoke-RestMethod "https://xkcd.com/$Comic/info.0.json")
         }
 
         $AllComics | ConvertTo-Json | Out-File $CachePath -Force

@@ -1,7 +1,7 @@
 ﻿Function Get-XKCD {
     <#
     .SYNOPSIS
-        Gets the details of the comics @ http://xkcd.com/. Optionally can download the comic images.
+        Gets the details of the comics @ https://xkcd.com/. Optionally can download the comic images.
 
     .DESCRIPTION
         The Get-XKCD cmdlet gets the details of one or more comics from the XKCD API: https://xkcd.com/json.html.
@@ -121,7 +121,7 @@
         $Force
     )
     Begin {
-        If (-not $Max) { $Max = (Invoke-RestMethod "http://xkcd.com/info.0.json").num }
+        If (-not $Max) { $Max = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
         If ($Random)   { $Num = Get-Random -min $Min -max $Max }
         If ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
         If (-not $Num) { $Num = $Max }
@@ -129,7 +129,7 @@
     Process {
         $Num | ForEach-Object {
             $ID = $_
-            $Comic = Invoke-RestMethod "http://xkcd.com/$ID/info.0.json"
+            $Comic = Invoke-RestMethod "https://xkcd.com/$ID/info.0.json"
             $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)
             $ImageUrl = $Comic.img
 
@@ -162,7 +162,7 @@
                     if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
                 }
                 if ($confirmation -eq 'y' -or $Num.count -lt 10 -or $Force) {
-                    Start-Process "http://xkcd.com/$ID"
+                    Start-Process "https://xkcd.com/$ID"
                 }
             }
 

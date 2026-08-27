@@ -52,7 +52,7 @@ Function Show-XKCD {
     )
 
     Begin {
-        if (-not $Num) { $Num = (Invoke-RestMethod 'http://xkcd.com/info.0.json').num }
+        if (-not $Num) { $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
     }
 
     Process {

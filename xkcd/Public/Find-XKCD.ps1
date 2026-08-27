@@ -1,7 +1,7 @@
 Function Find-XKCD {
     <#
     .SYNOPSIS
-        Retrieves the details of comics @ http://xkcd.com/ based on whether a specified search string appears
+        Retrieves the details of comics @ https://xkcd.com/ based on whether a specified search string appears
         in the title text.
 
     .DESCRIPTION
@@ -13,7 +13,7 @@ Function Find-XKCD {
         Find-XKCD -Query 'Spider' | Format-Table
 
         Returns any comics with the word 'Spider' in the title as a table.
-    
+
     .EXAMPLE
         Find-XKCD -Query 'Spider' | Get-XKCD -Open
 
@@ -34,7 +34,7 @@ Function Find-XKCD {
         [string]
         $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
     )
-    
+
     Update-XKCDCache -CachePath $CachePath
 
     $AllComics = Get-Content $CachePath | ConvertFrom-Json
