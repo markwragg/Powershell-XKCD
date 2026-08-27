@@ -122,18 +122,23 @@
             $ImageUrl = $Comic.img
 
             if ($Download -and $HighQuality) {
-                $HighQualityUrl = $Comic.img.Insert($Comic.img.LastIndexOf($Extension), '_2x')
-                try {
-                    Invoke-WebRequest $HighQualityUrl -Method Head -ErrorAction Stop | Out-Null
-                    $ImageUrl = $HighQualityUrl
-                }
-                catch {
-                    Write-Warning "High quality image not available for comic $ID, downloading standard quality instead"
-                }
+                $ImageUrl = $Comic.img.Insert($Comic.img.LastIndexOf($Extension), '_2x')
             }
 
             if ($Download -and $PSCmdlet.ShouldProcess($ImageUrl, "Save as ${ID}${Extension}")) {
-                Invoke-WebRequest $ImageUrl -OutFile $(Join-Path $Path "${ID}${Extension}")
+                $OutFile = Join-Path $Path "${ID}${Extension}"
+                try {
+                    Invoke-WebRequest $ImageUrl -OutFile $OutFile -ErrorAction Stop
+                }
+                catch {
+                    if ($HighQuality) {
+                        Write-Warning "High quality image not available for comic $ID, downloading standard quality instead"
+                        Invoke-WebRequest $Comic.img -OutFile $OutFile
+                    }
+                    else {
+                        throw
+                    }
+                }
             }
 
             if ($Open) {
