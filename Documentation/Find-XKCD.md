@@ -7,7 +7,7 @@ in the title text.
 ## SYNTAX
 
 ```
-Find-XKCD [-Query] <String> [[-CachePath] <String>] [<CommonParameters>]
+Find-XKCD [-Query] <String> [-FullSearch] [-CachePath <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -16,6 +16,9 @@ exist.
 It also refreshes the local cache if it's found to be out of date.
 Comic searches are then
 performed against the local cache.
+
+The query used is appended to the resulting comic objects as a NoteProperty called 'query'.
+This allows you to group or filter the results by the search term.
 
 ## EXAMPLES
 
@@ -34,6 +37,21 @@ Find-XKCD -Query 'Spider' | Get-XKCD -Open
 Returns any comics with the word 'Spider' in the title and then pipes the result to Get-XKCD which opens
 them in the default browser.
 
+### EXAMPLE 3
+```
+Find-XKCD -Query 'Spider' | Get-XKCD -Show
+```
+
+Returns any comics with the word 'Spider' in the title and then pipes the result to Get-XKCD which shows
+them in the terminal, if supported.
+
+### EXAMPLE 4
+```
+'romance','math' | Find-XKCD | Group query
+```
+
+Returns any comics with the word 'romance' or 'math' in the title and then groups the results by the search term.
+
 ## PARAMETERS
 
 ### -Query
@@ -47,6 +65,21 @@ Aliases:
 Required: True
 Position: 1
 Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -FullSearch
+Search the full text of the comic data, not just the title
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -60,7 +93,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: 2
+Position: Named
 Default value: (Join-Path $PSScriptRoot 'XKCD.json')
 Accept pipeline input: False
 Accept wildcard characters: False

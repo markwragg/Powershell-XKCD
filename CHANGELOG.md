@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.5.1] - 2026-08-27
 
 * `Find-XKCD` now accepts `-Query` from the pipeline and supports multiple queries in one call.
 * Adds a `-FullSearch` switch to `Find-XKCD` to match against the whole comic object instead of just the title.
