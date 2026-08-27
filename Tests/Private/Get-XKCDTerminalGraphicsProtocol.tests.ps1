@@ -24,7 +24,10 @@ Describe "Unit Tests PS$PSVersion" {
             $env:WT_SESSION = $null
         }
 
-        AfterAll {
+        # Restored after every test (not just once at the end) so that running these tests directly in an
+        # interactive session -- where Invoke-Pester executes in-process against the real environment -- only
+        # ever leaves the real terminal-detection variables cleared for the duration of a single test.
+        AfterEach {
             $env:TERM = $OriginalTerm
             $env:KITTY_WINDOW_ID = $OriginalKittyWindowId
             $env:TERM_PROGRAM = $OriginalTermProgram
