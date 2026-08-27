@@ -77,6 +77,40 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         It "Get-XKCD returns a string for img" {
             $Default.img | Should BeOfType [string]
         }
+
+        It "Get-XKCD -Download saves the file using the extension from img" {
+            $Extension = [System.IO.Path]::GetExtension(([uri]$Default.img).AbsolutePath)
+            Join-Path $TestDrive "$($Default.num)$Extension" | Should Exist
+        }
+    }
+
+    Context 'Download Extension Tests' {
+
+        # Comic 2000 is known to have a .png image, rather than the default .jpg
+        $PngComic = Get-XKCD -Num 2000 -Download -Path $TestDrive
+
+        It "Get-XKCD -Download saves a non-jpg image using its actual extension" {
+            $PngComic.img | Should Match '\.png$'
+            Join-Path $TestDrive "2000.png" | Should Exist
+        }
+    }
+
+    Context 'High Quality Download Tests' {
+
+        # Comic 3290 is known to have a higher resolution (_2x) version available
+        Get-XKCD -Num 3290 -Download -HighQuality -Path $TestDrive
+        $StandardPath = Join-Path $TestDrive 'standard.png'
+        Invoke-WebRequest 'https://imgs.xkcd.com/comics/trade.png' -OutFile $StandardPath
+
+        It "Get-XKCD -HighQuality downloads the larger _2x image when available" {
+            (Get-Item (Join-Path $TestDrive '3290.png')).Length | Should BeGreaterThan (Get-Item $StandardPath).Length
+        }
+
+        # Comic 1 does not have a higher resolution version available, so should fall back to standard quality
+        It "Get-XKCD -HighQuality falls back to standard quality when no _2x image is available" {
+            { Get-XKCD -Num 1 -Download -HighQuality -Path $TestDrive } | Should Not Throw
+            Join-Path $TestDrive '1.jpg' | Should Exist
+        }
     }
 
     Context 'Random Comic Tests' {

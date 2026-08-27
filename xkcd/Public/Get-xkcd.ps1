@@ -46,6 +46,13 @@
         This command returns the details of comic numbers 1 to 10 and downloads each comics image to C:\Comics.
 
     .EXAMPLE
+        Get-XKCD -Download -HighQuality
+
+        This command returns the details of the latest comic and downloads the higher resolution (_2x) version of the
+        image, if one is available. Older comics that do not have a higher resolution version are downloaded at the
+        standard quality instead.
+
+    .EXAMPLE
         1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 
         This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
@@ -87,6 +94,11 @@
         [string]
         $Path = $PWD,
 
+        # Use with -Download to download the higher resolution (_2x) version of the image, where available. Comics
+        # that do not have a higher resolution version are downloaded at the standard quality instead.
+        [switch]
+        $HighQuality,
+
         # Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
         [int[]]
@@ -104,19 +116,36 @@
     }
     Process {
         $Num | ForEach-Object {
-            $Comic = Invoke-RestMethod "http://xkcd.com/$_/info.0.json"
-            If ($Download -and $PSCmdlet.ShouldProcess($Comic.img, "Save as $_.jpg")) { 
-                Invoke-WebRequest $Comic.img -OutFile $(Join-Path $Path "$_.jpg") 
+            $ID = $_
+            $Comic = Invoke-RestMethod "http://xkcd.com/$ID/info.0.json"
+            $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)
+            $ImageUrl = $Comic.img
+
+            if ($Download -and $HighQuality) {
+                $HighQualityUrl = $Comic.img.Insert($Comic.img.LastIndexOf($Extension), '_2x')
+                try {
+                    Invoke-WebRequest $HighQualityUrl -Method Head -ErrorAction Stop | Out-Null
+                    $ImageUrl = $HighQualityUrl
+                }
+                catch {
+                    Write-Warning "High quality image not available for comic $ID, downloading standard quality instead"
+                }
             }
+
+            if ($Download -and $PSCmdlet.ShouldProcess($ImageUrl, "Save as ${ID}${Extension}")) {
+                Invoke-WebRequest $ImageUrl -OutFile $(Join-Path $Path "${ID}${Extension}")
+            }
+
             if ($Open) {
                 if ($Num.count -ge 10 -and -not $Force) {
                     if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
                 }
                 if ($confirmation -eq 'y' -or $Num.count -lt 10 -or $Force) {
-                    Start-Process "http://xkcd.com/$_"
+                    Start-Process "http://xkcd.com/$ID"
                 }
             }
-            Return $Comic
+
+            return $Comic
         }
     }
 }
