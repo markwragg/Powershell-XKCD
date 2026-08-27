@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Fixes VS Code image detection: `WT_SESSION` (set by Windows Terminal) is now checked after `TERM_PROGRAM -eq 'vscode'` rather than before, since `WT_SESSION` can be inherited into VS Code's integrated terminal (e.g. when VS Code itself is launched from within a Windows Terminal session) and was previously suppressing the one-time "enable terminal.integrated.enableImages" warning.
+
 ## [1.5.2] - 2026-08-27
 
 * Adds a new `Get-XKCDCache` cmdlet to query the local comic cache directly (optionally filtered by `-Num`), without hitting the XKCD API for each comic. It warns if the cache is missing or out of date rather than refreshing it automatically -- run `Update-XKCDCache` to do that.
