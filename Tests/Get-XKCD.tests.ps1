@@ -100,7 +100,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         # Comic 3290 is known to have a higher resolution (_2x) version available
         Get-XKCD -Num 3290 -Download -HighQuality -Path $TestDrive
         $StandardPath = Join-Path $TestDrive 'standard.png'
-        Invoke-WebRequest 'https://imgs.xkcd.com/comics/trade.png' -OutFile $StandardPath
+        Invoke-WebRequest 'https://imgs.xkcd.com/comics/trade.png' -OutFile $StandardPath -UseBasicParsing
 
         It "Get-XKCD -HighQuality downloads the larger _2x image when available" {
             (Get-Item (Join-Path $TestDrive '3290.png')).Length | Should BeGreaterThan (Get-Item $StandardPath).Length

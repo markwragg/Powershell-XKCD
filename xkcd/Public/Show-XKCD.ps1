@@ -66,12 +66,12 @@ Function Show-XKCD {
             }
 
             try {
-                $ImageBytes = (Invoke-WebRequest $ImageUrl -ErrorAction Stop).Content
+                $ImageBytes = (Invoke-WebRequest $ImageUrl -UseBasicParsing -ErrorAction Stop).Content
             }
             catch {
                 if ($HighQuality) {
                     Write-Warning "High quality image not available for comic $($Comic.num), showing standard quality instead"
-                    $ImageBytes = (Invoke-WebRequest $Comic.img).Content
+                    $ImageBytes = (Invoke-WebRequest $Comic.img -UseBasicParsing).Content
                 }
                 else {
                     throw

@@ -140,12 +140,12 @@
             if ($Download -and $PSCmdlet.ShouldProcess($ImageUrl, "Save as ${ID}${Extension}")) {
                 $OutFile = Join-Path $Path "${ID}${Extension}"
                 try {
-                    Invoke-WebRequest $ImageUrl -OutFile $OutFile -ErrorAction Stop
+                    Invoke-WebRequest $ImageUrl -OutFile $OutFile -UseBasicParsing -ErrorAction Stop
                 }
                 catch {
                     if ($HighQuality) {
                         Write-Warning "High quality image not available for comic $ID, downloading standard quality instead"
-                        Invoke-WebRequest $Comic.img -OutFile $OutFile
+                        Invoke-WebRequest $Comic.img -OutFile $OutFile -UseBasicParsing
                     }
                     else {
                         throw
