@@ -1,7 +1,7 @@
 # Get-XKCD
 
 ## SYNOPSIS
-Gets the details of the comics @ http://xkcd.com/.
+Gets the details of the comics @ https://xkcd.com/.
 Optionally can download the comic images.
 
 ## SYNTAX
