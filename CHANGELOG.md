@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.5.2] - 2026-08-27
 
 * Adds a new `Get-XKCDCache` cmdlet to query the local comic cache directly (optionally filtered by `-Num`), without hitting the XKCD API for each comic. It warns if the cache is missing or out of date rather than refreshing it automatically -- run `Update-XKCDCache` to do that.
 * `Show-XKCD` and `Get-XKCD -Show` can now render images in VS Code's integrated terminal, which supports the Sixel protocol via its `terminal.integrated.enableImages` setting. A one-time warning is shown if that setting doesn't appear to be enabled.
