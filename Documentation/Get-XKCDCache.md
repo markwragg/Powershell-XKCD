@@ -79,7 +79,9 @@ Accept wildcard characters: False
 ```
 
 ### -CachePath
-Path to where comic data is cached
+Path to where comic data is cached.
+By default this is within the module path, unless a default has
+been saved with Set-XKCDDefault -CachePath.
 
 ```yaml
 Type: String
@@ -88,7 +90,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: (Join-Path $PSScriptRoot 'XKCD.json')
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -6,7 +6,7 @@ Displays a comic's title, image, and alt text in the console.
 ## SYNTAX
 
 ```
-Show-XKCD [[-Num] <Int32[]>] [-HighQuality] [<CommonParameters>]
+Show-XKCD [[-Num] <Int32[]>] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -16,6 +16,9 @@ terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol), a
 By default, Show-XKCD displays the latest available comic.
 When you use the -Num parameter you can
 specify one or more specific comics to display.
+
+Each displayed comic updates a local record of the most recently viewed comic, used by Test-XKCD to
+report how many new comics have been published since you last checked.
 
 ## EXAMPLES
 
@@ -77,6 +80,8 @@ Accept wildcard characters: False
 Displays the higher resolution (_2x) version of the image, where available.
 Comics that do not have a
 higher resolution version are displayed at the standard quality instead.
+Defaults to the value saved
+with Set-XKCDDefault -HighQuality, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -85,7 +90,55 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value: (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StatePath
+Path to the file used to track the number of the most recently viewed comic (used by Test-XKCD).
+By
+default this is within the module path, unless a default has been saved with Set-XKCDDefault -StatePath.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

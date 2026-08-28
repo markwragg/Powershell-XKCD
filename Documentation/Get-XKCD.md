@@ -8,20 +8,20 @@ Optionally can download the comic images.
 
 ### Specific (Default)
 ```
-Get-XKCD [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [[-Num] <Int32[]>] [-Force] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Get-XKCD [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-StatePath <String>] [[-Num] <Int32[]>]
+ [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Random
 ```
 Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality]
- [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-StatePath <String>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
 ```
-Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-Force] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-StatePath <String>]
+ [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,6 +31,9 @@ This includes title, number, image URL, alt text, day, month, year, news, safe_t
 By default, Get-XKCD returns the details of the latest available comic.
 When you use the -num parameter
 you can specify one or more specific comics to return.
+
+When used with -Show, each displayed comic updates a local record of the most recently viewed comic,
+used by Test-XKCD to report how many new comics have been published since you last checked.
 
 ## EXAMPLES
 
@@ -222,7 +225,8 @@ Accept wildcard characters: False
 
 ### -Path
 Use with -Download to specify a local directory to download to.
-By default this is the current working directory.
+By default this is the current working
+directory, unless a default has been saved with Set-XKCDDefault -Path.
 
 ```yaml
 Type: String
@@ -231,7 +235,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: $PWD
+Default value: (Get-XKCDDefaultValue -Name 'Path' -Value $PWD)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -240,6 +244,8 @@ Accept wildcard characters: False
 Use with -Download to download the higher resolution (_2x) version of the image, where available.
 Comics
 that do not have a higher resolution version are downloaded at the standard quality instead.
+Defaults to
+the value saved with Set-XKCDDefault -HighQuality, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -248,7 +254,25 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value: (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -StatePath
+Use with -Show to specify the file used to track the number of the most recently viewed comic (used by
+Test-XKCD).
+By default this is within the module path, unless a default has been saved with
+Set-XKCDDefault -StatePath.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
