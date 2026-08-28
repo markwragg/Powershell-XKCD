@@ -18,7 +18,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Param($StatePath) Get-XKCDLastViewedComic -StatePath $StatePath } $StatePath
 
-            $Result | Should Be 0
+            $Result | Should -Be 0
         }
 
         It 'Returns the recorded value when the state file exists' {
@@ -27,7 +27,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Param($StatePath) Get-XKCDLastViewedComic -StatePath $StatePath } $StatePath
 
-            $Result | Should Be 42
+            $Result | Should -Be 42
         }
     }
 }

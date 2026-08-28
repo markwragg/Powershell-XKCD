@@ -11,7 +11,7 @@ Describe 'Testing against PSSA rules' {
             It "Should pass $rule" {
                 If ($analysis.RuleName -contains $rule) {
                     $analysis | Where-Object RuleName -EQ $rule -OutVariable 'failures' | Out-Default
-                    $failures.Count | Should Be 0
+                    $failures.Count | Should -Be 0
                 }
             }
         }

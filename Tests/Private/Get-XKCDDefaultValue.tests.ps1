@@ -18,7 +18,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Get-XKCDDefaultValue -Name 'HighQuality' -Value 'FALLBACK' }
 
-            $Result | Should Be 'FALLBACK'
+            $Result | Should -Be 'FALLBACK'
         }
 
         It 'Returns the saved default value when one exists' {
@@ -26,7 +26,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Get-XKCDDefaultValue -Name 'HighQuality' -Value $false }
 
-            $Result | Should Be $true
+            $Result | Should -Be $true
         }
 
         It 'Returns a saved default of $false rather than the fallback' {
@@ -34,7 +34,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Get-XKCDDefaultValue -Name 'HighQuality' -Value $true }
 
-            $Result | Should Be $false
+            $Result | Should -Be $false
         }
     }
 }

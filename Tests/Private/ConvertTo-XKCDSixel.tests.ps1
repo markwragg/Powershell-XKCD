@@ -43,20 +43,20 @@ Describe "Unit Tests PS$PSVersion" {
         $Sixel = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes } $ImageBytes
 
         It 'Returns a string' {
-            $Sixel | Should BeOfType [string]
+            $Sixel | Should -BeOfType [string]
         }
 
         It 'Starts with the Sixel introducer for the image dimensions' {
             $Header = "$esc" + 'Pq"1;1;4;4'
-            $Sixel.Substring(0, $Header.Length) | Should Be $Header
+            $Sixel.Substring(0, $Header.Length) | Should -Be $Header
         }
 
         It 'Ends with the Sixel string terminator' {
-            $Sixel.Substring($Sixel.Length - 2) | Should Be "$esc\"
+            $Sixel.Substring($Sixel.Length - 2) | Should -Be "$esc\"
         }
 
         It 'Includes at least one colour palette definition' {
-            $Sixel | Should Match '#0;2;\d+;\d+;\d+'
+            $Sixel | Should -Match '#0;2;\d+;\d+;\d+'
         }
     }
 
@@ -69,7 +69,7 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Downscales images wider than -MaxWidth, preserving aspect ratio' {
             $esc = [char]27
             $Header = "$esc" + 'Pq"1;1;5;2'
-            $Sixel.Substring(0, $Header.Length) | Should Be $Header
+            $Sixel.Substring(0, $Header.Length) | Should -Be $Header
         }
     }
 }

@@ -151,10 +151,23 @@ Task 'Analyze' -Depends 'ImportStagingModule' {
 Task 'Test' -Depends 'ImportStagingModule' {
     $lines
 
+    Import-Module -Name 'Pester' -RequiredVersion '6.1.0' -Force
+
     # Gather test results. Store them in a variable and file
     $CodeFiles = (Get-ChildItem $ENV:BHModulePath -Recurse -Include '*.ps1').FullName
     $TestFilePath = Join-Path -Path $ArtifactFolder -ChildPath $TestFile
-    $TestResults = Invoke-Pester -Script $TestScripts -PassThru -CodeCoverage $CodeFiles -OutputFormat 'NUnitXml' -OutputFile $TestFilePath -PesterOption @{IncludeVSCodeMarker = $true }
+
+    $PesterConfiguration = New-PesterConfiguration
+    $PesterConfiguration.Run.Path = $TestScripts.FullName
+    $PesterConfiguration.Run.PassThru = $true
+    $PesterConfiguration.CodeCoverage.Enabled = $true
+    $PesterConfiguration.CodeCoverage.Path = $CodeFiles
+    $PesterConfiguration.TestResult.Enabled = $true
+    $PesterConfiguration.TestResult.OutputFormat = 'NUnitXml'
+    $PesterConfiguration.TestResult.OutputPath = $TestFilePath
+    $PesterConfiguration.Output.Verbosity = 'Detailed'
+
+    $TestResults = Invoke-Pester -Configuration $PesterConfiguration
 
     # Fail build if any tests fail
     if ($TestResults.FailedCount -gt 0) {

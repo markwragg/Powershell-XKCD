@@ -32,75 +32,81 @@ Describe "Unit Tests PS$PSVersion" {
 
     Context 'Show-XKCDComic Tests' {
 
-        $Comic = [pscustomobject]@{
-            num   = 1000
-            title = 'A Test Comic'
-            alt   = 'This is some alt text used to verify that Show-XKCDComic renders it below the image.'
-        }
-        $ImageBytes = [byte[]](1..10)
+        BeforeAll {
+            $Comic = [pscustomobject]@{
+                num   = 1000
+                title = 'A Test Comic'
+                alt   = 'This is some alt text used to verify that Show-XKCDComic renders it below the image.'
+            }
+            $ImageBytes = [byte[]](1..10)
 
-        Mock -ModuleName $Module Show-XKCDImage { }
+            Mock -ModuleName $Module Show-XKCDImage { }
 
-        $Output = Get-XKCDCapturedOutput {
-            & $ModuleObj {
-                Param($Comic, $ImageBytes)
-                Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
-            } $Comic $ImageBytes
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj {
+                    Param($Comic, $ImageBytes)
+                    Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
+                } $Comic $ImageBytes
+            }
         }
 
         It 'Writes the comic number and title' {
-            $Output | Should Match '#1000: A Test Comic'
+            $Output | Should -Match '#1000: A Test Comic'
         }
 
         It 'Writes the alt text' {
-            $Output | Should Match 'This is some alt text used to verify'
+            $Output | Should -Match 'This is some alt text used to verify'
         }
 
         It 'Delegates image rendering to Show-XKCDImage' {
-            Assert-MockCalled -ModuleName $Module Show-XKCDImage -Times 1 -Exactly
+            Should -Invoke -CommandName Show-XKCDImage -ModuleName $Module -Times 1 -Exactly
         }
 
         It 'Writes a hyperlink to the comic' {
-            $Output | Should Match '\x1b\]8;;https://xkcd\.com/1000\x1b\\https://xkcd\.com/1000\x1b\]8;;\x1b\\'
+            $Output | Should -Match '\x1b\]8;;https://xkcd\.com/1000\x1b\\https://xkcd\.com/1000\x1b\]8;;\x1b\\'
         }
     }
 
     Context 'Show-XKCDComic Date Tests' {
 
-        $Comic = [pscustomobject]@{
-            num   = 1000
-            title = 'A Test Comic'
-            alt   = 'Some alt text.'
-            year  = '2017'
-            month = '1'
-            day   = '16'
-        }
-        $ImageBytes = [byte[]](1..10)
+        BeforeAll {
+            $Comic = [pscustomobject]@{
+                num   = 1000
+                title = 'A Test Comic'
+                alt   = 'Some alt text.'
+                year  = '2017'
+                month = '1'
+                day   = '16'
+            }
+            $ImageBytes = [byte[]](1..10)
 
-        Mock -ModuleName $Module Show-XKCDImage { }
+            Mock -ModuleName $Module Show-XKCDImage { }
 
-        $Output = Get-XKCDCapturedOutput {
-            & $ModuleObj {
-                Param($Comic, $ImageBytes)
-                Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
-            } $Comic $ImageBytes
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj {
+                    Param($Comic, $ImageBytes)
+                    Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
+                } $Comic $ImageBytes
+            }
         }
 
         It 'Writes the comic publish date when year, month, and day are present' {
-            $Output | Should Match '16 January 2017'
+            $Output | Should -Match '16 January 2017'
         }
     }
 
     Context 'Show-XKCDComic Error Handling Tests' {
 
-        $Comic = [pscustomobject]@{
-            num   = 1
-            title = 'Barrel - Part 1'
-            alt   = 'Don''t we all.'
-        }
-        $ImageBytes = [byte[]](1..10)
+        BeforeAll {
+            $Comic = [pscustomobject]@{
+                num   = 1
+                title = 'Barrel - Part 1'
+                alt   = 'Don''t we all.'
+            }
+            $ImageBytes = [byte[]](1..10)
 
-        Mock -ModuleName $Module Show-XKCDImage { throw 'Simulated rendering failure' }
+            Mock -ModuleName $Module Show-XKCDImage { throw 'Simulated rendering failure' }
+        }
 
         It 'Warns instead of throwing when rendering fails' {
             {
@@ -110,7 +116,7 @@ Describe "Unit Tests PS$PSVersion" {
                         Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes -WarningAction SilentlyContinue
                     } $Comic $ImageBytes
                 }
-            } | Should Not Throw
+            } | Should -Not -Throw
         }
     }
 }

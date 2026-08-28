@@ -16,8 +16,8 @@ Describe "Unit Tests PS$PSVersion" {
 
             Set-XKCDDefault -HighQuality -DefaultsPath $DefaultsPath | Out-Null
 
-            $DefaultsPath | Should Exist
-            (Get-Content $DefaultsPath | ConvertFrom-Json).HighQuality | Should Be $true
+            $DefaultsPath | Should -Exist
+            (Get-Content $DefaultsPath | ConvertFrom-Json).HighQuality | Should -Be $true
         }
 
         It 'Returns the resulting default preferences' {
@@ -25,7 +25,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = Set-XKCDDefault -Path 'C:\XKCD' -DefaultsPath $DefaultsPath
 
-            $Result.Path | Should Be 'C:\XKCD'
+            $Result.Path | Should -Be 'C:\XKCD'
         }
 
         It 'Only updates the specified preference, leaving others untouched' {
@@ -35,8 +35,8 @@ Describe "Unit Tests PS$PSVersion" {
             Set-XKCDDefault -Path 'C:\XKCD' -DefaultsPath $DefaultsPath | Out-Null
 
             $Saved = Get-Content $DefaultsPath | ConvertFrom-Json
-            $Saved.HighQuality | Should Be $true
-            $Saved.Path | Should Be 'C:\XKCD'
+            $Saved.HighQuality | Should -Be $true
+            $Saved.Path | Should -Be 'C:\XKCD'
         }
 
         It 'Overwrites a previously saved preference when specified again' {
@@ -45,7 +45,7 @@ Describe "Unit Tests PS$PSVersion" {
             Set-XKCDDefault -CachePath 'C:\Old' -DefaultsPath $DefaultsPath | Out-Null
             Set-XKCDDefault -CachePath 'C:\New' -DefaultsPath $DefaultsPath | Out-Null
 
-            (Get-Content $DefaultsPath | ConvertFrom-Json).CachePath | Should Be 'C:\New'
+            (Get-Content $DefaultsPath | ConvertFrom-Json).CachePath | Should -Be 'C:\New'
         }
 
         It 'Explicitly saves -HighQuality:$false, overriding a previously saved true value' {
@@ -54,7 +54,7 @@ Describe "Unit Tests PS$PSVersion" {
             Set-XKCDDefault -HighQuality -DefaultsPath $DefaultsPath | Out-Null
             Set-XKCDDefault -HighQuality:$false -DefaultsPath $DefaultsPath | Out-Null
 
-            (Get-Content $DefaultsPath | ConvertFrom-Json).HighQuality | Should Be $false
+            (Get-Content $DefaultsPath | ConvertFrom-Json).HighQuality | Should -Be $false
         }
 
         It 'Does not create a defaults file when no preference is specified' {
@@ -62,7 +62,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             Set-XKCDDefault -DefaultsPath $DefaultsPath | Out-Null
 
-            $DefaultsPath | Should Not Exist
+            $DefaultsPath | Should -Not -Exist
         }
 
         It 'Saves the Explanation, Transcript, Discussion and Full preferences used by Get-XKCDExplanation and Show-XKCDExplanation' {
@@ -71,10 +71,10 @@ Describe "Unit Tests PS$PSVersion" {
             Set-XKCDDefault -Explanation -Transcript -Discussion -Full -DefaultsPath $DefaultsPath | Out-Null
 
             $Saved = Get-Content $DefaultsPath | ConvertFrom-Json
-            $Saved.Explanation | Should Be $true
-            $Saved.Transcript | Should Be $true
-            $Saved.Discussion | Should Be $true
-            $Saved.Full | Should Be $true
+            $Saved.Explanation | Should -Be $true
+            $Saved.Transcript | Should -Be $true
+            $Saved.Discussion | Should -Be $true
+            $Saved.Full | Should -Be $true
         }
     }
 
@@ -86,7 +86,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             Set-XKCDDefault -Reset -DefaultsPath $DefaultsPath | Out-Null
 
-            $DefaultsPath | Should Not Exist
+            $DefaultsPath | Should -Not -Exist
         }
 
         It 'Returns an empty object after resetting' {
@@ -95,13 +95,13 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = Set-XKCDDefault -Reset -DefaultsPath $DefaultsPath
 
-            $Result.HighQuality | Should BeNullOrEmpty
+            $Result.HighQuality | Should -BeNullOrEmpty
         }
 
         It 'Does not throw when -Reset is specified and no defaults file exists' {
             $DefaultsPath = Join-Path $TestDrive 'reset-missing-defaults.json'
 
-            { Set-XKCDDefault -Reset -DefaultsPath $DefaultsPath } | Should Not Throw
+            { Set-XKCDDefault -Reset -DefaultsPath $DefaultsPath } | Should -Not -Throw
         }
     }
 
@@ -112,7 +112,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             Set-XKCDDefault -HighQuality -DefaultsPath $DefaultsPath -WhatIf | Out-Null
 
-            $DefaultsPath | Should Not Exist
+            $DefaultsPath | Should -Not -Exist
         }
     }
 }
