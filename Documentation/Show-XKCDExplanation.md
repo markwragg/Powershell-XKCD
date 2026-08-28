@@ -6,7 +6,8 @@ Displays a comic's title, image, and explanation in the console.
 ## SYNTAX
 
 ```
-Show-XKCDExplanation [[-Num] <Int32[]>] [-Transcript] [-Discussion] [-Full] [-HighQuality] [<CommonParameters>]
+Show-XKCDExplanation [[-Num] <Int32[]>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-HighQuality]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -14,10 +15,20 @@ The Show-XKCDExplanation cmdlet gets a comic's explanation from the explain xkcd
 Get-XKCDExplanation) and displays it in the console: the title above, the image (if your terminal
 supports the Sixel, Kitty, or iTerm2 inline image graphics protocol), and the retrieved sections below.
 
-Use -Transcript and/or -Discussion to also display the comic's transcript and reader discussion, or
--Full to display all three.
-When more than one section is displayed, each is shown under its own
-heading.
+By default, only the explanation is displayed.
+Use -Explanation, -Transcript, and/or -Discussion to
+choose exactly which section(s) to display instead -- e.g.
+-Transcript on its own displays just the
+transcript, not the explanation -- or use -Full to always display all three.
+Each displayed section is
+shown under its own heading.
+
+By default, Show-XKCDExplanation also displays the comic itself (its title, image, and alt text) above
+the section(s) shown.
+Use -Explanation, -Transcript, and/or -Discussion (without -Full) to display text
+sections only, without fetching or showing the comic image -- the title and a link to the explanation
+are still shown.
+Use -Full to always display the comic image alongside every section.
 
 By default, Show-XKCDExplanation displays the explanation of the latest available comic.
 When you use
@@ -51,9 +62,34 @@ Gets a random comic and displays its explanation in the console.
 Show-XKCDExplanation 2000 -Full
 ```
 
-Displays the explanation, transcript, and reader discussion of comic number 2000, each under its own heading.
+Displays the comic image, explanation, transcript, and reader discussion of comic number 2000, each
+under its own heading.
 
 ### EXAMPLE 5
+```
+Show-XKCDExplanation 2000 -Explanation
+```
+
+Displays just the explanation of comic number 2000 as text, along with its title and a link, without
+fetching or displaying the comic image.
+
+### EXAMPLE 6
+```
+Show-XKCDExplanation 2000 -Discussion
+```
+
+Displays just the reader discussion of comic number 2000 as text, along with its title and a link,
+without fetching or displaying the comic image or the explanation.
+
+### EXAMPLE 7
+```
+Show-XKCDExplanation 2000 -Explanation -Discussion
+```
+
+Displays the explanation and reader discussion (but not the transcript) of comic number 2000 as text,
+along with its title and a link, without fetching or displaying the comic image.
+
+### EXAMPLE 8
 ```
 Get-XKCDExplanation -Show
 ```
@@ -79,10 +115,32 @@ Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
+### -Explanation
+Displays the comic's "Explanation" section.
+Combine with -Transcript and/or -Discussion to display more
+than one section; on its own (without -Full), no comic image is fetched or displayed -- the title and
+a link to the explanation are still shown.
+Defaults to the value saved with Set-XKCDDefault
+-Explanation, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Explanation' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Transcript
-Also displays the comic's "Transcript" section.
-Defaults to the value saved with
-Set-XKCDDefault -Transcript, if any.
+Displays the comic's "Transcript" section.
+Combine with -Explanation and/or -Discussion to display more
+than one section; on its own (without -Full), no comic image is fetched or displayed.
+Defaults to the
+value saved with Set-XKCDDefault -Transcript, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -97,9 +155,11 @@ Accept wildcard characters: False
 ```
 
 ### -Discussion
-Also displays the comic's reader "Discussion", from its explain xkcd talk page.
-Defaults to the value
-saved with Set-XKCDDefault -Discussion, if any.
+Displays the comic's reader "Discussion", from its explain xkcd talk page.
+Combine with -Explanation
+and/or -Transcript to display more than one section; on its own (without -Full), no comic image is
+fetched or displayed.
+Defaults to the value saved with Set-XKCDDefault -Discussion, if any.
 
 ```yaml
 Type: SwitchParameter

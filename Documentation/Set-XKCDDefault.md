@@ -8,7 +8,7 @@ high quality images by default.
 
 ```
 Set-XKCDDefault [-HighQuality] [[-Path] <String>] [-FullSearch] [[-CachePath] <String>] [[-StatePath] <String>]
- [-Transcript] [-Discussion] [-Full] [-Reset] [[-DefaultsPath] <String>] [-WhatIf] [-Confirm]
+ [-Explanation] [-Transcript] [-Discussion] [-Full] [-Reset] [[-DefaultsPath] <String>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
@@ -30,6 +30,7 @@ Supported preferences:
 -FullSearch   Default for -FullSearch on Find-XKCD.
 -CachePath    Default comic data cache location for Update-XKCDCache, Get-XKCDCache and Find-XKCD.
 -StatePath    Default location of the most-recently-viewed record for Show-XKCD, Get-XKCD -Show and Test-XKCD.
+-Explanation  Default for -Explanation on Get-XKCDExplanation and Show-XKCDExplanation.
 -Transcript   Default for -Transcript on Get-XKCDExplanation and Show-XKCDExplanation.
 -Discussion   Default for -Discussion on Get-XKCDExplanation and Show-XKCDExplanation.
 -Full         Default for -Full on Get-XKCDExplanation and Show-XKCDExplanation.
@@ -144,6 +145,21 @@ Aliases:
 Required: False
 Position: 3
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Explanation
+Sets the default for -Explanation, used by Get-XKCDExplanation and Show-XKCDExplanation.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
