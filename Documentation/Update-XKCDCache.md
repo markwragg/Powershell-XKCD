@@ -35,7 +35,7 @@ Aliases:
 
 Required: False
 Position: 1
-Default value: (Join-Path $PSScriptRoot 'XKCD.json')
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

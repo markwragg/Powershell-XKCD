@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.6.0] - 2026-08-28
 
 * Adds a new `Get-XKCDExplanation` cmdlet, which retrieves a comic's "Explanation", "Transcript", and reader "Discussion" (from its explain xkcd talk page) via the [explain xkcd](https://www.explainxkcd.com/) wiki's MediaWiki API, with wiki markup stripped for readability. All three are always included on the returned object.
 * Adds a new `Show-XKCDExplanation` cmdlet (and a `-Show` switch on `Get-XKCDExplanation`) to display a comic's title, a hyperlink to its explain xkcd page, publish date, a hyperlink to it, image, and explanation in the console, with `-Transcript`, `-Discussion`, and `-Full` switches to also display the transcript and/or discussion, each under its own heading. Discussion messages show reply nesting as indentation and highlight each message's signature. Bold and italic text is rendered as such, code formatting in the explanation (including plain indented code samples) is highlighted, and links -- external, to other explain xkcd pages, and to Wikipedia/what-if.xkcd.com articles referenced via wiki templates -- are rendered as working hyperlinks on the linked words themselves, without printing the url.

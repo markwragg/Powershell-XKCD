@@ -70,7 +70,9 @@ Accept wildcard characters: False
 ```
 
 ### -FullSearch
-Search the full text of the comic data, not just the title
+Search the full text of the comic data, not just the title.
+Defaults to the value saved with
+Set-XKCDDefault -FullSearch, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -79,13 +81,15 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value: (Get-XKCDDefaultValue -Name 'FullSearch' -Value $false)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -CachePath
-Path to where comic data is cached
+Path to where comic data is cached.
+By default this is within the module path, unless a default has
+been saved with Set-XKCDDefault -CachePath.
 
 ```yaml
 Type: String
@@ -94,7 +98,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: (Join-Path $PSScriptRoot 'XKCD.json')
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
