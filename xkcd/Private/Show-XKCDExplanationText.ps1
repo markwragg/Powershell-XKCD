@@ -89,21 +89,17 @@ Function Show-XKCDExplanationText {
         }
 
         if ($ImageBytes) {
-            Show-XKCDImage -ImageBytes $ImageBytes
-            [Console]::Out.Write($newLine)
+            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -Width $width
         }
 
-        $Sections = [ordered]@{ Explanation = $Explanation.Explanation }
+        $Sections = [ordered]@{}
+        if ($Explanation.PSObject.Properties.Name -contains 'Explanation') { $Sections.Explanation = $Explanation.Explanation }
         if ($Explanation.PSObject.Properties.Name -contains 'Transcript') { $Sections.Transcript = $Explanation.Transcript }
         if ($Explanation.PSObject.Properties.Name -contains 'Discussion') { $Sections.Discussion = $Explanation.Discussion }
 
-        $ShowHeadings = $Sections.Count -gt 1
-
         foreach ($SectionName in $Sections.Keys) {
-            if ($ShowHeadings) {
-                [Console]::Out.Write("$headingStyle$SectionName$reset")
-                [Console]::Out.Write($newLine + $newLine)
-            }
+            [Console]::Out.Write("$headingStyle$SectionName$reset")
+            [Console]::Out.Write($newLine + $newLine)
 
             $Text = $Sections[$SectionName]
             if ([string]::IsNullOrWhiteSpace($Text)) { $Text = "No $($SectionName.ToLower()) is available yet." }

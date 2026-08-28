@@ -19,6 +19,7 @@ Function Set-XKCDDefault {
         -FullSearch   Default for -FullSearch on Find-XKCD.
         -CachePath    Default comic data cache location for Update-XKCDCache, Get-XKCDCache and Find-XKCD.
         -StatePath    Default location of the most-recently-viewed record for Show-XKCD, Get-XKCD -Show and Test-XKCD.
+        -Explanation  Default for -Explanation on Get-XKCDExplanation and Show-XKCDExplanation.
         -Transcript   Default for -Transcript on Get-XKCDExplanation and Show-XKCDExplanation.
         -Discussion   Default for -Discussion on Get-XKCDExplanation and Show-XKCDExplanation.
         -Full         Default for -Full on Get-XKCDExplanation and Show-XKCDExplanation.
@@ -73,6 +74,10 @@ Function Set-XKCDDefault {
         [string]
         $StatePath,
 
+        # Sets the default for -Explanation, used by Get-XKCDExplanation and Show-XKCDExplanation.
+        [switch]
+        $Explanation,
+
         # Sets the default for -Transcript, used by Get-XKCDExplanation and Show-XKCDExplanation.
         [switch]
         $Transcript,
@@ -108,11 +113,12 @@ Function Set-XKCDDefault {
     if ($PSBoundParameters.ContainsKey('FullSearch')) { $Current | Add-Member -NotePropertyName FullSearch -NotePropertyValue ([bool]$FullSearch) -Force }
     if ($PSBoundParameters.ContainsKey('CachePath')) { $Current | Add-Member -NotePropertyName CachePath -NotePropertyValue $CachePath -Force }
     if ($PSBoundParameters.ContainsKey('StatePath')) { $Current | Add-Member -NotePropertyName StatePath -NotePropertyValue $StatePath -Force }
+    if ($PSBoundParameters.ContainsKey('Explanation')) { $Current | Add-Member -NotePropertyName Explanation -NotePropertyValue ([bool]$Explanation) -Force }
     if ($PSBoundParameters.ContainsKey('Transcript')) { $Current | Add-Member -NotePropertyName Transcript -NotePropertyValue ([bool]$Transcript) -Force }
     if ($PSBoundParameters.ContainsKey('Discussion')) { $Current | Add-Member -NotePropertyName Discussion -NotePropertyValue ([bool]$Discussion) -Force }
     if ($PSBoundParameters.ContainsKey('Full')) { $Current | Add-Member -NotePropertyName Full -NotePropertyValue ([bool]$Full) -Force }
 
-    $AnyPreferenceSpecified = 'HighQuality', 'Path', 'FullSearch', 'CachePath', 'StatePath', 'Transcript', 'Discussion', 'Full' | Where-Object { $PSBoundParameters.ContainsKey($_) }
+    $AnyPreferenceSpecified = 'HighQuality', 'Path', 'FullSearch', 'CachePath', 'StatePath', 'Explanation', 'Transcript', 'Discussion', 'Full' | Where-Object { $PSBoundParameters.ContainsKey($_) }
 
     if ($AnyPreferenceSpecified -and $PSCmdlet.ShouldProcess($DefaultsPath, 'Save default preferences')) {
         $Current | ConvertTo-Json | Out-File $DefaultsPath -Force

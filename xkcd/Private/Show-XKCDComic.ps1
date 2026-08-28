@@ -19,7 +19,6 @@ Function Show-XKCDComic {
     try {
         $esc = [char]27
         $titleStyle = "$esc[1;4;96m"
-        $italic = "$esc[3m"
         $dim = "$esc[2m"
         $reset = "$esc[0m"
         $newLine = [Environment]::NewLine
@@ -41,29 +40,7 @@ Function Show-XKCDComic {
         [Console]::Out.Write("$dim$MetaText$reset")
         [Console]::Out.Write($newLine + $newLine)
 
-        Show-XKCDImage -ImageBytes $ImageBytes
-
-        $words = $Comic.alt -split '\s+'
-        $lines = [System.Collections.Generic.List[string]]::new()
-        $currentLine = ''
-
-        foreach ($word in $words) {
-            if (-not $currentLine) {
-                $currentLine = $word
-            }
-            elseif (($currentLine.Length + 1 + $word.Length) -le $width) {
-                $currentLine = "$currentLine $word"
-            }
-            else {
-                $lines.Add($currentLine)
-                $currentLine = $word
-            }
-        }
-        if ($currentLine) { $lines.Add($currentLine) }
-
-        [Console]::Out.Write($newLine)
-        [Console]::Out.Write("$italic$($lines -join $newLine)$reset")
-        [Console]::Out.Write($newLine + $newLine)
+        Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -Width $width
     }
     catch {
         # Console access can fail in non-interactive/headless hosts (e.g. CI build agents) in ways that vary by

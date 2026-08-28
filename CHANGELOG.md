@@ -1,5 +1,13 @@
 # Change Log
 
+## !Deploy
+
+* `Show-XKCDExplanation` now displays the comic's alt text underneath its image, matching `Show-XKCD`.
+* Adds an `-Explanation` switch to `Get-XKCDExplanation` and `Show-XKCDExplanation`. `-Explanation`, `-Transcript`, and `-Discussion` now each display exactly the section(s) requested -- e.g. `-Transcript` on its own displays just the transcript, not the explanation -- as text only, without fetching or showing the comic image; the title and a link to the explanation are still shown. Use `-Full` to always display all three sections alongside the comic image.
+* The "Explanation" section heading is now always shown, even when it's the only section displayed.
+* Adds `-Random` (`-Min`/`-Max`), `-Newest`, and `-Open`/`-Force` parameters to `Get-XKCDExplanation`, matching `Get-XKCD`.
+* Adds an `-Explanation` preference to `Set-XKCDDefault`, alongside the existing `-Transcript`, `-Discussion`, and `-Full`.
+
 ## [1.6.0] - 2026-08-28
 
 * Adds a new `Get-XKCDExplanation` cmdlet, which retrieves a comic's "Explanation", "Transcript", and reader "Discussion" (from its explain xkcd talk page) via the [explain xkcd](https://www.explainxkcd.com/) wiki's MediaWiki API, with wiki markup stripped for readability. All three are always included on the returned object.

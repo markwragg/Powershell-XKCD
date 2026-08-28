@@ -10,13 +10,19 @@ Function Get-XKCDExplanation {
         three are always included on the returned object, as its Explanation, Transcript, and Discussion
         properties.
 
-        Use -Transcript and/or -Discussion with -Show (or on Show-XKCDExplanation) to also display the
-        transcript and discussion alongside the explanation, or -Full to display all three -- each section
-        shown is given its own heading. These switches only affect what's displayed; the returned object always
-        has all three.
+        With -Show (or on Show-XKCDExplanation), -Explanation, -Transcript, and -Discussion each display just
+        that one section -- e.g. -Show -Transcript on its own displays just the transcript, not the explanation.
+        Combine them to display more than one, or use -Full to always display all three. Each displayed section
+        is given its own heading. These switches only affect what's displayed; the returned object always has
+        all three.
 
-        By default, Get-XKCDExplanation returns the explanation of the latest available comic. When you use the
-        -Num parameter you can specify one or more specific comics to return.
+        With -Show, -Explanation, -Transcript, and -Discussion (without -Full) display text sections only,
+        without fetching or showing the comic image -- the title and a link to the explanation are still shown.
+        Use -Full with -Show to always display the comic image alongside every section.
+
+        By default, Get-XKCDExplanation returns the explanation of the latest available comic. Use -Random to
+        get a random comic instead (optionally within a -Min/-Max range), or -Newest to get the specified
+        number of most recent comics. Use the -Num parameter to specify one or more specific comics to return.
 
     .EXAMPLE
         Get-XKCDExplanation
@@ -34,6 +40,16 @@ Function Get-XKCDExplanation {
         This command gets a random comic and then returns its explanation.
 
     .EXAMPLE
+        Get-XKCDExplanation -Random -Min 100 -Max 150
+
+        This command returns the explanation of a random comic numbered between 100 and 150.
+
+    .EXAMPLE
+        Get-XKCDExplanation -Newest 5
+
+        This command returns the explanation of the latest 5 comics.
+
+    .EXAMPLE
         (Get-XKCDExplanation 2000).Transcript
 
         This command returns just the transcript of comic number 2000. The Explanation, Transcript, and
@@ -47,24 +63,62 @@ Function Get-XKCDExplanation {
         the Sixel, Kitty, or iTerm2 inline image protocol). Unlike other parameter combinations, -Show does not
         return the explanation object.
 
+    .EXAMPLE
+        Get-XKCDExplanation -Num 1 -Explanation -Show
+
+        This command displays just the explanation of comic number 1 as text, along with its title and a link,
+        without fetching or displaying the comic image.
+
+    .EXAMPLE
+        Get-XKCDExplanation -Open
+
+        This command returns the explanation of the latest comic and opens it in your default web browser.
+
     .LINK
         https://www.explainxkcd.com/wiki/index.php/Main_Page
     #>
-    [cmdletbinding()]
+    [cmdletbinding(DefaultParameterSetName = 'Specific')]
     Param(
-        # Gets the explanation of the specified comics. Accepts array input. By default the latest comic is used.
-        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [int[]]
-        $Num,
+        # Gets the explanation of a random comic.
+        [Parameter(ParameterSetName = 'Random')]
+        [switch]
+        $Random,
 
-        # Use with -Show to also display the comic's "Transcript" section. The returned object always includes
-        # it regardless of this switch. Defaults to the value saved with Set-XKCDDefault -Transcript, if any.
+        # Use with -Random to define a lower bound range within which to return a comic.
+        [Parameter(ParameterSetName = 'Random')]
+        [int]
+        $Min = 1,
+
+        # Use with -Random to define an upper bound range within which to return a comic. -Max is the latest comic number by default.
+        [Parameter(ParameterSetName = 'Random')]
+        [int]
+        $Max,
+
+        # Gets the explanation of the specified number of the most recent comics.
+        [Parameter(ParameterSetName = 'Newest')]
+        [int]
+        $Newest,
+
+        # Opens the comic/s in your default web browser.
+        [switch]
+        $Open,
+
+        # Use with -Show to display the comic's "Explanation" section. Combine with -Transcript and/or
+        # -Discussion to display more than one section. The returned object always includes it regardless of
+        # this switch. Defaults to the value saved with Set-XKCDDefault -Explanation, if any.
+        [switch]
+        $Explanation = (Get-XKCDDefaultValue -Name 'Explanation' -Value $false),
+
+        # Use with -Show to display the comic's "Transcript" section. Combine with -Explanation and/or
+        # -Discussion to display more than one section. The returned object always includes it regardless of
+        # this switch. Defaults to the value saved with Set-XKCDDefault -Transcript, if any.
         [switch]
         $Transcript = (Get-XKCDDefaultValue -Name 'Transcript' -Value $false),
 
-        # Use with -Show to also display the comic's reader "Discussion", from its explain xkcd talk page. The
-        # returned object always includes it regardless of this switch. Defaults to the value saved with
-        # Set-XKCDDefault -Discussion, if any.
+        # Use with -Show to display the comic's reader "Discussion", from its explain xkcd talk page. Combine
+        # with -Explanation and/or -Transcript to display more than one section. The returned object always
+        # includes it regardless of this switch. Defaults to the value saved with Set-XKCDDefault -Discussion,
+        # if any.
         [switch]
         $Discussion = (Get-XKCDDefaultValue -Name 'Discussion' -Value $false),
 
@@ -88,11 +142,23 @@ Function Get-XKCDExplanation {
 
         # The base URL of the explain xkcd wiki's MediaWiki API.
         [string]
-        $ApiUrl = 'https://www.explainxkcd.com/wiki/api.php'
+        $ApiUrl = 'https://www.explainxkcd.com/wiki/api.php',
+
+        # Gets the explanation of the specified comics. Accepts array input. By default the latest comic is used.
+        [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [int[]]
+        $Num = $Max,
+
+        # Bypass the confirmation check if you try to open more than 9 comics in your browser.
+        [switch]
+        $Force
     )
 
     Begin {
-        if (-not $Num) { $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
+        If (-not $Max) { $Max = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
+        If ($Random)   { $Num = Get-Random -min $Min -max $Max }
+        If ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
+        If (-not $Num) { $Num = $Max }
     }
 
     Process {
@@ -100,42 +166,51 @@ Function Get-XKCDExplanation {
             $ID = $_
 
             if ($Show) {
-                Show-XKCDExplanation -Num $ID -Transcript:$Transcript -Discussion:$Discussion -Full:$Full -HighQuality:$HighQuality
-                return
-            }
-
-            $Sections = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$ID&redirects=1&prop=sections&format=json").parse
-
-            if (-not $Sections) {
-                Write-Warning "No explanation was found for comic #$ID at $ApiUrl"
-                return
-            }
-
-            $ExplanationSection = $Sections.sections | Where-Object { $_.line -eq 'Explanation' } | Select-Object -First 1
-            $SectionIndex = if ($ExplanationSection) { $ExplanationSection.index } else { 0 }
-
-            $Wikitext = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$ID&redirects=1&prop=wikitext&section=$SectionIndex&format=json").parse.wikitext.'*'
-
-            $TranscriptSection = $Sections.sections | Where-Object { $_.line -eq 'Transcript' } | Select-Object -First 1
-            $TranscriptText = if ($TranscriptSection) {
-                $TranscriptWikitext = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$ID&redirects=1&prop=wikitext&section=$($TranscriptSection.index)&format=json").parse.wikitext.'*'
-                ConvertTo-XKCDPlainText -WikiText $TranscriptWikitext
+                Show-XKCDExplanation -Num $ID -Explanation:$Explanation -Transcript:$Transcript -Discussion:$Discussion -Full:$Full -HighQuality:$HighQuality
             }
             else {
-                ''
+                $Sections = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$ID&redirects=1&prop=sections&format=json").parse
+
+                if (-not $Sections) {
+                    Write-Warning "No explanation was found for comic #$ID at $ApiUrl"
+                }
+                else {
+                    $ExplanationSection = $Sections.sections | Where-Object { $_.line -eq 'Explanation' } | Select-Object -First 1
+                    $SectionIndex = if ($ExplanationSection) { $ExplanationSection.index } else { 0 }
+
+                    $Wikitext = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$ID&redirects=1&prop=wikitext&section=$SectionIndex&format=json").parse.wikitext.'*'
+
+                    $TranscriptSection = $Sections.sections | Where-Object { $_.line -eq 'Transcript' } | Select-Object -First 1
+                    $TranscriptText = if ($TranscriptSection) {
+                        $TranscriptWikitext = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$ID&redirects=1&prop=wikitext&section=$($TranscriptSection.index)&format=json").parse.wikitext.'*'
+                        ConvertTo-XKCDPlainText -WikiText $TranscriptWikitext
+                    }
+                    else {
+                        ''
+                    }
+
+                    $TalkTitle = [uri]::EscapeDataString("Talk:$($Sections.title)")
+                    $TalkParse = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$TalkTitle&prop=wikitext&format=json").parse
+                    $DiscussionText = if ($TalkParse) { ConvertTo-XKCDPlainText -WikiText $TalkParse.wikitext.'*' } else { '' }
+
+                    [pscustomobject]@{
+                        Num         = $ID
+                        Title       = $Sections.title -replace '^\d+:\s*', ''
+                        Url         = "https://www.explainxkcd.com/wiki/index.php/$ID"
+                        Explanation = ConvertTo-XKCDPlainText -WikiText $Wikitext
+                        Transcript  = $TranscriptText
+                        Discussion  = $DiscussionText
+                    }
+                }
             }
 
-            $TalkTitle = [uri]::EscapeDataString("Talk:$($Sections.title)")
-            $TalkParse = (Invoke-RestMethod "${ApiUrl}?action=parse&page=$TalkTitle&prop=wikitext&format=json").parse
-            $DiscussionText = if ($TalkParse) { ConvertTo-XKCDPlainText -WikiText $TalkParse.wikitext.'*' } else { '' }
-
-            [pscustomobject]@{
-                Num         = $ID
-                Title       = $Sections.title -replace '^\d+:\s*', ''
-                Url         = "https://www.explainxkcd.com/wiki/index.php/$ID"
-                Explanation = ConvertTo-XKCDPlainText -WikiText $Wikitext
-                Transcript  = $TranscriptText
-                Discussion  = $DiscussionText
+            if ($Open) {
+                if ($Num.count -ge 10 -and -not $Force) {
+                    if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
+                }
+                if ($confirmation -eq 'y' -or $Num.count -lt 10 -or $Force) {
+                    Start-Process "https://xkcd.com/$ID"
+                }
             }
         }
     }

@@ -65,12 +65,13 @@ Describe "Unit Tests PS$PSVersion" {
             $DefaultsPath | Should Not Exist
         }
 
-        It 'Saves the Transcript, Discussion and Full preferences used by Get-XKCDExplanation and Show-XKCDExplanation' {
+        It 'Saves the Explanation, Transcript, Discussion and Full preferences used by Get-XKCDExplanation and Show-XKCDExplanation' {
             $DefaultsPath = Join-Path $TestDrive 'explanation-defaults.json'
 
-            Set-XKCDDefault -Transcript -Discussion -Full -DefaultsPath $DefaultsPath | Out-Null
+            Set-XKCDDefault -Explanation -Transcript -Discussion -Full -DefaultsPath $DefaultsPath | Out-Null
 
             $Saved = Get-Content $DefaultsPath | ConvertFrom-Json
+            $Saved.Explanation | Should Be $true
             $Saved.Transcript | Should Be $true
             $Saved.Discussion | Should Be $true
             $Saved.Full | Should Be $true

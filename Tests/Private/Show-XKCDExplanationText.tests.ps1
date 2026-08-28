@@ -99,6 +99,42 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
+    Context 'Show-XKCDExplanationText Alt Text Tests' {
+
+        $Explanation = [pscustomobject]@{
+            Num         = 1000
+            Title       = 'A Test Comic'
+            Url         = 'https://www.explainxkcd.com/wiki/index.php/1000'
+            Explanation = 'The explanation text.'
+        }
+        $Comic = [pscustomobject]@{ num = 1000; alt = 'This is the alt text shown under the comic image.' }
+        $ImageBytes = [byte[]](1..10)
+
+        Mock -ModuleName $Module Show-XKCDImage { }
+
+        $Output = Get-XKCDCapturedOutput {
+            & $ModuleObj {
+                Param($Explanation, $Comic, $ImageBytes)
+                Show-XKCDExplanationText -Explanation $Explanation -Comic $Comic -ImageBytes $ImageBytes
+            } $Explanation $Comic $ImageBytes
+        }
+
+        It 'Writes the comic alt text under the image' {
+            $Output | Should Match 'This is the alt text shown under the comic image\.'
+        }
+
+        It 'Does not write alt text when no comic is supplied' {
+            $NoAltOutput = Get-XKCDCapturedOutput {
+                & $ModuleObj {
+                    Param($Explanation, $ImageBytes)
+                    Show-XKCDExplanationText -Explanation $Explanation -ImageBytes $ImageBytes
+                } $Explanation $ImageBytes
+            }
+
+            $NoAltOutput | Should Not Match 'alt text'
+        }
+    }
+
     Context 'Show-XKCDExplanationText Explanation Link Tests' {
 
         $Explanation = [pscustomobject]@{
@@ -364,6 +400,41 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
+    Context 'Show-XKCDExplanationText Omitted Explanation Tests' {
+
+        # Regression test: the Explanation section must only be shown when the Explanation property is actually
+        # present on the input object, exactly like Transcript and Discussion -- it previously showed a spurious
+        # "Explanation" heading with a "not available yet" placeholder even when the property was absent (e.g.
+        # after Show-XKCDExplanation filters it out for a -Transcript-only or -Discussion-only display).
+        $Explanation = [pscustomobject]@{
+            Num        = 1000
+            Title      = 'A Test Comic'
+            Url        = 'https://www.explainxkcd.com/wiki/index.php/1000'
+            Transcript = 'The transcript text.'
+        }
+
+        Mock -ModuleName $Module Show-XKCDImage { }
+
+        $Output = Get-XKCDCapturedOutput {
+            & $ModuleObj {
+                Param($Explanation)
+                Show-XKCDExplanationText -Explanation $Explanation
+            } $Explanation
+        }
+
+        It 'Does not write an Explanation heading when the Explanation property is absent' {
+            $Output | Should Not Match "$([char]27)\[1;4;93mExplanation$([char]27)\[0m"
+        }
+
+        It 'Does not write the "not available yet" placeholder for the omitted section' {
+            $Output | Should Not Match 'No explanation is available yet\.'
+        }
+
+        It 'Still writes the section that is present' {
+            $Output | Should Match 'The transcript text\.'
+        }
+    }
+
     Context 'Show-XKCDExplanationText Single-Section Tests' {
 
         $Explanation = [pscustomobject]@{
@@ -375,7 +446,7 @@ Describe "Unit Tests PS$PSVersion" {
 
         Mock -ModuleName $Module Show-XKCDImage { }
 
-        It 'Does not write a section heading when only the explanation is present' {
+        It 'Writes an Explanation heading even when it is the only section present' {
             $Output = Get-XKCDCapturedOutput {
                 & $ModuleObj {
                     Param($Explanation)
@@ -383,7 +454,7 @@ Describe "Unit Tests PS$PSVersion" {
                 } $Explanation
             }
 
-            ($Output -split "`r?`n") -notcontains "$([char]27)[1mExplanation$([char]27)[0m" | Should Be $true
+            $Output | Should Match "$([char]27)\[1;4;93mExplanation$([char]27)\[0m"
         }
     }
 

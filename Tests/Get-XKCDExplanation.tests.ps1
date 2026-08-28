@@ -14,6 +14,40 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Get-XKCDExplanation -Num rejects string input' {
             { Get-XKCDExplanation -Num Five } | Should Throw
         }
+
+        It 'Get-XKCDExplanation -Newest requires an input' {
+            { Get-XKCDExplanation -Newest } | Should Throw
+        }
+        It 'Get-XKCDExplanation -Newest rejects string input' {
+            { Get-XKCDExplanation -Newest Ten } | Should Throw
+        }
+
+        It 'Get-XKCDExplanation -Min requires an input' {
+            { Get-XKCDExplanation -Min } | Should Throw
+        }
+        It 'Get-XKCDExplanation -Min rejects string input' {
+            { Get-XKCDExplanation -Min Seven } | Should Throw
+        }
+
+        It 'Get-XKCDExplanation -Max requires an input' {
+            { Get-XKCDExplanation -Max } | Should Throw
+        }
+        It 'Get-XKCDExplanation -Max rejects string input' {
+            { Get-XKCDExplanation -Max Twelve } | Should Throw
+        }
+    }
+
+    Context 'Parameter Set Tests' {
+
+        It 'Get-XKCDExplanation does not allow -Random and -Newest to be used together' {
+            { Get-XKCDExplanation -Random -Newest 10 } | Should Throw
+        }
+        It 'Get-XKCDExplanation does not allow -Random and -Num to be used together' {
+            { Get-XKCDExplanation -Random -Num 123 } | Should Throw
+        }
+        It 'Get-XKCDExplanation does not allow -Random and -Num and -Newest to be used together' {
+            { Get-XKCDExplanation -Random -Num 456 -Newest 5 } | Should Throw
+        }
     }
 }
 
@@ -83,6 +117,48 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Comic.Discussion | Should Not BeNullOrEmpty
             $Comic.Discussion | Should Not Match '\{\{|\}\}|\[\['
         }
+
+        It 'Get-XKCDExplanation -Explanation without -Show still returns all three properties' {
+            $Result = Get-XKCDExplanation -Num 2000 -Explanation
+            $Result.PSObject.Properties.Name | Should Contain 'Explanation'
+            $Result.PSObject.Properties.Name | Should Contain 'Transcript'
+            $Result.PSObject.Properties.Name | Should Contain 'Discussion'
+        }
+    }
+
+    Context 'Random Comic Tests' {
+
+        $Random = Get-XKCDExplanation -Random
+
+        It 'Get-XKCDExplanation -Random returns a PSCustomObject' {
+            $Random | Should BeOfType 'System.Management.Automation.PSCustomObject'
+        }
+
+        It 'Get-XKCDExplanation -Random returns non-empty explanation text' {
+            $Random.Explanation | Should Not BeNullOrEmpty
+        }
+    }
+
+    Context 'Random Range Tests' {
+
+        It 'Get-XKCDExplanation -Random -Min -Max returns a comic within the specified range' {
+            $RandomInRange = Get-XKCDExplanation -Random -Min 100 -Max 150
+            $RandomInRange.Num | Should BeGreaterThan 99
+            $RandomInRange.Num | Should BeLessThan 151
+        }
+    }
+
+    Context 'Newest Comic Tests' {
+
+        $Newest = Get-XKCDExplanation -Newest 3
+
+        It 'Get-XKCDExplanation -Newest 3 returns a PSCustomObject' {
+            $Newest | Should BeOfType 'System.Management.Automation.PSCustomObject'
+        }
+
+        It 'Get-XKCDExplanation -Newest 3 returns three results' {
+            $Newest.Count | Should Be 3
+        }
     }
 
     Context 'Pipeline Input Tests' {
@@ -118,6 +194,48 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         It 'Get-XKCDExplanation -Show -Full does not throw' {
             { Get-XKCDExplanation -Num 1 -Show -Full } | Should Not Throw
+        }
+
+        It 'Get-XKCDExplanation -Show -Explanation does not throw' {
+            { Get-XKCDExplanation -Num 1 -Show -Explanation } | Should Not Throw
+        }
+    }
+
+    Context 'Open Tests' {
+
+        # -Scope It keeps each assertion's call count limited to its own test, since mock call
+        # history otherwise accumulates for the duration of the Context.
+
+        It 'Get-XKCDExplanation -Open -Force opens the comic without prompting for confirmation' {
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCDExplanation -Num 1 -Open -Force } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 1 -Exactly -Scope It -ParameterFilter { $FilePath -eq 'https://xkcd.com/1' }
+        }
+
+        It 'Get-XKCDExplanation -Open opens fewer than 10 comics without prompting for confirmation' {
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCDExplanation -Num 2 -Open } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 1 -Exactly -Scope It -ParameterFilter { $FilePath -eq 'https://xkcd.com/2' }
+        }
+
+        It 'Get-XKCDExplanation -Open prompts for confirmation and opens comics when 10 or more are requested and confirmed' {
+            Mock -ModuleName $Module Read-Host { 'y' }
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCDExplanation -Num (11..20) -Open } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Read-Host -Times 1 -Exactly -Scope It
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 10 -Exactly -Scope It -ParameterFilter { $FilePath -match '^https://xkcd\.com/1[1-9]$|^https://xkcd\.com/20$' }
+        }
+
+        It 'Get-XKCDExplanation -Open prompts for confirmation and does not open comics when declined' {
+            Mock -ModuleName $Module Read-Host { 'n' }
+            Mock -ModuleName $Module Start-Process { }
+
+            { Get-XKCDExplanation -Num (21..30) -Open } | Should Not Throw
+            Assert-MockCalled -ModuleName $Module Read-Host -Times 1 -Exactly -Scope It
+            Assert-MockCalled -ModuleName $Module Start-Process -Times 0 -Exactly -Scope It -ParameterFilter { $FilePath -match '^https://xkcd\.com/2[1-9]$|^https://xkcd\.com/30$' }
         }
     }
 }
