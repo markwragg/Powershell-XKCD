@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.6.1] - 2026-08-28
 
 * `Show-XKCDExplanation` now displays the comic's alt text underneath its image, matching `Show-XKCD`.
 * Adds an `-Explanation` switch to `Get-XKCDExplanation` and `Show-XKCDExplanation`. `-Explanation`, `-Transcript`, and `-Discussion` now each display exactly the section(s) requested -- e.g. `-Transcript` on its own displays just the transcript, not the explanation -- as text only, without fetching or showing the comic image; the title and a link to the explanation are still shown. Use `-Full` to always display all three sections alongside the comic image.
