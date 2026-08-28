@@ -48,9 +48,10 @@ Function Get-XKCDCache {
         [int[]]
         $Num,
 
-        # Path to where comic data is cached
+        # Path to where comic data is cached. By default this is within the module path, unless a default has
+        # been saved with Set-XKCDDefault -CachePath.
         [string]
-        $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
     )
     begin {
         if (Test-Path $CachePath) {

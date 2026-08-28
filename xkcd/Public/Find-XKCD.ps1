@@ -44,13 +44,15 @@ Function Find-XKCD {
         [string]
         $Query,
 
-        # Search the full text of the comic data, not just the title
+        # Search the full text of the comic data, not just the title. Defaults to the value saved with
+        # Set-XKCDDefault -FullSearch, if any.
         [switch]
-        $FullSearch,
+        $FullSearch = (Get-XKCDDefaultValue -Name 'FullSearch' -Value $false),
 
-        # Path to where comic data is cached
+        # Path to where comic data is cached. By default this is within the module path, unless a default has
+        # been saved with Set-XKCDDefault -CachePath.
         [string]
-        $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
     )
     begin {
         # Ensure the cache is up to date

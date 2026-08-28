@@ -20,8 +20,10 @@ Function Update-XKCDCache {
     #>
     [cmdletbinding(SupportsShouldProcess)]
     Param(
+        # By default the cache is created/updated within the module path, unless a default has been saved with
+        # Set-XKCDDefault -CachePath.
         [string]
-        $CachePath = (Join-Path $PSScriptRoot 'XKCD.json')
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
     )
 
     $Max = (Invoke-RestMethod https://xkcd.com/info.0.json).num

@@ -1,5 +1,13 @@
 # Change Log
 
+## !Deploy
+
+* Adds a new `Get-XKCDExplanation` cmdlet, which retrieves a comic's "Explanation", "Transcript", and reader "Discussion" (from its explain xkcd talk page) via the [explain xkcd](https://www.explainxkcd.com/) wiki's MediaWiki API, with wiki markup stripped for readability. All three are always included on the returned object.
+* Adds a new `Show-XKCDExplanation` cmdlet (and a `-Show` switch on `Get-XKCDExplanation`) to display a comic's title, a hyperlink to its explain xkcd page, publish date, a hyperlink to it, image, and explanation in the console, with `-Transcript`, `-Discussion`, and `-Full` switches to also display the transcript and/or discussion, each under its own heading. Discussion messages show reply nesting as indentation and highlight each message's signature. Bold and italic text is rendered as such, code formatting in the explanation (including plain indented code samples) is highlighted, and links -- external, to other explain xkcd pages, and to Wikipedia/what-if.xkcd.com articles referenced via wiki templates -- are rendered as working hyperlinks on the linked words themselves, without printing the url.
+* Adds a new `Test-XKCD` cmdlet to check how many new comics have been published since the last one viewed via `Show-XKCD` or `Get-XKCD -Show`, with `-Quiet`, `-Detailed`, and `-WhatIf` support.
+* Adds new `Set-XKCDDefault` and `Get-XKCDDefault` cmdlets to save and inspect default preferences (`-HighQuality`, `-Path`, `-FullSearch`, `-CachePath`, `-StatePath`) used automatically by other cmdlets in the module, so common parameters no longer need repeating on every call.
+* `Show-XKCD`'s title is now bold, underlined, and coloured for better visibility, and the console output now also includes the comic's publish date and a hyperlink to it on xkcd.com.
+
 ## [1.5.3] - 2026-08-27
 
 * Fixes VS Code image detection: `WT_SESSION` (set by Windows Terminal) is now checked after `TERM_PROGRAM -eq 'vscode'` rather than before, since `WT_SESSION` can be inherited into VS Code's integrated terminal (e.g. when VS Code itself is launched from within a Windows Terminal session) and was previously suppressing the one-time "enable terminal.integrated.enableImages" warning.
@@ -7,7 +15,7 @@
 ## [1.5.2] - 2026-08-27
 
 * Adds a new `Get-XKCDCache` cmdlet to query the local comic cache directly (optionally filtered by `-Num`), without hitting the XKCD API for each comic. It warns if the cache is missing or out of date rather than refreshing it automatically -- run `Update-XKCDCache` to do that.
-* `Show-XKCD` and `Get-XKCD -Show` can now render images in VS Code's integrated terminal, which supports the Sixel protocol via its `terminal.integrated.enableImages` setting. A one-time warning is shown if that setting doesn't appear to be enabled.
+* `Show-XKCD` and `Get-XKCD -Show` can now render images in VS Code's integrated terminal, which supports the Sixel protocol via its `terminal.integrated.enableImages` setting. A one-time warning is shown if that setting doesn't appear to be enabled. Fixes [#10]((https://github.com/markwragg/Powershell-XKCD/issues/10). Thanks [@GJPearl](https://github.com/GJPearl)!
 
 ## [1.5.1] - 2026-08-27
 

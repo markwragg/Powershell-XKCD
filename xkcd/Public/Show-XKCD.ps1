@@ -10,6 +10,9 @@ Function Show-XKCD {
         By default, Show-XKCD displays the latest available comic. When you use the -Num parameter you can
         specify one or more specific comics to display.
 
+        Each displayed comic updates a local record of the most recently viewed comic, used by Test-XKCD to
+        report how many new comics have been published since you last checked.
+
     .EXAMPLE
         Show-XKCD
 
@@ -38,7 +41,7 @@ Function Show-XKCD {
     .LINK
         https://xkcd.com/json.html
     #>
-    [cmdletbinding()]
+    [cmdletbinding(SupportsShouldProcess)]
     Param(
         # Displays the specified comics. Accepts array input. By default the latest comic is displayed.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
@@ -46,9 +49,15 @@ Function Show-XKCD {
         $Num,
 
         # Displays the higher resolution (_2x) version of the image, where available. Comics that do not have a
-        # higher resolution version are displayed at the standard quality instead.
+        # higher resolution version are displayed at the standard quality instead. Defaults to the value saved
+        # with Set-XKCDDefault -HighQuality, if any.
         [switch]
-        $HighQuality
+        $HighQuality = (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false),
+
+        # Path to the file used to track the number of the most recently viewed comic (used by Test-XKCD). By
+        # default this is within the module path, unless a default has been saved with Set-XKCDDefault -StatePath.
+        [string]
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
     )
 
     Begin {
@@ -79,6 +88,11 @@ Function Show-XKCD {
             }
 
             Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
+
+            $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
+            if ($Comic.num -gt $LastViewedComic -and $PSCmdlet.ShouldProcess($StatePath, "Update last viewed comic to #$($Comic.num)")) {
+                [pscustomobject]@{ LastViewed = $Comic.num } | ConvertTo-Json | Out-File $StatePath -Force
+            }
         }
     }
 }

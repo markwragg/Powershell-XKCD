@@ -65,4 +65,25 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             { Show-XKCD -Num 1 -HighQuality -WarningAction SilentlyContinue } | Should Not Throw
         }
     }
+
+    Context 'Last Viewed State Tests' {
+
+        It 'Show-XKCD records the displayed comic as the most recently viewed' {
+            $StatePath = Join-Path $TestDrive 'show-state.json'
+
+            Show-XKCD -Num 100 -StatePath $StatePath
+
+            $StatePath | Should Exist
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should Be 100
+        }
+
+        It 'Show-XKCD does not lower the recorded comic when displaying an earlier one' {
+            $StatePath = Join-Path $TestDrive 'show-state-noregress.json'
+            [pscustomobject]@{ LastViewed = 500 } | ConvertTo-Json | Out-File $StatePath
+
+            Show-XKCD -Num 100 -StatePath $StatePath
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should Be 500
+        }
+    }
 }

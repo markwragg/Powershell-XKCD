@@ -10,6 +10,9 @@
         By default, Get-XKCD returns the details of the latest available comic. When you use the -num parameter
         you can specify one or more specific comics to return.
 
+        When used with -Show, each displayed comic updates a local record of the most recently viewed comic,
+        used by Test-XKCD to report how many new comics have been published since you last checked.
+
     .EXAMPLE
         Get-XKCD
 
@@ -102,14 +105,22 @@
         [switch]
         $Show,
 
-        # Use with -Download to specify a local directory to download to. By default this is the current working directory.
+        # Use with -Download to specify a local directory to download to. By default this is the current working
+        # directory, unless a default has been saved with Set-XKCDDefault -Path.
         [string]
-        $Path = $PWD,
+        $Path = (Get-XKCDDefaultValue -Name 'Path' -Value $PWD),
 
         # Use with -Download to download the higher resolution (_2x) version of the image, where available. Comics
-        # that do not have a higher resolution version are downloaded at the standard quality instead.
+        # that do not have a higher resolution version are downloaded at the standard quality instead. Defaults to
+        # the value saved with Set-XKCDDefault -HighQuality, if any.
         [switch]
-        $HighQuality,
+        $HighQuality = (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false),
+
+        # Use with -Show to specify the file used to track the number of the most recently viewed comic (used by
+        # Test-XKCD). By default this is within the module path, unless a default has been saved with
+        # Set-XKCDDefault -StatePath.
+        [string]
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json')),
 
         # Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
@@ -154,7 +165,7 @@
             }
 
             if ($Show) {
-                Show-XKCD -Num $ID -HighQuality:$HighQuality
+                Show-XKCD -Num $ID -HighQuality:$HighQuality -StatePath $StatePath
             }
 
             if ($Open) {

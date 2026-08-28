@@ -18,8 +18,9 @@ Function Show-XKCDComic {
 
     try {
         $esc = [char]27
-        $bold = "$esc[1m"
+        $titleStyle = "$esc[1;4;96m"
         $italic = "$esc[3m"
+        $dim = "$esc[2m"
         $reset = "$esc[0m"
         $newLine = [Environment]::NewLine
 
@@ -32,7 +33,12 @@ Function Show-XKCDComic {
         }
 
         [Console]::Out.Write($newLine)
-        [Console]::Out.Write("$bold#$($Comic.num): $($Comic.title)$reset")
+        [Console]::Out.Write("$titleStyle#$($Comic.num): $($Comic.title)$reset")
+        [Console]::Out.Write($newLine + $newLine)
+
+        $MetaText = Get-XKCDComicMetaText -Comic $Comic
+
+        [Console]::Out.Write("$dim$MetaText$reset")
         [Console]::Out.Write($newLine + $newLine)
 
         Show-XKCDImage -ImageBytes $ImageBytes

@@ -152,6 +152,15 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         It 'Get-XKCD -Show does not return the comic object' {
             Get-XKCD -Num 1 -Show | Should BeNullOrEmpty
         }
+
+        It 'Get-XKCD -Show records the displayed comic as the most recently viewed' {
+            $StatePath = Join-Path $TestDrive 'get-show-state.json'
+
+            Get-XKCD -Num 200 -Show -StatePath $StatePath
+
+            $StatePath | Should Exist
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should Be 200
+        }
     }
 
     Context 'Random Range Tests' {
