@@ -123,7 +123,7 @@ Type: SwitchParameter
 Parameter Sets: Random
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: False
 Accept pipeline input: False
