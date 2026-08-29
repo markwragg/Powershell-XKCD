@@ -5,8 +5,19 @@ Displays a comic's title, image, and alt text in the console.
 
 ## SYNTAX
 
+### Specific (Default)
 ```
 Show-XKCD [[-Num] <Int32[]>] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### Next
+```
+Show-XKCD [-Next] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### Previous
+```
+Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -17,8 +28,12 @@ By default, Show-XKCD displays the latest available comic.
 When you use the -Num parameter you can
 specify one or more specific comics to display.
 
-Each displayed comic updates a local record of the most recently viewed comic, used by Test-XKCD to
-report how many new comics have been published since you last checked.
+Each displayed comic updates a local state file with two records: the highest-numbered comic you've ever
+viewed, used by Test-XKCD to report how many new comics have been published since you last checked; and
+the comic you most recently displayed in either direction, used by -Next and -Previous so you can page
+back and forth through comics sequentially.
+-Next displays nothing once you've reached the latest comic,
+and -Previous displays nothing once you've reached comic #1.
 
 ## EXAMPLES
 
@@ -57,6 +72,26 @@ Get-XKCD -Show
 
 Shorthand equivalent of: Get-XKCD | Show-XKCD
 
+### EXAMPLE 6
+```
+Show-XKCD -Next
+```
+
+Displays the comic after the one you most recently displayed with Show-XKCD or Get-XKCD -Show, as
+recorded in the state file.
+Displays nothing if you're already at the latest comic.
+
+### EXAMPLE 7
+```
+Show-XKCD -Previous
+```
+
+Displays the comic before the one you most recently displayed with Show-XKCD or Get-XKCD -Show, as
+recorded in the state file.
+Calling -Previous repeatedly steps back further each time.
+Displays nothing
+if you're already at comic #1.
+
 ## PARAMETERS
 
 ### -Num
@@ -66,13 +101,47 @@ By default the latest comic is displayed.
 
 ```yaml
 Type: Int32[]
-Parameter Sets: (All)
+Parameter Sets: Specific
 Aliases:
 
 Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Next
+Displays the comic after the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded
+in the state file.
+Displays nothing if you're already at the latest comic.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Next
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Previous
+Displays the comic before the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded
+in the state file.
+Displays nothing if you're already at comic #1.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Previous
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

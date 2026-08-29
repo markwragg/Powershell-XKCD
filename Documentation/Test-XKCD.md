@@ -5,8 +5,14 @@ Checks whether any new comics have been published since the last time Test-XKCD 
 
 ## SYNTAX
 
+### Default (Default)
 ```
-Test-XKCD [-Quiet] [-Detailed] [[-StatePath] <String>] [<CommonParameters>]
+Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [<CommonParameters>]
+```
+
+### Num
+```
+Test-XKCD [-Num] <Int32> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -21,6 +27,8 @@ Use -Quiet to suppress this message
 and instead return a boolean.
 Use -Detailed to return a PSCustomObject describing how many new comics
 are available, alongside the last viewed and latest comic numbers.
+
+Use -Num to instead test whether a specific numbered comic exists, returning $true or $false.
 
 ## EXAMPLES
 
@@ -49,6 +57,13 @@ Returns a PSCustomObject detailing whether new comics are available, how many, a
 
 ### EXAMPLE 4
 ```
+Test-XKCD -Num 999999
+```
+
+Returns $true if comic #999999 exists, otherwise $false.
+
+### EXAMPLE 5
+```
 if (Test-XKCD -Quiet) { Test-XKCD }
 ```
 
@@ -60,12 +75,29 @@ comics are available.
 
 ## PARAMETERS
 
+### -Num
+Tests whether the specified comic number exists, returning $true or $false.
+When used, no other
+parameters are considered.
+
+```yaml
+Type: Int32
+Parameter Sets: Num
+Aliases:
+
+Required: True
+Position: 1
+Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Quiet
 Suppresses the friendly console message and instead returns a boolean.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: Default
 Aliases:
 
 Required: False
@@ -80,7 +112,7 @@ Returns a detailed PSCustomObject describing how many new comics are available, 
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: Default
 Aliases:
 
 Required: False
@@ -98,11 +130,11 @@ Set-XKCDDefault -StatePath.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: Default
 Aliases:
 
 Required: False
-Position: 1
+Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
