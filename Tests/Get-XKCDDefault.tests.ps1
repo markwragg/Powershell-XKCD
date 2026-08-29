@@ -4,10 +4,15 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../"
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../"
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+    }
 
     Context 'Missing Defaults File Tests' {
 
@@ -16,8 +21,8 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = Get-XKCDDefault -DefaultsPath $DefaultsPath
 
-            $Result | Should Not Be $null
-            $Result.HighQuality | Should BeNullOrEmpty
+            $Result | Should -Not -Be $null
+            $Result.HighQuality | Should -BeNullOrEmpty
         }
     }
 
@@ -29,8 +34,8 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = Get-XKCDDefault -DefaultsPath $DefaultsPath
 
-            $Result.HighQuality | Should Be $true
-            $Result.Path | Should Be 'C:\XKCD'
+            $Result.HighQuality | Should -Be $true
+            $Result.Path | Should -Be 'C:\XKCD'
         }
     }
 }

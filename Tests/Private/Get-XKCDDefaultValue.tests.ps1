@@ -4,12 +4,17 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-$ModuleObj = Get-Module $Module
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        $ModuleObj = Get-Module $Module
+    }
 
     Context 'Get-XKCDDefaultValue Tests' {
 
@@ -18,7 +23,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Get-XKCDDefaultValue -Name 'HighQuality' -Value 'FALLBACK' }
 
-            $Result | Should Be 'FALLBACK'
+            $Result | Should -Be 'FALLBACK'
         }
 
         It 'Returns the saved default value when one exists' {
@@ -26,7 +31,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Get-XKCDDefaultValue -Name 'HighQuality' -Value $false }
 
-            $Result | Should Be $true
+            $Result | Should -Be $true
         }
 
         It 'Returns a saved default of $false rather than the fallback' {
@@ -34,7 +39,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Get-XKCDDefaultValue -Name 'HighQuality' -Value $true }
 
-            $Result | Should Be $false
+            $Result | Should -Be $false
         }
     }
 }

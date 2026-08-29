@@ -4,12 +4,17 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-$ModuleObj = Get-Module $Module
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        $ModuleObj = Get-Module $Module
+    }
 
     Context 'Get-XKCDLastViewedComic Tests' {
 
@@ -18,7 +23,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Param($StatePath) Get-XKCDLastViewedComic -StatePath $StatePath } $StatePath
 
-            $Result | Should Be 0
+            $Result | Should -Be 0
         }
 
         It 'Returns the recorded value when the state file exists' {
@@ -27,7 +32,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result = & $ModuleObj { Param($StatePath) Get-XKCDLastViewedComic -StatePath $StatePath } $StatePath
 
-            $Result | Should Be 42
+            $Result | Should -Be 42
         }
     }
 }
