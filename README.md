@@ -121,6 +121,14 @@ Because Get-XKCDCache returns the whole local cache as objects, you can use Wher
 
 Checks whether any new comics have been published since you last viewed one with Show-XKCD or Get-XKCD -Show. By default it writes a friendly message to the console, e.g. `3 new XKCD comics available! The latest is #3290, published 26 August 2026.`. Add -Quiet to instead return `$true` or `$false`, or -Detailed to get a PSCustomObject reporting how many new comics are available and the last viewed vs latest comic numbers. Test-XKCD only reads the local record of the most recently viewed comic -- it never updates it.
 
+```powershell
+ if (Test-XKCD -Quiet) { Test-XKCD }
+``
+
+If new comics are available, this will write a friendly message to the console stating how many new comics are available (if any) and the publish date of the latest one, where determinable.
+
+Add this to your PowerShell `profile.ps1` to have it run automatically when you open a new session and prompt you only when new comics are available.
+
 17) `Get-XKCDExplanation` or `Get-XKCDExplanation 2000`
 
 Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as plain text (the site's wiki markup is stripped out for readability) -- by default that's the only section retrieved. Add -Transcript and/or -Discussion (reader comments, from its explain xkcd talk page) to also retrieve those, or -Full for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. By default it returns the explanation of the latest comic; use -Num to request specific comics, which -- like Get-XKCD -- also accepts array and pipeline input. Get-XKCDExplanation also supports the same -Random (-Min/-Max), -Newest, and -Open/-Force parameters as Get-XKCD, e.g. `Get-XKCDExplanation -Random -Min 1 -Max 100` or `Get-XKCDExplanation -Newest 5`.
