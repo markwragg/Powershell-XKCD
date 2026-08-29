@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.6.2] - 2026-08-29
 
 * `Get-XKCDExplanation` now only fetches the "Transcript" and "Discussion" sections (an extra API call each) when `-Transcript`, `-Discussion`, or `-Full` is specified, matching what `-Show` already displays -- the "Explanation" is still always retrieved. Sections that aren't requested are omitted from the returned object entirely, rather than being included empty. Previously all three were always fetched and returned regardless of the switches used.
 

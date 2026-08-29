@@ -25,11 +25,16 @@ Get-XKCDExplanation [-Newest <Int32>] [-Open] [-Explanation] [-Transcript] [-Dis
 
 ## DESCRIPTION
 The Get-XKCDExplanation cmdlet uses the explain xkcd wiki's MediaWiki API to retrieve a comic's
-"Explanation" and "Transcript" sections, and its reader "Discussion" (from its explain xkcd talk page),
-returning them as plain text, with the wiki markup used by the site stripped out for readability.
-All
-three are always included on the returned object, as its Explanation, Transcript, and Discussion
-properties.
+"Explanation" section, and optionally its "Transcript" section and reader "Discussion" (from its
+explain xkcd talk page), returning them as plain text, with the wiki markup used by the site stripped
+out for readability.
+
+By default, only the Explanation is retrieved.
+Use -Transcript and/or -Discussion to also retrieve
+those sections on the returned object, or -Full to always retrieve all three.
+Sections that aren't
+requested are never fetched from the API (saving a request each) and are omitted from the returned
+object entirely, rather than being included empty.
 
 With -Show (or on Show-XKCDExplanation), -Explanation, -Transcript, and -Discussion each display just
 that one section -- e.g.
@@ -37,8 +42,8 @@ that one section -- e.g.
 Combine them to display more than one, or use -Full to always display all three.
 Each displayed section
 is given its own heading.
-These switches only affect what's displayed; the returned object always has
-all three.
+These same switches determine what's fetched as well as what's displayed, so
+-Show never retrieves a section it isn't about to show.
 
 With -Show, -Explanation, -Transcript, and -Discussion (without -Full) display text sections only,
 without fetching or showing the comic image -- the title and a link to the explanation are still shown.
@@ -89,12 +94,12 @@ This command returns the explanation of the latest 5 comics.
 
 ### EXAMPLE 6
 ```
-(Get-XKCDExplanation 2000).Transcript
+(Get-XKCDExplanation 2000 -Transcript).Transcript
 ```
 
 This command returns just the transcript of comic number 2000.
-The Explanation, Transcript, and
-Discussion properties are always populated, so no switches are needed to retrieve them.
+-Transcript is required to retrieve it --
+by default only the Explanation is fetched and returned.
 
 ### EXAMPLE 7
 ```
@@ -201,12 +206,12 @@ Accept wildcard characters: False
 ```
 
 ### -Explanation
-Use with -Show to display the comic's "Explanation" section.
-Combine with -Transcript and/or
--Discussion to display more than one section.
-The returned object always includes it regardless of
-this switch.
-Defaults to the value saved with Set-XKCDDefault -Explanation, if any.
+Retrieves, and with -Show displays, the comic's "Explanation" section.
+The Explanation is always
+retrieved regardless of this switch -- it only affects what -Show displays, where combining it with
+-Transcript and/or -Discussion displays more than one section.
+Defaults to the value saved with
+Set-XKCDDefault -Explanation, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -221,12 +226,13 @@ Accept wildcard characters: False
 ```
 
 ### -Transcript
-Use with -Show to display the comic's "Transcript" section.
-Combine with -Explanation and/or
--Discussion to display more than one section.
-The returned object always includes it regardless of
-this switch.
-Defaults to the value saved with Set-XKCDDefault -Transcript, if any.
+Retrieves, and with -Show displays, the comic's "Transcript" section.
+Without this switch (or -Full),
+the Transcript is not fetched and its property is omitted from the returned object entirely.
+Combine
+with -Explanation and/or -Discussion to display more than one section with -Show.
+Defaults to the
+value saved with Set-XKCDDefault -Transcript, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -241,13 +247,12 @@ Accept wildcard characters: False
 ```
 
 ### -Discussion
-Use with -Show to display the comic's reader "Discussion", from its explain xkcd talk page.
-Combine
-with -Explanation and/or -Transcript to display more than one section.
-The returned object always
-includes it regardless of this switch.
-Defaults to the value saved with Set-XKCDDefault -Discussion,
-if any.
+Retrieves, and with -Show displays, the comic's reader "Discussion", from its explain xkcd talk page.
+Without this switch (or -Full), the Discussion is not fetched and its property is omitted from the
+returned object entirely.
+Combine with -Explanation and/or -Transcript to display more than one
+section with -Show.
+Defaults to the value saved with Set-XKCDDefault -Discussion, if any.
 
 ```yaml
 Type: SwitchParameter
@@ -262,11 +267,8 @@ Accept wildcard characters: False
 ```
 
 ### -Full
-Use with -Show to display all of the explanation, transcript, and discussion sections.
-The returned
-object always includes all three regardless of this switch.
-Defaults to the value saved with
-Set-XKCDDefault -Full, if any.
+Retrieves, and with -Show displays, all of the explanation, transcript, and discussion sections.
+Defaults to the value saved with Set-XKCDDefault -Full, if any.
 
 ```yaml
 Type: SwitchParameter
