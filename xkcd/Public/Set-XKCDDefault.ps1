@@ -1,4 +1,4 @@
-Function Set-XKCDDefault {
+function Set-XKCDDefault {
     <#
     .SYNOPSIS
         Sets default preferences used automatically by other cmdlets in this module, such as whether to use

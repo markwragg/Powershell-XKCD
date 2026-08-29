@@ -1,4 +1,4 @@
-Function ConvertTo-XKCDPlainText {
+function ConvertTo-XKCDPlainText {
     <#
     .SYNOPSIS
         Converts explainxkcd wikitext markup into plain, readable text for display in the console.
@@ -19,7 +19,7 @@ Function ConvertTo-XKCDPlainText {
         # kept for readability), and anything else that isn't url-safe (e.g. "?", seen in "what if? (blog)") is
         # percent-encoded so the link actually works, rather than being cut short or rejected by the server.
         # Parentheses are left literal, since e.g. "Installer_(OS_X)" is the real, working Wikipedia url.
-        Function Format-XKCDUrlSegment([string]$Value) {
+        function Format-XKCDUrlSegment([string]$Value) {
             $Underscored = $Value -replace ' ', '_'
             ([uri]::EscapeDataString($Underscored)) -replace '%28', '(' -replace '%29', ')'
         }

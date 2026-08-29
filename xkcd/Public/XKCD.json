@@ -42944,5 +42944,31 @@
     "img": "https://imgs.xkcd.com/comics/trade.png",
     "title": "Trade",
     "day": "26"
+  },
+  {
+    "month": "8",
+    "num": 3290,
+    "link": "",
+    "year": "2026",
+    "news": "",
+    "safe_title": "Trade",
+    "transcript": "",
+    "alt": "\"You legs may have a comparative advantage at running, but we arms have a competitive advantage at swinging hammers, so unless you accept that we're the dominant limbs and stop hogging the oxygen, that running advantage won't be around for long.\"",
+    "img": "https://imgs.xkcd.com/comics/trade.png",
+    "title": "Trade",
+    "day": "26"
+  },
+  {
+    "month": "8",
+    "num": 3291,
+    "link": "",
+    "year": "2026",
+    "news": "",
+    "safe_title": "Launchpad",
+    "transcript": "",
+    "alt": "It does come at the cost of some launchpad expansions and increased fuel requirements, but that all comes out of the facility's budget.",
+    "img": "https://imgs.xkcd.com/comics/launchpad.png",
+    "title": "Launchpad",
+    "day": "28"
   }
 ]

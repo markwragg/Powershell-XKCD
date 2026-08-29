@@ -1,4 +1,4 @@
-Function Update-XKCDCache {
+function Update-XKCDCache {
     <#
     .SYNOPSIS
         Updates the local cache of the XKCD API.
@@ -44,7 +44,7 @@ Function Update-XKCDCache {
 
     $LastComic = ($AllComics  | Sort-Object num -Descending | Select-Object -First 1).num
 
-    If ($Max -gt $LastComic) {
+    if ($Max -gt $LastComic) {
         Write-Verbose 'Refreshing cache with latest comics'
 
         ForEach ($Comic in $LastComic..$Max) {

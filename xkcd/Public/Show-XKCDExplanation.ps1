@@ -1,4 +1,4 @@
-Function Show-XKCDExplanation {
+function Show-XKCDExplanation {
     <#
     .SYNOPSIS
         Displays a comic's title, image, and explanation in the console.

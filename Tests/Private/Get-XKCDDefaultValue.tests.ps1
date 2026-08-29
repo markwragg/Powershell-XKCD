@@ -1,8 +1,6 @@
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-$Root = "$PSScriptRoot/../.."
-$Module = 'xkcd'
 
 Describe "Unit Tests PS$PSVersion" {
 

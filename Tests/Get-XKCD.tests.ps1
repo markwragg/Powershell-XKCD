@@ -1,8 +1,6 @@
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-$Root = "$PSScriptRoot/../"
-$Module = 'xkcd'
 
 Describe "Unit Tests PS$PSVersion" {
 
@@ -21,7 +19,7 @@ Describe "Unit Tests PS$PSVersion" {
         }
         It 'Get-XKCD -Newest rejects string input' {
             { Get-XKCD -Newest Ten } | Should -Throw
-        }        
+        }
         It 'Get-XKCD -Num requires an input' {
             { Get-XKCD -Num } | Should -Throw
         }
@@ -42,9 +40,8 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Get-XKCD -Max rejects string input' {
             { Get-XKCD -Max Twelve } | Should -Throw
         }
-    
     }
-    
+
     Context 'Parameter Set Tests' {
 
         It 'Get-XKCD does not allow -Random and -Newest to be used together' {
@@ -56,7 +53,6 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Get-XKCD does not allow -Random and -Num and -Newest to be used together' {
             { Get-XKCD -Random -Num 456 -Newest 5 } | Should -Throw
         }
-        
     }
 }
 
@@ -72,7 +68,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         # Get-XKCD -Show renders the comic straight to the console; running it here would otherwise spam
         # the real terminal with comic art every time these tests run.
-        Function Get-XKCDCapturedOutput {
+        function Get-XKCDCapturedOutput {
             Param(
                 [scriptblock]$ScriptBlock
             )
@@ -93,13 +89,12 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
     }
 
     Context 'Module Tests' {
-        
+
         It "Module '$Module' imports cleanly" {
             { Import-Module "$Root/$Module" -force } | Should -Not -Throw
         }
-
     }
-    
+
     Context 'Default Comic Tests' {
 
         BeforeAll {

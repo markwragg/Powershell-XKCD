@@ -1,4 +1,4 @@
-Function Get-XKCDCache {
+function Get-XKCDCache {
     <#
     .SYNOPSIS
         Returns the details of comics @ https://xkcd.com/ from the local cache.

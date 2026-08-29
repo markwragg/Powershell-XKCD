@@ -1,8 +1,6 @@
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-$Root = "$PSScriptRoot/../"
-$Module = 'xkcd'
 
 Describe "Unit Tests PS$PSVersion" {
 
@@ -13,7 +11,7 @@ Describe "Unit Tests PS$PSVersion" {
         Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
         Import-Module "$Root/$Module" -Force
 
-        Function Get-XKCDCapturedOutput {
+        function Get-XKCDCapturedOutput {
             Param(
                 [scriptblock]$ScriptBlock
             )
@@ -204,7 +202,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         # Show-XKCDExplanation writes the rendered explanation straight to the console; running it here
         # would otherwise spam the real terminal with comic art and explanation text every time these run.
-        Function Get-XKCDCapturedOutput {
+        function Get-XKCDCapturedOutput {
             Param(
                 [scriptblock]$ScriptBlock
             )

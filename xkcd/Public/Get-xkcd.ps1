@@ -1,4 +1,4 @@
-﻿Function Get-XKCD {
+﻿function Get-XKCD {
     <#
     .SYNOPSIS
         Gets the details of the comics @ https://xkcd.com/. Optionally can download the comic images.
@@ -73,7 +73,7 @@
     [cmdletbinding(DefaultParameterSetName = 'Specific', SupportsShouldProcess = $true)]
     Param (
         # Gets a random comic.
-        [Parameter(ParameterSetName = 'Random')]
+        [Parameter(ParameterSetName = 'Random', Mandatory)]
         [switch]
         $Random,
 
@@ -132,10 +132,10 @@
         $Force
     )
     Begin {
-        If (-not $Max) { $Max = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
-        If ($Random)   { $Num = Get-Random -min $Min -max $Max }
-        If ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
-        If (-not $Num) { $Num = $Max }
+        if (-not $Max) { $Max = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
+        if ($Random)   { $Num = Get-Random -min $Min -max $Max }
+        if ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
+        if (-not $Num) { $Num = $Max }
     }
     Process {
         $Num | ForEach-Object {

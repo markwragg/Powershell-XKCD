@@ -1,4 +1,4 @@
-Function Find-XKCD {
+function Find-XKCD {
     <#
     .SYNOPSIS
         Retrieves the details of comics @ https://xkcd.com/ based on whether a specified search string appears

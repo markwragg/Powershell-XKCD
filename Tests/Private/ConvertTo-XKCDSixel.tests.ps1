@@ -1,8 +1,6 @@
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-$Root = "$PSScriptRoot/../.."
-$Module = 'xkcd'
 
 Describe "Unit Tests PS$PSVersion" {
 
@@ -15,7 +13,7 @@ Describe "Unit Tests PS$PSVersion" {
 
         Add-Type -AssemblyName System.Drawing
 
-        Function New-XKCDTestImageBytes {
+        function New-XKCDTestImageBytes {
             Param(
                 [int]$Width = 4,
                 [int]$Height = 4,

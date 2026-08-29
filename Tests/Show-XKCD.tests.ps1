@@ -1,8 +1,6 @@
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-$Root = "$PSScriptRoot/../"
-$Module = 'xkcd'
 
 Describe "Unit Tests PS$PSVersion" {
 
@@ -34,7 +32,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         # Show-XKCD writes the rendered comic straight to the console; running it here would otherwise
         # spam the real terminal with comic art and text every time these tests run.
-        Function Get-XKCDCapturedOutput {
+        function Get-XKCDCapturedOutput {
             Param(
                 [scriptblock]$ScriptBlock
             )

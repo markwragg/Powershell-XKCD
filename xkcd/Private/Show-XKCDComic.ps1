@@ -1,4 +1,4 @@
-Function Show-XKCDComic {
+function Show-XKCDComic {
     <#
     .SYNOPSIS
         Displays a comic's title above its image and its alt text below, formatted for the console.

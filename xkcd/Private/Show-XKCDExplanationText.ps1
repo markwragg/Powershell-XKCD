@@ -1,4 +1,4 @@
-Function Show-XKCDExplanationText {
+function Show-XKCDExplanationText {
     <#
     .SYNOPSIS
         Displays a comic's title and image above its retrieved explainxkcd sections, formatted for the console.
@@ -60,7 +60,7 @@ Function Show-XKCDExplanationText {
         # actually looks on screen, rather than its much longer raw string length (which would otherwise wrap
         # far too early, since e.g. a short hyperlinked word carries dozens of invisible characters).
         $AnsiPattern = "$esc\[[0-9;]*[A-Za-z]|$esc\][^$esc]*$esc\\"
-        Function Get-VisibleLength([string]$Text) {
+        function Get-VisibleLength([string]$Text) {
             ($Text -replace $AnsiPattern, '').Length
         }
 

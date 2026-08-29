@@ -1,4 +1,4 @@
-Function Get-XKCDLastViewedComic {
+function Get-XKCDLastViewedComic {
     <#
     .SYNOPSIS
         Returns the number of the most recently viewed comic recorded in the given state file, or 0 if the

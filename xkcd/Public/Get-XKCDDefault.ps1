@@ -1,4 +1,4 @@
-Function Get-XKCDDefault {
+function Get-XKCDDefault {
     <#
     .SYNOPSIS
         Gets the default preferences saved by Set-XKCDDefault.

@@ -1,4 +1,4 @@
-Function Get-XKCDComicMetaText {
+function Get-XKCDComicMetaText {
     <#
     .SYNOPSIS
         Builds the dimmed "publish date - hyperlink" line shown under a comic's title in the console.

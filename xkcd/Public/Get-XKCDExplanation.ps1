@@ -1,4 +1,4 @@
-Function Get-XKCDExplanation {
+function Get-XKCDExplanation {
     <#
     .SYNOPSIS
         Gets the explanation of a comic from the explain xkcd wiki: https://www.explainxkcd.com/.
@@ -155,10 +155,10 @@ Function Get-XKCDExplanation {
     )
 
     Begin {
-        If (-not $Max) { $Max = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
-        If ($Random)   { $Num = Get-Random -min $Min -max $Max }
-        If ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
-        If (-not $Num) { $Num = $Max }
+        if (-not $Max) { $Max = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
+        if ($Random)   { $Num = Get-Random -min $Min -max $Max }
+        if ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
+        if (-not $Num) { $Num = $Max }
     }
 
     Process {

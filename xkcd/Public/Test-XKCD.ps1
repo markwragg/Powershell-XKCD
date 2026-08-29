@@ -1,4 +1,4 @@
-Function Test-XKCD {
+function Test-XKCD {
     <#
     .SYNOPSIS
         Checks whether any new comics have been published since the last time Test-XKCD was run.

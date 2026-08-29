@@ -189,7 +189,7 @@ Task 'UpdateDocumentation' -Depends 'ImportStagingModule' {
     $lines
     Write-Output "Updating Markdown help in Staging folder: [$DocumentationPath]`n"
 
-    If (Test-Path $DocumentationPath) {
+    if (Test-Path $DocumentationPath) {
         Remove-Item -Path $DocumentationPath -Recurse -Force -ErrorAction 'SilentlyContinue'
         Start-Sleep -Seconds 5
     }

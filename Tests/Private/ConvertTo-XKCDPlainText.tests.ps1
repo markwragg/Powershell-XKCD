@@ -1,8 +1,6 @@
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 $PSVersion = $PSVersionTable.PSVersion.Major
-$Root = "$PSScriptRoot/../.."
-$Module = 'xkcd'
 
 Describe "Unit Tests PS$PSVersion" {
 
@@ -15,7 +13,7 @@ Describe "Unit Tests PS$PSVersion" {
 
         $ModuleObj = Get-Module $Module
 
-        Function Convert-XKCDTestWikiText {
+        function Convert-XKCDTestWikiText {
             Param([string]$WikiText)
 
             & $ModuleObj { Param($WikiText) ConvertTo-XKCDPlainText -WikiText $WikiText } $WikiText

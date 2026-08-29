@@ -1,4 +1,4 @@
-Function ConvertTo-XKCDSixel {
+function ConvertTo-XKCDSixel {
     <#
     .SYNOPSIS
         Converts raw image bytes into a Sixel escape sequence that can be written to a Sixel-capable terminal.

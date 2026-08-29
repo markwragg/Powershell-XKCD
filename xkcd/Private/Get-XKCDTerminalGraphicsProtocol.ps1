@@ -1,4 +1,4 @@
-Function Get-XKCDTerminalGraphicsProtocol {
+function Get-XKCDTerminalGraphicsProtocol {
     <#
     .SYNOPSIS
         Detects which inline image graphics protocol, if any, the current terminal supports.

@@ -1,4 +1,4 @@
-Function Show-XKCDImage {
+function Show-XKCDImage {
     <#
     .SYNOPSIS
         Writes an image to the console using whichever inline graphics protocol the terminal supports
