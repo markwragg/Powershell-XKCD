@@ -3,7 +3,10 @@ if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Pat
 # Fall back to locally-derived values when not running under the BuildHelpers-driven build (which sets
 # these as real environment variables so they survive Pester's Discovery/Run split, unlike plain variables).
 if (-not $env:BHProjectPath) { $env:BHProjectPath = (Resolve-Path "$PSScriptRoot/../..").ProviderPath }
-if (-not $env:BHProjectName) { $env:BHProjectName = 'xkcd' }
+if (-not $env:BHProjectName) {
+    $env:BHProjectName = (Get-ChildItem -Path $env:BHProjectPath -Filter '*.psd1' -Recurse -Depth 1 |
+        Where-Object { $_.BaseName -eq $_.Directory.Name }).BaseName
+}
 if (-not $env:BHModulePath) { $env:BHModulePath = Join-Path $env:BHProjectPath $env:BHProjectName }
 if (-not $env:BHPSModuleManifest) { $env:BHPSModuleManifest = Join-Path $env:BHModulePath "$env:BHProjectName.psd1" }
 
