@@ -9,6 +9,14 @@ Import-Module "$Root/$Module" -Force
 
 Describe "Unit Tests PS$PSVersion" {
 
+    BeforeAll {
+        $Root = "$PSScriptRoot/../"
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+    }
+
     Context 'Cache Creation Tests' {
 
         BeforeAll {

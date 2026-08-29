@@ -4,12 +4,17 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-$ModuleObj = Get-Module $Module
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        $ModuleObj = Get-Module $Module
+    }
 
     Context 'Get-XKCDDefaultValue Tests' {
 

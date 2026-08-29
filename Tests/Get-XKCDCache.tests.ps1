@@ -9,6 +9,14 @@ Import-Module "$Root/$Module" -Force
 
 Describe "Unit Tests PS$PSVersion" {
 
+    BeforeAll {
+        $Root = "$PSScriptRoot/../"
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+    }
+
     Context 'Parameter Input Tests' {
 
         It 'Get-XKCDCache -Num rejects string input' {
@@ -76,6 +84,14 @@ Describe "Unit Tests PS$PSVersion" {
 
 
 Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../"
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+    }
 
     Context 'Module Tests' {
 

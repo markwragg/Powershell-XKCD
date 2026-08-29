@@ -4,43 +4,50 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-Add-Type -AssemblyName System.Drawing
-
-Function New-XKCDTestImageBytes {
-    Param(
-        [int]$Width = 4,
-        [int]$Height = 4,
-        [System.Drawing.Color]$Color = [System.Drawing.Color]::Red
-    )
-
-    $bitmap = [System.Drawing.Bitmap]::new($Width, $Height)
-
-    for ($x = 0; $x -lt $Width; $x++) {
-        for ($y = 0; $y -lt $Height; $y++) {
-            $bitmap.SetPixel($x, $y, $Color)
-        }
-    }
-
-    $stream = [System.IO.MemoryStream]::new()
-    $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
-    $bitmap.Dispose()
-
-    , $stream.ToArray()
-}
-
-$ModuleObj = Get-Module $Module
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        Add-Type -AssemblyName System.Drawing
+
+        Function New-XKCDTestImageBytes {
+            Param(
+                [int]$Width = 4,
+                [int]$Height = 4,
+                [System.Drawing.Color]$Color = [System.Drawing.Color]::Red
+            )
+
+            $bitmap = [System.Drawing.Bitmap]::new($Width, $Height)
+
+            for ($x = 0; $x -lt $Width; $x++) {
+                for ($y = 0; $y -lt $Height; $y++) {
+                    $bitmap.SetPixel($x, $y, $Color)
+                }
+            }
+
+            $stream = [System.IO.MemoryStream]::new()
+            $bitmap.Save($stream, [System.Drawing.Imaging.ImageFormat]::Png)
+            $bitmap.Dispose()
+
+            , $stream.ToArray()
+        }
+
+        $ModuleObj = Get-Module $Module
+    }
 
     Context 'ConvertTo-XKCDSixel Tests' {
 
-        $esc = [char]27
-        $ImageBytes = New-XKCDTestImageBytes -Width 4 -Height 4
+        BeforeAll {
+            $esc = [char]27
+            $ImageBytes = New-XKCDTestImageBytes -Width 4 -Height 4
 
-        $Sixel = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes } $ImageBytes
+            $Sixel = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes } $ImageBytes
+        }
 
         It 'Returns a string' {
             $Sixel | Should -BeOfType [string]
@@ -62,9 +69,11 @@ Describe "Unit Tests PS$PSVersion" {
 
     Context 'ConvertTo-XKCDSixel MaxWidth Tests' {
 
-        $WideImageBytes = New-XKCDTestImageBytes -Width 10 -Height 4
+        BeforeAll {
+            $WideImageBytes = New-XKCDTestImageBytes -Width 10 -Height 4
 
-        $Sixel = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 5 } $WideImageBytes
+            $Sixel = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 5 } $WideImageBytes
+        }
 
         It 'Downscales images wider than -MaxWidth, preserving aspect ratio' {
             $esc = [char]27

@@ -4,18 +4,25 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+    }
 
     Context 'Get-XKCDTerminalGraphicsProtocol Tests' {
 
-        # Preserve the real environment so detection of the terminal running these tests doesn't leak in/out
-        $OriginalTerm = $env:TERM
-        $OriginalKittyWindowId = $env:KITTY_WINDOW_ID
-        $OriginalTermProgram = $env:TERM_PROGRAM
-        $OriginalWtSession = $env:WT_SESSION
+        BeforeAll {
+            # Preserve the real environment so detection of the terminal running these tests doesn't leak in/out
+            $OriginalTerm = $env:TERM
+            $OriginalKittyWindowId = $env:KITTY_WINDOW_ID
+            $OriginalTermProgram = $env:TERM_PROGRAM
+            $OriginalWtSession = $env:WT_SESSION
+        }
 
         BeforeEach {
             $env:TERM = $null
@@ -93,11 +100,13 @@ Describe "Unit Tests PS$PSVersion" {
 
     Context 'VS Code Detection Tests' {
 
-        # Preserve the real environment so detection of the terminal running these tests doesn't leak in/out
-        $OriginalTerm = $env:TERM
-        $OriginalKittyWindowId = $env:KITTY_WINDOW_ID
-        $OriginalTermProgram = $env:TERM_PROGRAM
-        $OriginalWtSession = $env:WT_SESSION
+        BeforeAll {
+            # Preserve the real environment so detection of the terminal running these tests doesn't leak in/out
+            $OriginalTerm = $env:TERM
+            $OriginalKittyWindowId = $env:KITTY_WINDOW_ID
+            $OriginalTermProgram = $env:TERM_PROGRAM
+            $OriginalWtSession = $env:WT_SESSION
+        }
 
         BeforeEach {
             $env:TERM = $null

@@ -4,18 +4,23 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-$ModuleObj = Get-Module $Module
-
-Function Convert-XKCDTestWikiText {
-    Param([string]$WikiText)
-
-    & $ModuleObj { Param($WikiText) ConvertTo-XKCDPlainText -WikiText $WikiText } $WikiText
-}
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        $ModuleObj = Get-Module $Module
+
+        Function Convert-XKCDTestWikiText {
+            Param([string]$WikiText)
+
+            & $ModuleObj { Param($WikiText) ConvertTo-XKCDPlainText -WikiText $WikiText } $WikiText
+        }
+    }
 
     Context 'Heading and Comment Tests' {
 

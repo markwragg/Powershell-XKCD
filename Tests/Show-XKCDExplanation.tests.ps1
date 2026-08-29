@@ -4,29 +4,34 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../"
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-Function Get-XKCDCapturedOutput {
-    Param(
-        [scriptblock]$ScriptBlock
-    )
-
-    $OriginalOut = [Console]::Out
-    $Writer = [System.IO.StringWriter]::new()
-
-    try {
-        [Console]::SetOut($Writer)
-        & $ScriptBlock
-    }
-    finally {
-        [Console]::SetOut($OriginalOut)
-    }
-
-    $Writer.ToString()
-}
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../"
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        Function Get-XKCDCapturedOutput {
+            Param(
+                [scriptblock]$ScriptBlock
+            )
+
+            $OriginalOut = [Console]::Out
+            $Writer = [System.IO.StringWriter]::new()
+
+            try {
+                [Console]::SetOut($Writer)
+                & $ScriptBlock
+            }
+            finally {
+                [Console]::SetOut($OriginalOut)
+            }
+
+            $Writer.ToString()
+        }
+    }
 
     Context 'Parameter Input Tests' {
 
@@ -40,26 +45,28 @@ Describe "Unit Tests PS$PSVersion" {
         # Mocks isolate Show-XKCDExplanation from the live network, so these tests can assert on
         # exactly when the comic image is (and isn't) fetched and displayed.
 
-        Mock -ModuleName $Module Get-XKCDExplanation {
-            [pscustomobject]@{
-                Num         = 1000
-                Title       = 'A Test Comic'
-                Url         = 'https://www.explainxkcd.com/wiki/index.php/1000'
-                Explanation = 'The explanation text.'
-                Transcript  = 'The transcript text.'
-                Discussion  = 'The discussion text.'
+        BeforeAll {
+            Mock -ModuleName $Module Get-XKCDExplanation {
+                [pscustomobject]@{
+                    Num         = 1000
+                    Title       = 'A Test Comic'
+                    Url         = 'https://www.explainxkcd.com/wiki/index.php/1000'
+                    Explanation = 'The explanation text.'
+                    Transcript  = 'The transcript text.'
+                    Discussion  = 'The discussion text.'
+                }
             }
-        }
-        Mock -ModuleName $Module Get-XKCD {
-            [pscustomobject]@{
-                num   = 1000
-                title = 'A Test Comic'
-                img   = 'https://imgs.xkcd.com/comics/test.png'
-                alt   = 'Some alt text for the test comic.'
+            Mock -ModuleName $Module Get-XKCD {
+                [pscustomobject]@{
+                    num   = 1000
+                    title = 'A Test Comic'
+                    img   = 'https://imgs.xkcd.com/comics/test.png'
+                    alt   = 'Some alt text for the test comic.'
+                }
             }
+            Mock -ModuleName $Module Invoke-WebRequest { [pscustomobject]@{ Content = [byte[]](1..10) } }
+            Mock -ModuleName $Module Show-XKCDImage { }
         }
-        Mock -ModuleName $Module Invoke-WebRequest { [pscustomobject]@{ Content = [byte[]](1..10) } }
-        Mock -ModuleName $Module Show-XKCDImage { }
 
         It 'Fetches and displays the comic image by default' {
             $Output = Get-XKCDCapturedOutput { Show-XKCDExplanation -Num 1000 }
@@ -110,26 +117,28 @@ Describe "Unit Tests PS$PSVersion" {
 
     Context 'Section Selection Tests' {
 
-        Mock -ModuleName $Module Get-XKCDExplanation {
-            [pscustomobject]@{
-                Num         = 1000
-                Title       = 'A Test Comic'
-                Url         = 'https://www.explainxkcd.com/wiki/index.php/1000'
-                Explanation = 'The explanation text.'
-                Transcript  = 'The transcript text.'
-                Discussion  = 'The discussion text.'
+        BeforeAll {
+            Mock -ModuleName $Module Get-XKCDExplanation {
+                [pscustomobject]@{
+                    Num         = 1000
+                    Title       = 'A Test Comic'
+                    Url         = 'https://www.explainxkcd.com/wiki/index.php/1000'
+                    Explanation = 'The explanation text.'
+                    Transcript  = 'The transcript text.'
+                    Discussion  = 'The discussion text.'
+                }
             }
-        }
-        Mock -ModuleName $Module Get-XKCD {
-            [pscustomobject]@{
-                num   = 1000
-                title = 'A Test Comic'
-                img   = 'https://imgs.xkcd.com/comics/test.png'
-                alt   = 'Some alt text for the test comic.'
+            Mock -ModuleName $Module Get-XKCD {
+                [pscustomobject]@{
+                    num   = 1000
+                    title = 'A Test Comic'
+                    img   = 'https://imgs.xkcd.com/comics/test.png'
+                    alt   = 'Some alt text for the test comic.'
+                }
             }
+            Mock -ModuleName $Module Invoke-WebRequest { [pscustomobject]@{ Content = [byte[]](1..10) } }
+            Mock -ModuleName $Module Show-XKCDImage { }
         }
-        Mock -ModuleName $Module Invoke-WebRequest { [pscustomobject]@{ Content = [byte[]](1..10) } }
-        Mock -ModuleName $Module Show-XKCDImage { }
 
         It 'By default, displays only the explanation' {
             $Output = Get-XKCDCapturedOutput { Show-XKCDExplanation -Num 1000 }
@@ -185,6 +194,14 @@ Describe "Unit Tests PS$PSVersion" {
 
 
 Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../"
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+    }
 
     Context 'Module Tests' {
 

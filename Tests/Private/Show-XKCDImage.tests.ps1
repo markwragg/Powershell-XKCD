@@ -4,31 +4,36 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../.."
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
-$ModuleObj = Get-Module $Module
-
-Function Get-XKCDCapturedOutput {
-    Param(
-        [scriptblock]$ScriptBlock
-    )
-
-    $OriginalOut = [Console]::Out
-    $Writer = [System.IO.StringWriter]::new()
-
-    try {
-        [Console]::SetOut($Writer)
-        & $ScriptBlock
-    }
-    finally {
-        [Console]::SetOut($OriginalOut)
-    }
-
-    $Writer.ToString()
-}
-
 Describe "Unit Tests PS$PSVersion" {
+
+    BeforeAll {
+        $Root = "$PSScriptRoot/../.."
+        $Module = 'xkcd'
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
+
+        $ModuleObj = Get-Module $Module
+
+        Function Get-XKCDCapturedOutput {
+            Param(
+                [scriptblock]$ScriptBlock
+            )
+
+            $OriginalOut = [Console]::Out
+            $Writer = [System.IO.StringWriter]::new()
+
+            try {
+                [Console]::SetOut($Writer)
+                & $ScriptBlock
+            }
+            finally {
+                [Console]::SetOut($OriginalOut)
+            }
+
+            $Writer.ToString()
+        }
+    }
 
     Context 'Show-XKCDImage Kitty Tests' {
 
