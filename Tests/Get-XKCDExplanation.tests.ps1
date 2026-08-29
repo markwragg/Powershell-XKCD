@@ -139,28 +139,42 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
     Context 'Transcript and Discussion Tests' {
 
-        BeforeAll {
-            # No -Transcript/-Discussion/-Full switches: these properties are always populated
+        It 'Get-XKCDExplanation without -Transcript/-Discussion/-Full omits the Transcript and Discussion properties' {
             $Comic = Get-XKCDExplanation -Num 2000
+
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'Transcript'
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'Discussion'
         }
 
-        It 'Get-XKCDExplanation always returns a Transcript property' {
-            $Comic.PSObject.Properties.Name | Should -Contain 'Transcript'
+        It 'Get-XKCDExplanation -Transcript retrieves the Transcript but not the Discussion' {
+            $Comic = Get-XKCDExplanation -Num 2000 -Transcript
+
             $Comic.Transcript | Should -Match 'Dockless'
             $Comic.Transcript | Should -Not -Match '\{\{|\}\}|\[\['
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'Discussion'
         }
 
-        It 'Get-XKCDExplanation always returns a Discussion property' {
-            $Comic.PSObject.Properties.Name | Should -Contain 'Discussion'
+        It 'Get-XKCDExplanation -Discussion retrieves the Discussion but not the Transcript' {
+            $Comic = Get-XKCDExplanation -Num 2000 -Discussion
+
             $Comic.Discussion | Should -Not -BeNullOrEmpty
             $Comic.Discussion | Should -Not -Match '\{\{|\}\}|\[\['
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'Transcript'
         }
 
-        It 'Get-XKCDExplanation -Explanation without -Show still returns all three properties' {
+        It 'Get-XKCDExplanation -Full retrieves both the Transcript and the Discussion' {
+            $Comic = Get-XKCDExplanation -Num 2000 -Full
+
+            $Comic.Transcript | Should -Match 'Dockless'
+            $Comic.Discussion | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Get-XKCDExplanation -Explanation without -Show only returns the Explanation property' {
             $Result = Get-XKCDExplanation -Num 2000 -Explanation
             $Result.PSObject.Properties.Name | Should -Contain 'Explanation'
-            $Result.PSObject.Properties.Name | Should -Contain 'Transcript'
-            $Result.PSObject.Properties.Name | Should -Contain 'Discussion'
+            $Result.PSObject.Properties.Name | Should -Not -Contain 'Transcript'
+            $Result.PSObject.Properties.Name | Should -Not -Contain 'Discussion'
+            $Result.Explanation | Should -Not -BeNullOrEmpty
         }
     }
 

@@ -112,7 +112,8 @@ function Show-XKCDExplanation {
 
     Process {
         $Num | ForEach-Object {
-            $ExplanationResult = Get-XKCDExplanation -Num $_
+            # Forwarded so Get-XKCDExplanation only fetches the sections that are actually about to be displayed.
+            $ExplanationResult = Get-XKCDExplanation -Num $_ -Explanation:$Explanation -Transcript:$Transcript -Discussion:$Discussion -Full:$Full
             if (-not $ExplanationResult) { return }
 
             # -Explanation, -Transcript, and -Discussion request text sections only, skipping the comic image

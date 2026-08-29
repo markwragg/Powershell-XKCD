@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* `Get-XKCDExplanation` now only fetches the "Transcript" and "Discussion" sections (an extra API call each) when `-Transcript`, `-Discussion`, or `-Full` is specified, matching what `-Show` already displays -- the "Explanation" is still always retrieved. Sections that aren't requested are omitted from the returned object entirely, rather than being included empty. Previously all three were always fetched and returned regardless of the switches used.
+
 ## [1.6.1] - 2026-08-28
 
 * `Show-XKCDExplanation` now displays the comic's alt text underneath its image, matching `Show-XKCD`.

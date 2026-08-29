@@ -2,7 +2,9 @@
 
 [![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.Powershell-XKCD?branchName=master)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=9&branchName=master) ![coverage](https://img.shields.io/badge/coverage-93%25-brightgreen.svg)
 
-A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ https://xkcd.com.
+A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ https://xkcd.com. Modern Terminals can now also view the comic directly in the terminal.
+
+Additionally, community XKCD comic explanations can be accessed from the https://www.explainxkcd.com/ wiki. Modern Terminals can also display these directly in the terminal, with limited formatting.
 
 ## XKCD
 
@@ -11,14 +13,22 @@ XKCD is a webcomic by Randall Munroe. Please respect the license of his work as 
 ## Requirements
 
 - The API provided by xkcd.com must be functional: https://xkcd.com/json.html
-- This script requires PowerShell 3.0 or above.
+- The API provided by explainxkcd.com must be functional: https://www.explainxkcd.com/wiki/api.php
+- PowerShell 3.0 or newer.
+- A modern terminal, is required to view comics directly from the command-line. Supported terminals include Windows Terminal, VSCode, iTerm2 and Kitty.
 
 ## Installation
 
-This module is published in the PowerShell Gallery as [XKCD](https://www.powershellgallery.com/packages/XKCD/1.4.36.0) so if you have PowerShell 5 or the Package Management modules, it can be installed by entering the following in a PowerShell window:
+This module is published in the PowerShell Gallery as [XKCD](https://www.powershellgallery.com/packages/XKCD/1.4.36.0) so if you have PowerShell 5+ or the Package Management modules, it can be installed by entering the following in a PowerShell window:
 
-```
+```powershell
 Install-Module -Name XKCD
+```
+
+Or:
+
+```powershell
+Install-PSResource -Name XKCD
 ```
 
 ## Usage Examples
@@ -113,7 +123,7 @@ Checks whether any new comics have been published since you last viewed one with
 
 17) `Get-XKCDExplanation` or `Get-XKCDExplanation 2000`
 
-Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation", "Transcript", and "Discussion" (reader comments, from its explain xkcd talk page) as plain text (the site's wiki markup is stripped out for readability) -- all three are always included, so no switches are needed to retrieve them, e.g. `(Get-XKCDExplanation 2000).Transcript`. By default it returns the explanation of the latest comic; use -Num to request specific comics, which -- like Get-XKCD -- also accepts array and pipeline input. Get-XKCDExplanation also supports the same -Random (-Min/-Max), -Newest, and -Open/-Force parameters as Get-XKCD, e.g. `Get-XKCDExplanation -Random -Min 1 -Max 100` or `Get-XKCDExplanation -Newest 5`.
+Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as plain text (the site's wiki markup is stripped out for readability) -- by default that's the only section retrieved. Add -Transcript and/or -Discussion (reader comments, from its explain xkcd talk page) to also retrieve those, or -Full for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. By default it returns the explanation of the latest comic; use -Num to request specific comics, which -- like Get-XKCD -- also accepts array and pipeline input. Get-XKCDExplanation also supports the same -Random (-Min/-Max), -Newest, and -Open/-Force parameters as Get-XKCD, e.g. `Get-XKCDExplanation -Random -Min 1 -Max 100` or `Get-XKCDExplanation -Newest 5`.
 
 18) `Get-XKCDExplanation -Show` or `Show-XKCDExplanation`
 
@@ -127,7 +137,7 @@ Show-XKCDExplanation accepts the same -Num parameter as Get-XKCDExplanation (and
 
 20) `Get-XKCDExplanation -Show -Explanation`, `-Transcript`, `-Discussion`, or `-Full`
 
-Use -Explanation, -Transcript, and/or -Discussion to display exactly the section(s) you want -- e.g. `-Transcript` on its own displays just the transcript, not the explanation -- each under its own heading. Combine them to display more than one, or use -Full to always display all three. By default (no switches) just the explanation is shown. -Explanation, -Transcript, and -Discussion display text only, without fetching or showing the comic image -- the title and a link to the explanation are still shown; -Full always shows the comic image alongside every section. These switches (and the same ones on Show-XKCDExplanation, e.g. `Show-XKCDExplanation 2000 -Full`) only affect what's displayed; Get-XKCDExplanation's returned object always includes all three regardless.
+Use -Explanation, -Transcript, and/or -Discussion to display exactly the section(s) you want -- e.g. `-Transcript` on its own displays just the transcript, not the explanation -- each under its own heading. Combine them to display more than one, or use -Full to always display all three. By default (no switches) just the explanation is shown. -Explanation, -Transcript, and -Discussion display text only, without fetching or showing the comic image -- the title and a link to the explanation are still shown; -Full always shows the comic image alongside every section. These switches (and the same ones on Show-XKCDExplanation, e.g. `Show-XKCDExplanation 2000 -Full`) also control which sections Get-XKCDExplanation fetches in the first place, so displaying (or returning) just one section skips the API calls for the others.
 
 21) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
 
