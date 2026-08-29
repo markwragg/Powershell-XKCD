@@ -47,6 +47,17 @@ Test-XKCD -Detailed
 
 Returns a PSCustomObject detailing whether new comics are available, how many, and the last viewed vs latest comic numbers.
 
+### EXAMPLE 4
+```
+if (Test-XKCD -Quiet) { Test-XKCD }
+```
+
+If new comics are available, this will write a friendly message to the console stating how many new comics are available
+(if any) and the publish date of the latest one, where determinable.
+
+Add this to your PowerShell profile.ps1 to have it run automatically when you open a new session and prompt you only when new
+comics are available.
+
 ## PARAMETERS
 
 ### -Quiet
