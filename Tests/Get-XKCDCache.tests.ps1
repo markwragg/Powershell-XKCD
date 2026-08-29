@@ -4,9 +4,6 @@ $PSVersion = $PSVersionTable.PSVersion.Major
 $Root = "$PSScriptRoot/../"
 $Module = 'xkcd'
 
-Get-Module $Module | Remove-Module -Force
-Import-Module "$Root/$Module" -Force
-
 Describe "Unit Tests PS$PSVersion" {
 
     BeforeAll {
