@@ -1,4 +1,3 @@
-# This runs all PSScriptAnalyzer rules as Pester tests to enable visibility when publishing test results
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 # Fall back to locally-derived values when not running under the BuildHelpers-driven build (which sets

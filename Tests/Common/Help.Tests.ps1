@@ -1,10 +1,12 @@
-# Taken with love from @juneb_get_help (https://raw.githubusercontent.com/juneb/PesterTDD/master/Module.Help.Tests.ps1)
 if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
 
 # Fall back to locally-derived values when not running under the BuildHelpers-driven build (which sets
 # these as real environment variables so they survive Pester's Discovery/Run split, unlike plain variables).
 if (-not $env:BHProjectPath) { $env:BHProjectPath = (Resolve-Path "$PSScriptRoot/../..").ProviderPath }
-if (-not $env:BHProjectName) { $env:BHProjectName = 'xkcd' }
+if (-not $env:BHProjectName) {
+    $env:BHProjectName = (Get-ChildItem -Path $env:BHProjectPath -Filter '*.psd1' -Recurse -Depth 1 |
+        Where-Object { $_.BaseName -eq $_.Directory.Name }).BaseName
+}
 if (-not $env:BHModulePath) { $env:BHModulePath = Join-Path $env:BHProjectPath $env:BHProjectName }
 if (-not $env:BHPSModuleManifest) { $env:BHPSModuleManifest = Join-Path $env:BHModulePath "$env:BHProjectName.psd1" }
 
@@ -52,9 +54,7 @@ Describe "Test help for <_.Name>" -ForEach $commands {
         $common = 'Debug', 'ErrorAction', 'ErrorVariable', 'InformationAction', 'InformationVariable', 'OutBuffer',
         'OutVariable', 'PipelineVariable', 'ProgressAction', 'Verbose', 'WarningAction', 'WarningVariable', 'Confirm', 'Whatif'
 
-        $parameters = $_.ParameterSets.Parameters |
-            Sort-Object -Property Name -Unique |
-            Where-Object { $_.Name -notin $common }
+        $parameters = $_.ParameterSets.Parameters | Sort-Object -Property Name -Unique | Where-Object { $_.Name -notin $common }
 
         BeforeAll {
             $help = Get-Help $commandName -ErrorAction SilentlyContinue
@@ -91,8 +91,8 @@ Describe "Test help for <_.Name>" -ForEach $commands {
 
         ## Without the filter, WhatIf and Confirm parameters are still flagged in "finds help parameter in code" test
         $helpParameterNames = ($help.Parameters.Parameter |
-                Where-Object { $_.Name -notin $common } |
-                Sort-Object -Property Name -Unique).Name
+            Where-Object { $_.Name -notin $common } |
+            Sort-Object -Property Name -Unique).Name
 
         BeforeAll {
             $common = 'Debug', 'ErrorAction', 'ErrorVariable', 'InformationAction', 'InformationVariable', 'OutBuffer',
