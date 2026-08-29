@@ -78,6 +78,12 @@
         parameter combinations, -Show does not return the comic object.
 
     .EXAMPLE
+        Get-XKCD -Explain
+
+        This command displays the explanation of the latest comic directly in the console, via
+        Show-XKCDExplanation. Unlike other parameter combinations, -Explain does not return the comic object.
+
+    .EXAMPLE
         1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 
         This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
@@ -131,6 +137,11 @@
         # display requires your terminal to support the Sixel, Kitty, or iTerm2 inline image graphics protocol.
         [switch]
         $Show,
+
+        # Displays the comic's explanation in the console via Show-XKCDExplanation, instead of returning the comic
+        # object.
+        [switch]
+        $Explain,
 
         # Use with -Download to specify a local directory to download to. By default this is the current working
         # directory, unless a default has been saved with Set-XKCDDefault -Path.
@@ -210,6 +221,10 @@
                 Show-XKCD -Num $ID -HighQuality:$HighQuality -StatePath $StatePath
             }
 
+            if ($Explain) {
+                Show-XKCDExplanation -Num $ID -HighQuality:$HighQuality
+            }
+
             if ($Open) {
                 if ($Num.count -ge 10 -and -not $Force) {
                     if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
@@ -219,7 +234,7 @@
                 }
             }
 
-            if (-not $Show) {
+            if (-not $Show -and -not $Explain) {
                 return $Comic
             }
         }

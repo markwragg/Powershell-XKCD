@@ -212,6 +212,18 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Explain Tests' {
+
+        It 'Get-XKCD -Explain does not throw' {
+            { Get-XKCDCapturedOutput { Get-XKCD -Num 1 -Explain } } | Should -Not -Throw
+        }
+
+        It 'Get-XKCD -Explain does not return the comic object' {
+            Get-XKCDCapturedOutput { $script:Result = Get-XKCD -Num 1 -Explain } | Out-Null
+            $script:Result | Should -BeNullOrEmpty
+        }
+    }
+
     Context 'Next and Previous Comic Tests' {
 
         It 'Get-XKCD -Next returns the comic after the last viewed comic' {

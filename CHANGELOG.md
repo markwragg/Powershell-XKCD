@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Adds an `-Explain` switch to `Get-XKCD`, to display a comic's explanation via `Show-XKCDExplanation` instead of returning the comic object, without needing to call `Show-XKCDExplanation` separately.
+
 ## [1.6.3] - 2026-08-29
 
 * Adds `-Next` and `-Previous` parameters to `Get-XKCD` and `Show-XKCD`, to get/display the comic after or before the one most recently displayed (in either direction) via `Show-XKCD` or `Get-XKCD -Show`, as tracked in a new `LastRead` record in the state file -- kept separate from the `LastViewed` high-water mark `Test-XKCD` uses to report new comics, so paging backward with `-Previous` doesn't affect that count. Returns/displays nothing (rather than throwing) if there's no comic before #1 or after the latest comic.

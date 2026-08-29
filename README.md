@@ -151,11 +151,15 @@ Show-XKCDExplanation accepts the same -Num parameter as Get-XKCDExplanation (and
 
 Use -Explanation, -Transcript, and/or -Discussion to display exactly the section(s) you want -- e.g. `-Transcript` on its own displays just the transcript, not the explanation -- each under its own heading. Combine them to display more than one, or use -Full to always display all three. By default (no switches) just the explanation is shown. -Explanation, -Transcript, and -Discussion display text only, without fetching or showing the comic image -- the title and a link to the explanation are still shown; -Full always shows the comic image alongside every section. These switches (and the same ones on Show-XKCDExplanation, e.g. `Show-XKCDExplanation 2000 -Full`) also control which sections Get-XKCDExplanation fetches in the first place, so displaying (or returning) just one section skips the API calls for the others.
 
-22) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
+22) `Get-XKCD -Explain` or `Get-XKCD 2000 -Explain`
+
+Use the -Explain switch to display a comic's explanation via Show-XKCDExplanation instead of returning the comic object, without needing to call Show-XKCDExplanation separately.
+
+23) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
 
 Saves default preferences that other cmdlets in this module then use automatically, so you don't need to repeat the same parameters every time. Supported preferences: `-HighQuality` (Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation), `-Path` (Get-XKCD -Download), `-FullSearch` (Find-XKCD), `-CachePath` (Update-XKCDCache, Get-XKCDCache, Find-XKCD), `-StatePath` (Show-XKCD, Get-XKCD -Show/-Next/-Previous, Test-XKCD), and `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (Get-XKCDExplanation, Show-XKCDExplanation). Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences.
 
-23) `Get-XKCDDefault`
+24) `Get-XKCDDefault`
 
 Returns the default preferences currently saved by Set-XKCDDefault.
 
