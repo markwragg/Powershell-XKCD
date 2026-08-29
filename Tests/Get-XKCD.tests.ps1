@@ -64,6 +64,27 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
         Import-Module "$Root/$Module" -Force
+
+        # Get-XKCD -Show renders the comic straight to the console; running it here would otherwise spam
+        # the real terminal with comic art every time these tests run.
+        Function Get-XKCDCapturedOutput {
+            Param(
+                [scriptblock]$ScriptBlock
+            )
+
+            $OriginalOut = [Console]::Out
+            $Writer = [System.IO.StringWriter]::new()
+
+            try {
+                [Console]::SetOut($Writer)
+                & $ScriptBlock
+            }
+            finally {
+                [Console]::SetOut($OriginalOut)
+            }
+
+            $Writer.ToString()
+        }
     }
 
     Context 'Module Tests' {
@@ -122,7 +143,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         # Comic 1 does not have a higher resolution version available, so should fall back to standard quality
         It "Get-XKCD -HighQuality falls back to standard quality when no _2x image is available" {
-            { Get-XKCD -Num 1 -Download -HighQuality -Path $TestDrive } | Should -Not -Throw
+            { Get-XKCD -Num 1 -Download -HighQuality -Path $TestDrive -WarningAction SilentlyContinue } | Should -Not -Throw
             Join-Path $TestDrive '1.jpg' | Should -Exist
         }
     }
@@ -164,17 +185,18 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
     Context 'Show Tests' {
 
         It 'Get-XKCD -Show does not throw' {
-            { Get-XKCD -Num 1 -Show } | Should -Not -Throw
+            { Get-XKCDCapturedOutput { Get-XKCD -Num 1 -Show } } | Should -Not -Throw
         }
 
         It 'Get-XKCD -Show does not return the comic object' {
-            Get-XKCD -Num 1 -Show | Should -BeNullOrEmpty
+            Get-XKCDCapturedOutput { $script:Result = Get-XKCD -Num 1 -Show } | Out-Null
+            $script:Result | Should -BeNullOrEmpty
         }
 
         It 'Get-XKCD -Show records the displayed comic as the most recently viewed' {
             $StatePath = Join-Path $TestDrive 'get-show-state.json'
 
-            Get-XKCD -Num 200 -Show -StatePath $StatePath
+            Get-XKCDCapturedOutput { Get-XKCD -Num 200 -Show -StatePath $StatePath } | Out-Null
 
             $StatePath | Should -Exist
             (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 200

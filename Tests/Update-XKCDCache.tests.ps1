@@ -98,7 +98,7 @@ Describe "Unit Tests PS$PSVersion" {
         }
 
         It 'Refreshes the cache with newer comics when the server has newer comics than the cache' {
-            { Update-XKCDCache -CachePath $CachePath -Verbose } | Should -Not -Throw
+            { Update-XKCDCache -CachePath $CachePath -Verbose 4>$null } | Should -Not -Throw
 
             $Cache = Get-Content $CachePath | ConvertFrom-Json
             ($Cache | Where-Object num -eq 5) | Should -Not -BeNullOrEmpty

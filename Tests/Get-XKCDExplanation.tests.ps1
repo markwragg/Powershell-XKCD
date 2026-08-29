@@ -60,6 +60,27 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
         Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
         Import-Module "$Root/$Module" -Force
+
+        # Get-XKCDExplanation -Show renders the explanation straight to the console; running it here
+        # would otherwise spam the real terminal with comic art and explanation text every time these run.
+        Function Get-XKCDCapturedOutput {
+            Param(
+                [scriptblock]$ScriptBlock
+            )
+
+            $OriginalOut = [Console]::Out
+            $Writer = [System.IO.StringWriter]::new()
+
+            try {
+                [Console]::SetOut($Writer)
+                & $ScriptBlock
+            }
+            finally {
+                [Console]::SetOut($OriginalOut)
+            }
+
+            $Writer.ToString()
+        }
     }
 
     Context 'Module Tests' {
@@ -203,19 +224,20 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
     Context 'Show Tests' {
 
         It 'Get-XKCDExplanation -Show does not throw' {
-            { Get-XKCDExplanation -Num 1 -Show } | Should -Not -Throw
+            { Get-XKCDCapturedOutput { Get-XKCDExplanation -Num 1 -Show } } | Should -Not -Throw
         }
 
         It 'Get-XKCDExplanation -Show does not return the explanation object' {
-            Get-XKCDExplanation -Num 1 -Show | Should -BeNullOrEmpty
+            Get-XKCDCapturedOutput { $script:Result = Get-XKCDExplanation -Num 1 -Show } | Out-Null
+            $script:Result | Should -BeNullOrEmpty
         }
 
         It 'Get-XKCDExplanation -Show -Full does not throw' {
-            { Get-XKCDExplanation -Num 1 -Show -Full } | Should -Not -Throw
+            { Get-XKCDCapturedOutput { Get-XKCDExplanation -Num 1 -Show -Full } } | Should -Not -Throw
         }
 
         It 'Get-XKCDExplanation -Show -Explanation does not throw' {
-            { Get-XKCDExplanation -Num 1 -Show -Explanation } | Should -Not -Throw
+            { Get-XKCDCapturedOutput { Get-XKCDExplanation -Num 1 -Show -Explanation } } | Should -Not -Throw
         }
     }
 

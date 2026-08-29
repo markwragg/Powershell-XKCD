@@ -1,3 +1,12 @@
+if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
+
+# Fall back to locally-derived values when not running under the BuildHelpers-driven build (which sets
+# these as real environment variables so they survive Pester's Discovery/Run split, unlike plain variables).
+if (-not $env:BHProjectPath) { $env:BHProjectPath = (Resolve-Path "$PSScriptRoot/../..").ProviderPath }
+if (-not $env:BHProjectName) { $env:BHProjectName = 'xkcd' }
+if (-not $env:BHModulePath) { $env:BHModulePath = Join-Path $env:BHProjectPath $env:BHProjectName }
+if (-not $env:BHPSModuleManifest) { $env:BHPSModuleManifest = Join-Path $env:BHModulePath "$env:BHProjectName.psd1" }
+
 # Vars
 $changelogPath = Join-Path -Path $env:BHProjectPath -Child 'CHANGELOG.md'
 

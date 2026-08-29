@@ -1,4 +1,13 @@
 # Taken with love from @juneb_get_help (https://raw.githubusercontent.com/juneb/PesterTDD/master/Module.Help.Tests.ps1)
+if (-not $PSScriptRoot) { $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent }
+
+# Fall back to locally-derived values when not running under the BuildHelpers-driven build (which sets
+# these as real environment variables so they survive Pester's Discovery/Run split, unlike plain variables).
+if (-not $env:BHProjectPath) { $env:BHProjectPath = (Resolve-Path "$PSScriptRoot/../..").ProviderPath }
+if (-not $env:BHProjectName) { $env:BHProjectName = 'xkcd' }
+if (-not $env:BHModulePath) { $env:BHModulePath = Join-Path $env:BHProjectPath $env:BHProjectName }
+if (-not $env:BHPSModuleManifest) { $env:BHPSModuleManifest = Join-Path $env:BHModulePath "$env:BHProjectName.psd1" }
+
 # Import module
 if (-not (Get-Module -Name $env:BHProjectName -ListAvailable)) {
     Import-Module -Name $env:BHPSModuleManifest -ErrorAction 'Stop' -Force
