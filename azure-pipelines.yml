@@ -21,6 +21,19 @@ steps:
     clean: true
 
   - powershell: |
+      $modulesPath = Join-Path $env:USERPROFILE 'Documents\WindowsPowerShell\Modules'
+      Write-Host "##vso[task.setvariable variable=ModulesPath]$modulesPath"
+    displayName: "Set Modules Cache Path"
+
+  - task: Cache@2
+    displayName: "Cache PowerShell Modules"
+    inputs:
+      key: 'psmodules | "$(Agent.OS)" | Build/build.depend.psd1'
+      restoreKeys: |
+        psmodules | "$(Agent.OS)"
+      path: "$(ModulesPath)"
+
+  - powershell: |
       .\Build\build.ps1 -ResolveDependency -TaskList 'Init'
     displayName: "Install Dependencies"
 
