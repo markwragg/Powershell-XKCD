@@ -10,8 +10,11 @@ function Show-XKCD {
         By default, Show-XKCD displays the latest available comic. When you use the -Num parameter you can
         specify one or more specific comics to display.
 
-        Each displayed comic updates a local record of the most recently viewed comic, used by Test-XKCD to
-        report how many new comics have been published since you last checked.
+        Each displayed comic updates a local state file with two records: the highest-numbered comic you've ever
+        viewed, used by Test-XKCD to report how many new comics have been published since you last checked; and
+        the comic you most recently displayed in either direction, used by -Next and -Previous so you can page
+        back and forth through comics sequentially. -Next displays nothing once you've reached the latest comic,
+        and -Previous displays nothing once you've reached comic #1.
 
     .EXAMPLE
         Show-XKCD
@@ -38,15 +41,40 @@ function Show-XKCD {
 
         Shorthand equivalent of: Get-XKCD | Show-XKCD
 
+    .EXAMPLE
+        Show-XKCD -Next
+
+        Displays the comic after the one you most recently displayed with Show-XKCD or Get-XKCD -Show, as
+        recorded in the state file. Displays nothing if you're already at the latest comic.
+
+    .EXAMPLE
+        Show-XKCD -Previous
+
+        Displays the comic before the one you most recently displayed with Show-XKCD or Get-XKCD -Show, as
+        recorded in the state file. Calling -Previous repeatedly steps back further each time. Displays nothing
+        if you're already at comic #1.
+
     .LINK
         https://xkcd.com/json.html
     #>
-    [cmdletbinding(SupportsShouldProcess)]
+    [cmdletbinding(SupportsShouldProcess, DefaultParameterSetName = 'Specific')]
     Param(
         # Displays the specified comics. Accepts array input. By default the latest comic is displayed.
-        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
         [int[]]
         $Num,
+
+        # Displays the comic after the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded
+        # in the state file. Displays nothing if you're already at the latest comic.
+        [Parameter(ParameterSetName = 'Next', Mandatory)]
+        [switch]
+        $Next,
+
+        # Displays the comic before the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded
+        # in the state file. Displays nothing if you're already at comic #1.
+        [Parameter(ParameterSetName = 'Previous', Mandatory)]
+        [switch]
+        $Previous,
 
         # Displays the higher resolution (_2x) version of the image, where available. Comics that do not have a
         # higher resolution version are displayed at the standard quality instead. Defaults to the value saved
@@ -61,7 +89,18 @@ function Show-XKCD {
     )
 
     Begin {
-        if (-not $Num) { $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
+        if ($Next) {
+            $Latest = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+            $NextNum = (Get-XKCDLastReadComic -StatePath $StatePath) + 1
+            if ($NextNum -le $Latest) { $Num = $NextNum } else { $Num = @() }
+        }
+        elseif ($Previous) {
+            $LastRead = Get-XKCDLastReadComic -StatePath $StatePath
+            if ($LastRead -gt 1) { $Num = $LastRead - 1 } else { $Num = @() }
+        }
+        elseif (-not $Num) {
+            $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+        }
     }
 
     Process {
@@ -90,8 +129,12 @@ function Show-XKCD {
             Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
 
             $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
-            if ($Comic.num -gt $LastViewedComic -and $PSCmdlet.ShouldProcess($StatePath, "Update last viewed comic to #$($Comic.num)")) {
-                [pscustomobject]@{ LastViewed = $Comic.num } | ConvertTo-Json | Out-File $StatePath -Force
+            $LastReadComic = Get-XKCDLastReadComic -StatePath $StatePath
+            $NewLastViewed = [math]::Max($LastViewedComic, $Comic.num)
+
+            if (($Comic.num -ne $LastReadComic -or $NewLastViewed -ne $LastViewedComic) -and
+                $PSCmdlet.ShouldProcess($StatePath, "Update last read comic to #$($Comic.num)")) {
+                [pscustomobject]@{ LastViewed = $NewLastViewed; LastRead = $Comic.num } | ConvertTo-Json | Out-File $StatePath -Force
             }
         }
     }

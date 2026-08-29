@@ -13,6 +13,8 @@ function Test-XKCD {
         and instead return a boolean. Use -Detailed to return a PSCustomObject describing how many new comics
         are available, alongside the last viewed and latest comic numbers.
 
+        Use -Num to instead test whether a specific numbered comic exists, returning $true or $false.
+
     .EXAMPLE
         Test-XKCD
 
@@ -31,6 +33,11 @@ function Test-XKCD {
         Returns a PSCustomObject detailing whether new comics are available, how many, and the last viewed vs latest comic numbers.
 
     .EXAMPLE
+        Test-XKCD -Num 999999
+
+        Returns $true if comic #999999 exists, otherwise $false.
+
+    .EXAMPLE
         if (Test-XKCD -Quiet) { Test-XKCD }
 
         If new comics are available, this will write a friendly message to the console stating how many new comics are available
@@ -42,22 +49,41 @@ function Test-XKCD {
     .LINK
         https://xkcd.com/json.html
     #>
-    [cmdletbinding()]
+    [cmdletbinding(DefaultParameterSetName = 'Default')]
     Param(
+        # Tests whether the specified comic number exists, returning $true or $false. When used, no other
+        # parameters are considered.
+        [Parameter(ParameterSetName = 'Num', Mandatory, Position = 0)]
+        [int]
+        $Num,
+
         # Suppresses the friendly console message and instead returns a boolean.
+        [Parameter(ParameterSetName = 'Default')]
         [switch]
         $Quiet,
 
         # Returns a detailed PSCustomObject describing how many new comics are available, instead of a boolean or console message.
+        [Parameter(ParameterSetName = 'Default')]
         [switch]
         $Detailed,
 
         # Path to the file that tracks the number of the most recently viewed comic (written by Show-XKCD and
         # Get-XKCD -Show). By default this is within the module path, unless a default has been saved with
         # Set-XKCDDefault -StatePath.
+        [Parameter(ParameterSetName = 'Default')]
         [string]
         $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
     )
+
+    if ($PSCmdlet.ParameterSetName -eq 'Num') {
+        try {
+            Invoke-RestMethod "https://xkcd.com/$Num/info.0.json" -ErrorAction Stop | Out-Null
+            return $true
+        }
+        catch {
+            return $false
+        }
+    }
 
     $LatestComic = Invoke-RestMethod 'https://xkcd.com/info.0.json'
     $Latest = $LatestComic.num

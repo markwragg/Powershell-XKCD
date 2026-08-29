@@ -79,4 +79,41 @@ Describe "Unit Tests PS$PSVersion" {
             $Sixel.Substring(0, $Header.Length) | Should -Be $Header
         }
     }
+
+    Context 'ConvertTo-XKCDSixel Large Image Warning Tests' {
+
+        BeforeAll {
+            $ImageBytes = New-XKCDTestImageBytes -Width 4 -Height 4
+
+            $AboveThresholdWarning = & $ModuleObj {
+                Param($ImageBytes)
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -LargeImageThreshold 10 -WarningVariable CapturedWarning -WarningAction SilentlyContinue | Out-Null
+                $CapturedWarning
+            } $ImageBytes
+
+            $BelowThresholdWarning = & $ModuleObj {
+                Param($ImageBytes)
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -LargeImageThreshold 1000 -WarningVariable CapturedWarning -WarningAction SilentlyContinue | Out-Null
+                $CapturedWarning
+            } $ImageBytes
+
+            $DefaultThresholdWarning = & $ModuleObj {
+                Param($ImageBytes)
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -WarningVariable CapturedWarning -WarningAction SilentlyContinue | Out-Null
+                $CapturedWarning
+            } $ImageBytes
+        }
+
+        It 'Writes a warning when the pixel count (post-downscale) exceeds -LargeImageThreshold' {
+            $AboveThresholdWarning | Should -Match 'large image'
+        }
+
+        It 'Does not write a warning when the pixel count is below -LargeImageThreshold' {
+            $BelowThresholdWarning | Should -BeNullOrEmpty
+        }
+
+        It 'Uses a default threshold that does not warn for a typical comic-sized image' {
+            $DefaultThresholdWarning | Should -BeNullOrEmpty
+        }
+    }
 }

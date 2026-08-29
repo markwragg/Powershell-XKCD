@@ -143,6 +143,29 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
+    Context 'Num Tests' {
+
+        It 'Returns $true when the specified comic exists' {
+            Mock -ModuleName $Module Invoke-RestMethod { [pscustomobject]@{ num = 42 } }
+
+            Test-XKCD -Num 42 | Should -Be $true
+        }
+
+        It 'Returns $false when the specified comic does not exist' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Response status code does not indicate success: 404 (Not Found).' }
+
+            Test-XKCD -Num 999999 | Should -Be $false
+        }
+
+        It 'Does not allow -Num to be used with -Quiet' {
+            { Test-XKCD -Num 1 -Quiet } | Should -Throw
+        }
+
+        It 'Does not allow -Num to be used with -Detailed' {
+            { Test-XKCD -Num 1 -Detailed } | Should -Throw
+        }
+    }
+
     Context 'Read-Only Tests' {
 
         BeforeAll {

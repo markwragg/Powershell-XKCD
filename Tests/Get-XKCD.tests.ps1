@@ -53,6 +53,15 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Get-XKCD does not allow -Random and -Num and -Newest to be used together' {
             { Get-XKCD -Random -Num 456 -Newest 5 } | Should -Throw
         }
+        It 'Get-XKCD does not allow -Next and -Previous to be used together' {
+            { Get-XKCD -Next -Previous } | Should -Throw
+        }
+        It 'Get-XKCD does not allow -Next and -Num to be used together' {
+            { Get-XKCD -Next -Num 1 } | Should -Throw
+        }
+        It 'Get-XKCD does not allow -Previous and -Num to be used together' {
+            { Get-XKCD -Previous -Num 1 } | Should -Throw
+        }
     }
 }
 
@@ -200,6 +209,47 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
             $StatePath | Should -Exist
             (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 200
+        }
+    }
+
+    Context 'Next and Previous Comic Tests' {
+
+        It 'Get-XKCD -Next returns the comic after the last viewed comic' {
+            $StatePath = Join-Path $TestDrive 'next-state.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            (Get-XKCD -Next -StatePath $StatePath).num | Should -Be 101
+        }
+
+        It 'Get-XKCD -Previous returns the comic before the last viewed comic' {
+            $StatePath = Join-Path $TestDrive 'previous-state.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            (Get-XKCD -Previous -StatePath $StatePath).num | Should -Be 99
+        }
+
+        It 'Get-XKCD -Previous returns nothing when there is no comic before the last viewed comic' {
+            $StatePath = Join-Path $TestDrive 'previous-state-none.json'
+            [pscustomobject]@{ LastViewed = 1 } | ConvertTo-Json | Out-File $StatePath
+
+            { Get-XKCD -Previous -StatePath $StatePath } | Should -Not -Throw
+            Get-XKCD -Previous -StatePath $StatePath | Should -BeNullOrEmpty
+        }
+
+        It 'Get-XKCD -Previous returns nothing when no comic has been previously viewed' {
+            $StatePath = Join-Path $TestDrive 'previous-state-missing.json'
+
+            { Get-XKCD -Previous -StatePath $StatePath } | Should -Not -Throw
+            Get-XKCD -Previous -StatePath $StatePath | Should -BeNullOrEmpty
+        }
+
+        It 'Get-XKCD -Next returns nothing when already at the latest comic' {
+            $StatePath = Join-Path $TestDrive 'next-state-latest.json'
+            $Latest = (Get-XKCD).num
+            [pscustomobject]@{ LastViewed = $Latest } | ConvertTo-Json | Out-File $StatePath
+
+            { Get-XKCD -Next -StatePath $StatePath } | Should -Not -Throw
+            Get-XKCD -Next -StatePath $StatePath | Should -BeNullOrEmpty
         }
     }
 

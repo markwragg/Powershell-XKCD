@@ -17,7 +17,13 @@ function ConvertTo-XKCDSixel {
 
         # The maximum pixel width to render the image at. Larger images are downscaled to this width, preserving aspect ratio.
         [int]
-        $MaxWidth = 640
+        $MaxWidth = 640,
+
+        # The pixel count (width x height, after any -MaxWidth downscaling) above which a warning is written
+        # that Sixel rendering may take a while. The per-pixel conversion below scales with image size, so this
+        # gives a heads-up before the wait rather than after it. Defaults to roughly a 640x780 image.
+        [int]
+        $LargeImageThreshold = 500000
     )
 
     Add-Type -AssemblyName System.Drawing
@@ -36,6 +42,10 @@ function ConvertTo-XKCDSixel {
 
     $width = $bitmap.Width
     $height = $bitmap.Height
+
+    if (($width * $height) -gt $LargeImageThreshold) {
+        Write-Warning "This is a large image ($width x $height pixels) - rendering it as Sixel may take a while."
+    }
 
     $rect = [System.Drawing.Rectangle]::new(0, 0, $width, $height)
     $bitmapData = $bitmap.LockBits($rect, [System.Drawing.Imaging.ImageLockMode]::ReadOnly, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)

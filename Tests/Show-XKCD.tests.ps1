@@ -17,6 +17,15 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Show-XKCD -Num rejects string input' {
             { Show-XKCD -Num Five } | Should -Throw
         }
+        It 'Show-XKCD does not allow -Next and -Previous to be used together' {
+            { Show-XKCD -Next -Previous } | Should -Throw
+        }
+        It 'Show-XKCD does not allow -Next and -Num to be used together' {
+            { Show-XKCD -Next -Num 1 } | Should -Throw
+        }
+        It 'Show-XKCD does not allow -Previous and -Num to be used together' {
+            { Show-XKCD -Previous -Num 1 } | Should -Throw
+        }
     }
 }
 
@@ -117,6 +126,68 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             Get-XKCDCapturedOutput { Show-XKCD -Num 100 -StatePath $StatePath } | Out-Null
 
             (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 500
+        }
+
+        It 'Show-XKCD -Next displays the comic after the last viewed comic and advances the state' {
+            $StatePath = Join-Path $TestDrive 'show-state-next.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            Get-XKCDCapturedOutput { Show-XKCD -Next -StatePath $StatePath } | Out-Null
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 101
+        }
+
+        It 'Show-XKCD -Previous displays the comic before the last viewed comic without regressing the state' {
+            $StatePath = Join-Path $TestDrive 'show-state-previous.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            Get-XKCDCapturedOutput { Show-XKCD -Previous -StatePath $StatePath } | Out-Null
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 100
+        }
+
+        It 'Show-XKCD -Previous displays nothing and does not throw when there is no comic before the last viewed comic' {
+            $StatePath = Join-Path $TestDrive 'show-state-previous-none.json'
+            [pscustomobject]@{ LastViewed = 1 } | ConvertTo-Json | Out-File $StatePath
+
+            { $script:Output = Get-XKCDCapturedOutput { Show-XKCD -Previous -StatePath $StatePath } } | Should -Not -Throw
+
+            $script:Output | Should -BeNullOrEmpty
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 1
+        }
+
+        It 'Show-XKCD -Next displays nothing and does not throw when already at the latest comic' {
+            $StatePath = Join-Path $TestDrive 'show-state-next-latest.json'
+            $Latest = (Get-XKCD).num
+            [pscustomobject]@{ LastViewed = $Latest } | ConvertTo-Json | Out-File $StatePath
+
+            { $script:Output = Get-XKCDCapturedOutput { Show-XKCD -Next -StatePath $StatePath } } | Should -Not -Throw
+
+            $script:Output | Should -BeNullOrEmpty
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be $Latest
+        }
+
+        It 'Show-XKCD -Previous can be called repeatedly to step back through comics sequentially' {
+            $StatePath = Join-Path $TestDrive 'show-state-previous-sequential.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            Get-XKCDCapturedOutput { Show-XKCD -Previous -StatePath $StatePath } | Out-Null
+            (Get-Content $StatePath | ConvertFrom-Json).LastRead | Should -Be 99
+
+            Get-XKCDCapturedOutput { Show-XKCD -Previous -StatePath $StatePath } | Out-Null
+            (Get-Content $StatePath | ConvertFrom-Json).LastRead | Should -Be 98
+        }
+
+        It 'Show-XKCD -Next after -Previous resumes from the comic actually last displayed, not the high-water mark' {
+            $StatePath = Join-Path $TestDrive 'show-state-next-after-previous.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            Get-XKCDCapturedOutput { Show-XKCD -Previous -StatePath $StatePath } | Out-Null
+            Get-XKCDCapturedOutput { Show-XKCD -Next -StatePath $StatePath } | Out-Null
+
+            $State = Get-Content $StatePath | ConvertFrom-Json
+            $State.LastRead | Should -Be 100
+            $State.LastViewed | Should -Be 100
         }
     }
 }
