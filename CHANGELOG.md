@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.7.2] - 2026-08-30
 
 * Fixes the published module missing its comic cache (`XKCD.json`) since moving to publishing a single combined psm1 file.
 
