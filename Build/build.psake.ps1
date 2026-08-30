@@ -278,10 +278,13 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
     }
     New-MarkdownHelp @platyPSParams -ErrorAction 'Stop' -Verbose | Out-Null
 
-    # Confirm PlatyPS actually wrote a page for every function into the wiki clone.
-    # Checking specific expected filenames (rather than "any *.md exists") avoids a
-    # false pass from the pre-existing, manually-authored Home.md alone.
-    $MissingPages = @( $ModuleFunctions | Where-Object {
+    # Confirm PlatyPS actually wrote a page for every exported (Public) function into the
+    # wiki clone. Private functions aren't exported, so PlatyPS never generates pages for
+    # them - only Public functions are checked here. Checking specific expected filenames
+    # (rather than "any *.md exists") avoids a false pass from the pre-existing,
+    # manually-authored Home.md alone.
+    $PublicFunctions = @( Get-ChildItem -Path "$env:BHModulePath\Public\*.ps1" -Recurse -ErrorAction 'SilentlyContinue' )
+    $MissingPages = @( $PublicFunctions | Where-Object {
             -not (Test-Path (Join-Path $ResolvedWikiPath "$($_.BaseName).md"))
         }
     )
