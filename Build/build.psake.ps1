@@ -1,3 +1,9 @@
+# Normalizes path separators/casing so a Windows path (backslashes) can be compared
+# against `git rev-parse` output (always forward slashes) without false mismatches.
+function ConvertTo-ComparablePath ([string]$Path) {
+    ($Path -replace '\\', '/').TrimEnd('/').ToLowerInvariant()
+}
+
 # PSake makes variables declared here available in other scriptblocks
 Properties {
     $ProjectRoot = $ENV:BHProjectPath
@@ -238,6 +244,14 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
         throw "Failed to clone wiki repo [$WikiUrl]. Ensure the Wiki feature is enabled for the repository and at least one page has been created manually via the GitHub UI to initialize it."
     }
 
+    # Confirm the clone actually produced a usable git repository before generating anything into it.
+    # Without this check, a silently-failed clone could leave downstream steps operating on $ProjectRoot instead.
+    if (-not (Test-Path (Join-Path $WikiPath '.git'))) {
+        throw "Wiki clone did not produce a git repository at [$WikiPath]. Aborting before publishing anything, to avoid committing wiki pages to the main repository."
+    }
+
+    $ResolvedWikiPath = (Resolve-Path $WikiPath).Path
+
     # Remove previously generated function reference pages, leaving any manually authored pages (e.g. Home.md) untouched
     $ModuleFunctions = Get-ChildItem -Path "$env:BHModulePath\Public\*.ps1", "$env:BHModulePath\Private\*.ps1" -Recurse -ErrorAction 'SilentlyContinue'
 
@@ -248,13 +262,27 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
     # Create new wiki pages
     $platyPSParams = @{
         Module       = $env:BHProjectName
-        OutputFolder = $WikiPath
+        OutputFolder = $ResolvedWikiPath
         NoMetadata   = $true
     }
-    New-MarkdownHelp @platyPSParams -ErrorAction 'SilentlyContinue' -Verbose | Out-Null
+    New-MarkdownHelp @platyPSParams -ErrorAction 'Stop' -Verbose | Out-Null
 
-    Push-Location $WikiPath
+    # Confirm PlatyPS actually wrote into the wiki clone and not somewhere else (e.g. the current directory).
+    $GeneratedPages = @( Get-ChildItem -Path $ResolvedWikiPath -Filter '*.md' -ErrorAction 'SilentlyContinue' )
+    if ($GeneratedPages.Count -eq 0) {
+        throw "No markdown pages were found in the wiki clone at [$ResolvedWikiPath] after running New-MarkdownHelp. Aborting before publishing anything."
+    }
+
+    Push-Location $ResolvedWikiPath -ErrorAction 'Stop'
     try {
+        # Safety check: refuse to publish unless we are verifiably inside the wiki clone. This guards
+        # against ever again committing/pushing wiki pages to the main repository if the location change
+        # above were to silently no-op.
+        $CurrentRepoRoot = git rev-parse --show-toplevel
+        if ((ConvertTo-ComparablePath $CurrentRepoRoot) -ne (ConvertTo-ComparablePath $ResolvedWikiPath)) {
+            throw "Refusing to publish: current git repository [$CurrentRepoRoot] does not match the wiki clone [$ResolvedWikiPath]."
+        }
+
         git config user.email "build@azuredevops.com"
         git config user.name "AzureDevOps"
         git add -A
