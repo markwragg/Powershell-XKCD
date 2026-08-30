@@ -20,6 +20,11 @@ Show-XKCD [-Next] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<Co
 Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
+### File
+```
+Show-XKCD [-Path] <String[]> [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 The Show-XKCD cmdlet gets and displays a comic in the console: the title above, the image (if your
 terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol), and the alt text below.
@@ -34,6 +39,14 @@ the comic you most recently displayed in either direction, used by -Next and -Pr
 back and forth through comics sequentially.
 -Next displays nothing once you've reached the latest comic,
 and -Previous displays nothing once you've reached comic #1.
+
+Use -Path to display a comic from a file previously saved with Export-XKCDTerminalImage instead of
+fetching it from the xkcd API -- useful for redisplaying a comic without needing network access, or for
+a comic whose image was rendered on another machine.
+The saved image is written to the console as-is
+rather than being re-rendered, so it's only guaranteed to display correctly in a terminal that supports
+the same graphics protocol it was exported with; a warning is shown if that doesn't match the protocol
+detected for the terminal you're displaying it in.
 
 ## EXAMPLES
 
@@ -92,6 +105,21 @@ Calling -Previous repeatedly steps back further each time.
 Displays nothing
 if you're already at comic #1.
 
+### EXAMPLE 8
+```
+Show-XKCD -Path .\353.xkcdterm.json
+```
+
+Displays the comic saved to '.\353.xkcdterm.json' by Export-XKCDTerminalImage, without fetching
+anything from the xkcd API.
+
+### EXAMPLE 9
+```
+Export-XKCDTerminalImage -Num 353 -PassThru | Show-XKCD
+```
+
+Exports comic number 353 and immediately displays it from the saved file.
+
 ## PARAMETERS
 
 ### -Num
@@ -142,6 +170,25 @@ Required: True
 Position: Named
 Default value: False
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Displays the comic saved in the specified file(s), previously created with Export-XKCDTerminalImage,
+instead of fetching it from the xkcd API.
+Accepts array input and FileInfo objects via the pipeline
+(e.g.
+from Get-ChildItem or Export-XKCDTerminalImage -PassThru).
+
+```yaml
+Type: String[]
+Parameter Sets: File
+Aliases: FullName
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
 

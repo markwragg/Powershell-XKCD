@@ -2,7 +2,9 @@
 
 ## SYNOPSIS
 Retrieves the details of comics @ https://xkcd.com/ based on whether a specified search string appears
-in the title text.
+in the title text (by default).
+To search for a specified string in the full text of the comic data,
+use the -FullSearch switch.
 
 ## SYNTAX
 
