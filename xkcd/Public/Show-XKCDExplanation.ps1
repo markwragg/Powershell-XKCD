@@ -136,25 +136,7 @@ function Show-XKCDExplanation {
 
             if ($ShowComic) {
                 $Comic = Get-XKCD -Num $_
-                $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)
-                $ImageUrl = $Comic.img
-
-                if ($HighQuality) {
-                    $ImageUrl = $Comic.img.Insert($Comic.img.LastIndexOf($Extension), '_2x')
-                }
-
-                try {
-                    $ImageBytes = (Invoke-WebRequest $ImageUrl -UseBasicParsing -ErrorAction Stop).Content
-                }
-                catch {
-                    if ($HighQuality) {
-                        Write-Warning "High quality image not available for comic $($Comic.num), showing standard quality instead"
-                        $ImageBytes = (Invoke-WebRequest $Comic.img -UseBasicParsing).Content
-                    }
-                    else {
-                        throw
-                    }
-                }
+                $ImageBytes = Get-XKCDComicImageBytes -Comic $Comic -HighQuality:$HighQuality
             }
 
             Show-XKCDExplanationText -Explanation $ExplanationResult -Comic $Comic -ImageBytes $ImageBytes

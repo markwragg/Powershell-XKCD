@@ -42,29 +42,8 @@ function Import-XKCDTerminalImage {
 
     Process {
         $Path | ForEach-Object {
-            $File = $_
-
-            if (-not (Test-Path $File)) {
-                Write-Warning "No saved terminal image was found at '$File'."
-                return
-            }
-
-            try {
-                $Saved = Get-Content $File -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
-            }
-            catch {
-                Write-Warning "Unable to read the saved terminal image at '$File': $_"
-                return
-            }
-
-            $CurrentProtocol = Get-XKCDTerminalGraphicsProtocol
-
-            if (-not $CurrentProtocol) {
-                Write-Warning "Your terminal does not appear to support inline image display (Sixel, Kitty, or iTerm2 graphics protocols); attempting to display the saved image from '$File' anyway."
-            }
-            elseif ($Saved.Protocol -ne $CurrentProtocol) {
-                Write-Warning "The terminal image saved at '$File' was rendered for the $($Saved.Protocol) graphics protocol, but this terminal supports $CurrentProtocol instead -- it may not display correctly."
-            }
+            $Saved = Get-XKCDTerminalImageFile -Path $_
+            if (-not $Saved) { return }
 
             [Console]::Out.Write($Saved.Image)
             [Console]::Out.Write([Environment]::NewLine)

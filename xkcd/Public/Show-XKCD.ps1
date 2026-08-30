@@ -115,6 +115,19 @@ function Show-XKCD {
     )
 
     Begin {
+        $UpdateLastReadState = {
+            Param([int]$Num)
+
+            $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
+            $LastReadComic = Get-XKCDLastReadComic -StatePath $StatePath
+            $NewLastViewed = [math]::Max($LastViewedComic, $Num)
+
+            if (($Num -ne $LastReadComic -or $NewLastViewed -ne $LastViewedComic) -and
+                $PSCmdlet.ShouldProcess($StatePath, "Update last read comic to #$Num")) {
+                [pscustomobject]@{ LastViewed = $NewLastViewed; LastRead = $Num } | ConvertTo-Json | Out-File $StatePath -Force
+            }
+        }
+
         if ($PSCmdlet.ParameterSetName -eq 'File') { return }
 
         if ($Next) {
@@ -134,75 +147,24 @@ function Show-XKCD {
     Process {
         if ($PSCmdlet.ParameterSetName -eq 'File') {
             $Path | ForEach-Object {
-                $File = $_
-
-                if (-not (Test-Path $File)) {
-                    Write-Warning "No saved terminal image was found at '$File'."
-                    return
-                }
-
-                try {
-                    $Saved = Get-Content $File -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
-                }
-                catch {
-                    Write-Warning "Unable to read the saved terminal image at '$File': $_"
-                    return
-                }
-
-                $CurrentProtocol = Get-XKCDTerminalGraphicsProtocol
-
-                if ($CurrentProtocol -and $Saved.Protocol -ne $CurrentProtocol) {
-                    Write-Warning "The terminal image saved at '$File' was rendered for the $($Saved.Protocol) graphics protocol, but this terminal supports $CurrentProtocol instead -- it may not display correctly."
-                }
+                $Saved = Get-XKCDTerminalImageFile -Path $_
+                if (-not $Saved) { return }
 
                 $Comic = $Saved | Select-Object * -ExcludeProperty Protocol, Image
-
                 Show-XKCDComic -Comic $Comic -TerminalImage $Saved.Image
 
-                $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
-                $LastReadComic = Get-XKCDLastReadComic -StatePath $StatePath
-                $NewLastViewed = [math]::Max($LastViewedComic, $Comic.num)
-
-                if (($Comic.num -ne $LastReadComic -or $NewLastViewed -ne $LastViewedComic) -and
-                    $PSCmdlet.ShouldProcess($StatePath, "Update last read comic to #$($Comic.num)")) {
-                    [pscustomobject]@{ LastViewed = $NewLastViewed; LastRead = $Comic.num } | ConvertTo-Json | Out-File $StatePath -Force
-                }
+                & $UpdateLastReadState -Num $Comic.num
             }
             return
         }
 
         $Num | ForEach-Object {
             $Comic = Get-XKCD -Num $_
-            $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)
-            $ImageUrl = $Comic.img
-
-            if ($HighQuality) {
-                $ImageUrl = $Comic.img.Insert($Comic.img.LastIndexOf($Extension), '_2x')
-            }
-
-            try {
-                $ImageBytes = (Invoke-WebRequest $ImageUrl -UseBasicParsing -ErrorAction Stop).Content
-            }
-            catch {
-                if ($HighQuality) {
-                    Write-Warning "High quality image not available for comic $($Comic.num), showing standard quality instead"
-                    $ImageBytes = (Invoke-WebRequest $Comic.img -UseBasicParsing).Content
-                }
-                else {
-                    throw
-                }
-            }
+            $ImageBytes = Get-XKCDComicImageBytes -Comic $Comic -HighQuality:$HighQuality
 
             Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
 
-            $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
-            $LastReadComic = Get-XKCDLastReadComic -StatePath $StatePath
-            $NewLastViewed = [math]::Max($LastViewedComic, $Comic.num)
-
-            if (($Comic.num -ne $LastReadComic -or $NewLastViewed -ne $LastViewedComic) -and
-                $PSCmdlet.ShouldProcess($StatePath, "Update last read comic to #$($Comic.num)")) {
-                [pscustomobject]@{ LastViewed = $NewLastViewed; LastRead = $Comic.num } | ConvertTo-Json | Out-File $StatePath -Force
-            }
+            & $UpdateLastReadState -Num $Comic.num
         }
     }
 }
