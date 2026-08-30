@@ -227,10 +227,21 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
         return
     }
 
-    # Derive the wiki repo URL from the main repo's origin remote
-    $OriginUrl = git config --get remote.origin.url
-    $WikiUrl = $OriginUrl -replace '\.git$', '.wiki.git'
+    # Derive the wiki repo URL from the main repo's origin remote.
+    # NOTE: Azure Pipelines' checkout sets remote.origin.url WITHOUT a trailing '.git'
+    # (e.g. "https://github.com/markwragg/Powershell-XKCD"), so a naive
+    # `-replace '\.git$', '.wiki.git'` silently no-ops and leaves $WikiUrl identical to
+    # $OriginUrl - i.e. the MAIN repo. Strip any trailing '.git' first (if present) and
+    # then always append '.wiki.git', so this works regardless of the origin URL's format.
+    $OriginUrl = (git config --get remote.origin.url) -replace '\.git$', ''
+    $WikiUrl = "$OriginUrl.wiki.git"
     $AuthedWikiUrl = $WikiUrl -replace '^https://', "https://x-access-token:$($env:GITHUBPAT)@"
+
+    # Safety check: refuse to continue unless the derived URL is unambiguously a wiki
+    # repo and distinct from the main repo. This is what would have caught the bug above.
+    if ($WikiUrl -notmatch '\.wiki\.git$' -or $WikiUrl -eq (git config --get remote.origin.url)) {
+        throw "Failed to derive a valid wiki repository URL from the main repo's origin remote. Refusing to continue, to avoid publishing to the main repository instead of its wiki."
+    }
 
     Write-Output "Cloning wiki repo: [$WikiUrl] to [$WikiPath]`n"
 
@@ -267,10 +278,15 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
     }
     New-MarkdownHelp @platyPSParams -ErrorAction 'Stop' -Verbose | Out-Null
 
-    # Confirm PlatyPS actually wrote into the wiki clone and not somewhere else (e.g. the current directory).
-    $GeneratedPages = @( Get-ChildItem -Path $ResolvedWikiPath -Filter '*.md' -ErrorAction 'SilentlyContinue' )
-    if ($GeneratedPages.Count -eq 0) {
-        throw "No markdown pages were found in the wiki clone at [$ResolvedWikiPath] after running New-MarkdownHelp. Aborting before publishing anything."
+    # Confirm PlatyPS actually wrote a page for every function into the wiki clone.
+    # Checking specific expected filenames (rather than "any *.md exists") avoids a
+    # false pass from the pre-existing, manually-authored Home.md alone.
+    $MissingPages = @( $ModuleFunctions | Where-Object {
+            -not (Test-Path (Join-Path $ResolvedWikiPath "$($_.BaseName).md"))
+        }
+    )
+    if ($MissingPages.Count -gt 0) {
+        throw "New-MarkdownHelp did not produce pages for: $($MissingPages.BaseName -join ', ') in [$ResolvedWikiPath]. Aborting before publishing anything."
     }
 
     Push-Location $ResolvedWikiPath -ErrorAction 'Stop'
@@ -290,6 +306,10 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
         if (git status --porcelain) {
             git commit -m "[skip ci] AzureDevOps Build $($env:BUILD_BUILDID)"
             git push
+
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to push changes to wiki repo [$WikiUrl]."
+            }
         }
         else {
             Write-Output 'No wiki changes to publish.'

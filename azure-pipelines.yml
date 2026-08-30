@@ -15,6 +15,15 @@ trigger:
       # Any Pull Request merging into the master branch
       - master
 
+# Also build Pull Requests targeting master, so tests/analysis run before merge.
+# Steps that publish (wiki, gallery, commit-back) are individually conditioned
+# below to skip when Build.Reason is 'PullRequest', so a PR build only validates
+# the change - it never pushes to the wiki, the PowerShell Gallery, or the repo.
+pr:
+  branches:
+    include:
+      - master
+
 steps:
   - checkout: self
     persistCredentials: true
@@ -56,18 +65,21 @@ steps:
   - powershell: |
       .\Build\build.ps1 -TaskList 'UpdateWiki'
     displayName: "Update Wiki"
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     env:
       GITHUBPAT: $(GitHubPAT)
 
   - powershell: |
       .\Build\build.ps1 -TaskList 'Deploy'
     displayName: "Deploy"
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
     env:
       NugetApiKey: $(NugetApiKey)
 
   - powershell: |
       .\Build\build.ps1 -TaskList 'Commit'
     displayName: "Commit Changes"
+    condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
 
   - powershell: |
       .\Build\build.ps1 -TaskList 'CreateBuildArtifact'
