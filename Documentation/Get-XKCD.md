@@ -8,32 +8,32 @@ Optionally can download the comic images.
 
 ### Specific (Default)
 ```
-Get-XKCD [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-StatePath <String>] [[-Num] <Int32[]>]
- [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-XKCD [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
+ [[-Num] <Int32[]>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Random
 ```
-Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>]
+ [-HighQuality] [-StatePath <String>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
 ```
-Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
+ [-StatePath <String>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Next
 ```
-Get-XKCD [-Next] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-StatePath <String>] [-Force]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-XKCD [-Next] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
+ [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Previous
 ```
-Get-XKCD [-Previous] [-Download] [-Open] [-Show] [-Path <String>] [-HighQuality] [-StatePath <String>] [-Force]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-XKCD [-Previous] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
+ [-StatePath <String>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -141,6 +141,15 @@ Unlike other
 parameter combinations, -Show does not return the comic object.
 
 ### EXAMPLE 12
+```
+Get-XKCD -Explain
+```
+
+This command displays the explanation of the latest comic directly in the console, via
+Show-XKCDExplanation.
+Unlike other parameter combinations, -Explain does not return the comic object.
+
+### EXAMPLE 13
 ```
 1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 ```
@@ -278,6 +287,22 @@ Accept wildcard characters: False
 Displays the comic's title, image, and alt text in the console instead of returning the comic object.
 Image
 display requires your terminal to support the Sixel, Kitty, or iTerm2 inline image graphics protocol.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Explain
+Displays the comic's explanation in the console via Show-XKCDExplanation, instead of returning the comic
+object.
 
 ```yaml
 Type: SwitchParameter

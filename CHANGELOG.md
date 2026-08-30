@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.6.4] - 2026-08-29
 
 * Adds an `-Explain` switch to `Get-XKCD`, to display a comic's explanation via `Show-XKCDExplanation` instead of returning the comic object, without needing to call `Show-XKCDExplanation` separately.
 
