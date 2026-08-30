@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Fixes the published module missing its comic cache (`XKCD.json`) since moving to publishing a single combined psm1 file.
+
 ## [1.7.1] - 2026-08-30
 
 * Fixes the deploy pipeline so it actually publishes the combined single-file module built by the `CombineFunctionsAndStage` build task, rather than always silently falling back to the uncombined source. A psake `Properties` variable referenced in `deploy.psdeploy.ps1` was never visible there, since `Invoke-PSDeploy` dot-sources that file from inside PSDeploy's own module function scope, which module boundaries keep separate from psake's -- so every previous release was published from source regardless of whether `CombineFunctionsAndStage` had run.
