@@ -127,7 +127,7 @@ Checks whether any new comics have been published since you last viewed one with
 
 ```powershell
  if (Test-XKCD -Quiet) { Test-XKCD }
-``
+```
 
 If new comics are available, this will write a friendly message to the console stating how many new comics are available (if any) and the publish date of the latest one, where determinable.
 
