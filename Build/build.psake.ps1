@@ -29,6 +29,9 @@ Properties {
 
     # Documentation
     $DocumentationPath = Join-Path -Path $ProjectRoot -ChildPath 'Documentation'
+
+    # Wiki (GitHub wikis are backed by a separate '<repo>.wiki.git' repository)
+    $WikiPath = Join-Path -Path $ProjectRoot -ChildPath 'wiki'
 }
 
 
@@ -110,7 +113,7 @@ Task 'ImportStagingModule' -Depends 'Init' {
     if (Get-Module -Name $env:BHProjectName) {
         Remove-Module -Name $env:BHProjectName
     }
-    # Global scope used for UpdateDocumentation (PlatyPS)
+    # Global scope used for UpdateDocumentation / UpdateWiki (PlatyPS)
     Import-Module -Name $StagingModulePath -ErrorAction 'Stop' -Force -Global
 }
 
@@ -204,6 +207,69 @@ Task 'UpdateDocumentation' -Depends 'ImportStagingModule' {
         NoMetadata   = $true
     }
     New-MarkdownHelp @platyPSParams -ErrorAction 'SilentlyContinue' -Verbose | Out-Null
+}
+
+
+# Generate markdown help from comment-based help and publish it to the GitHub wiki.
+# GitHub wikis are backed by a separate '<repo>.wiki.git' repository, so this clones
+# that repo, regenerates the function reference pages with PlatyPS, and pushes the result.
+Task 'UpdateWiki' -Depends 'ImportStagingModule' {
+    $lines
+
+    if (-not $env:GITHUBPAT) {
+        Write-Warning 'GITHUBPAT environment variable not set. Skipping wiki update.'
+        return
+    }
+
+    # Derive the wiki repo URL from the main repo's origin remote
+    $OriginUrl = git config --get remote.origin.url
+    $WikiUrl = $OriginUrl -replace '\.git$', '.wiki.git'
+    $AuthedWikiUrl = $WikiUrl -replace '^https://', "https://x-access-token:$($env:GITHUBPAT)@"
+
+    Write-Output "Cloning wiki repo: [$WikiUrl] to [$WikiPath]`n"
+
+    if (Test-Path $WikiPath) {
+        Remove-Item -Path $WikiPath -Recurse -Force -ErrorAction 'SilentlyContinue'
+    }
+
+    git clone $AuthedWikiUrl $WikiPath
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to clone wiki repo [$WikiUrl]. Ensure the Wiki feature is enabled for the repository and at least one page has been created manually via the GitHub UI to initialize it."
+    }
+
+    # Remove previously generated function reference pages, leaving any manually authored pages (e.g. Home.md) untouched
+    $ModuleFunctions = Get-ChildItem -Path "$env:BHModulePath\Public\*.ps1", "$env:BHModulePath\Private\*.ps1" -Recurse -ErrorAction 'SilentlyContinue'
+
+    foreach ($Function in $ModuleFunctions) {
+        Remove-Item -Path (Join-Path $WikiPath "$($Function.BaseName).md") -Force -ErrorAction 'SilentlyContinue'
+    }
+
+    # Create new wiki pages
+    $platyPSParams = @{
+        Module       = $env:BHProjectName
+        OutputFolder = $WikiPath
+        NoMetadata   = $true
+    }
+    New-MarkdownHelp @platyPSParams -ErrorAction 'SilentlyContinue' -Verbose | Out-Null
+
+    Push-Location $WikiPath
+    try {
+        git config user.email "build@azuredevops.com"
+        git config user.name "AzureDevOps"
+        git add -A
+
+        if (git status --porcelain) {
+            git commit -m "[skip ci] AzureDevOps Build $($env:BUILD_BUILDID)"
+            git push
+        }
+        else {
+            Write-Output 'No wiki changes to publish.'
+        }
+    }
+    finally {
+        Pop-Location
+    }
 }
 
 

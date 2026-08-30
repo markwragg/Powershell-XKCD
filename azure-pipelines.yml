@@ -54,8 +54,16 @@ steps:
     displayName: "Update Documentation"
 
   - powershell: |
+      .\Build\build.ps1 -TaskList 'UpdateWiki'
+    displayName: "Update Wiki"
+    env:
+      GITHUBPAT: $(GitHubPAT)
+
+  - powershell: |
       .\Build\build.ps1 -TaskList 'Deploy'
     displayName: "Deploy"
+    env:
+      NugetApiKey: $(NugetApiKey)
 
   - powershell: |
       .\Build\build.ps1 -TaskList 'Commit'
