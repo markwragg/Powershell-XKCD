@@ -377,6 +377,22 @@ Task 'Deploy' -Depends 'Init' {
         throw "Failed to update version for '$env:BHProjectName': $_.`n"
     }
 
+    # deploy.psdeploy.ps1 publishes the combined module built by CombineFunctionsAndStage, not the source --
+    # its manifest was copied from source before this task bumped the version above, so it needs the same
+    # updates applied to it directly too.
+    if (Test-Path $StagingModuleManifestPath) {
+        Set-ModuleFunctions -Name $StagingModuleManifestPath
+        Update-Metadata -Path $StagingModuleManifestPath -PropertyName 'ModuleVersion' -Value $Version -ErrorAction 'Stop'
+
+        # Invoke-PSDeploy runs deploy.psdeploy.ps1 from inside the PSDeploy module's own function scope, which
+        # can't see this task's local $StagingModulePath -- module scope boundaries block that. An environment
+        # variable crosses the boundary instead.
+        $env:BHStagingModulePath = $StagingModulePath
+    }
+    else {
+        Write-Warning "Staging module not found at [$StagingModulePath] -- run the CombineFunctionsAndStage task first. Falling back to publishing directly from source."
+    }
+
     if (Get-Item "$ProjectRoot/CHANGELOG.md") {
 
         $ChangeLog = Get-Content "$ProjectRoot/CHANGELOG.md"
