@@ -1,6 +1,6 @@
 # Powershell-XKCD
 
-[![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.Powershell-XKCD?branchName=master)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=9&branchName=master) ![coverage](https://img.shields.io/badge/coverage-94%25-brightgreen.svg)
+[![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.Powershell-XKCD?branchName=master)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=9&branchName=master) ![coverage](https://img.shields.io/badge/coverage-93%25-brightgreen.svg)
 
 A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ https://xkcd.com. Modern Terminals can now also view the comic directly in the terminal.
 
