@@ -26,6 +26,9 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Show-XKCD does not allow -Previous and -Num to be used together' {
             { Show-XKCD -Previous -Num 1 } | Should -Throw
         }
+        It 'Show-XKCD does not allow -Path and -Num to be used together' {
+            { Show-XKCD -Path 'foo.xkcdterm.json' -Num 1 } | Should -Throw
+        }
     }
 }
 
@@ -188,6 +191,50 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $State = Get-Content $StatePath | ConvertFrom-Json
             $State.LastRead | Should -Be 100
             $State.LastViewed | Should -Be 100
+        }
+    }
+
+    Context 'File Tests' {
+
+        BeforeAll {
+            Mock -ModuleName $Module Get-XKCDTerminalGraphicsProtocol { 'Kitty' }
+
+            $ExportedFile = Export-XKCDTerminalImage -Num 353 -Path $TestDrive -Force -PassThru
+            $Comic = Get-XKCD -Num 353
+        }
+
+        It 'Show-XKCD -Path displays a comic exported by Export-XKCDTerminalImage without throwing' {
+            { Get-XKCDCapturedOutput { Show-XKCD -Path $ExportedFile.FullName } } | Should -Not -Throw
+        }
+
+        It 'Show-XKCD -Path writes the comic title and alt text from the saved file' {
+            $Output = Get-XKCDCapturedOutput { Show-XKCD -Path $ExportedFile.FullName }
+
+            # Show-XKCDComicImage re-wraps the alt text word-by-word, collapsing any repeated whitespace in the
+            # original onto single spaces, so both sides need the same normalization to compare reliably.
+            $NormalizedOutput = (($Output -split '\r?\n') -join ' ') -replace '\s+', ' '
+            $NormalizedAlt = $Comic.alt -replace '\s+', ' '
+
+            $NormalizedOutput | Should -Match ([regex]::Escape($Comic.title))
+            $NormalizedOutput | Should -Match ([regex]::Escape($NormalizedAlt))
+        }
+
+        It 'Show-XKCD -Path accepts a FileInfo object via the pipeline (e.g. from Export-XKCDTerminalImage -PassThru)' {
+            { Get-XKCDCapturedOutput { Export-XKCDTerminalImage -Num 353 -Path $TestDrive -Force -PassThru | Show-XKCD } } | Should -Not -Throw
+        }
+
+        It 'Show-XKCD -Path warns and does not throw when the file does not exist' {
+            $MissingPath = Join-Path $TestDrive 'show-path-missing.xkcdterm.json'
+
+            { Get-XKCDCapturedOutput { Show-XKCD -Path $MissingPath -WarningAction SilentlyContinue } } | Should -Not -Throw
+        }
+
+        It 'Show-XKCD -Path records the displayed comic as the most recently viewed' {
+            $StatePath = Join-Path $TestDrive 'show-path-state.json'
+
+            Get-XKCDCapturedOutput { Show-XKCD -Path $ExportedFile.FullName -StatePath $StatePath } | Out-Null
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 353
         }
     }
 }

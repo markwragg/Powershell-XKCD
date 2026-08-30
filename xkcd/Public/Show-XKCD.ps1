@@ -16,6 +16,13 @@ function Show-XKCD {
         back and forth through comics sequentially. -Next displays nothing once you've reached the latest comic,
         and -Previous displays nothing once you've reached comic #1.
 
+        Use -Path to display a comic from a file previously saved with Export-XKCDTerminalImage instead of
+        fetching it from the xkcd API -- useful for redisplaying a comic without needing network access, or for
+        a comic whose image was rendered on another machine. The saved image is written to the console as-is
+        rather than being re-rendered, so it's only guaranteed to display correctly in a terminal that supports
+        the same graphics protocol it was exported with; a warning is shown if that doesn't match the protocol
+        detected for the terminal you're displaying it in.
+
     .EXAMPLE
         Show-XKCD
 
@@ -54,6 +61,17 @@ function Show-XKCD {
         recorded in the state file. Calling -Previous repeatedly steps back further each time. Displays nothing
         if you're already at comic #1.
 
+    .EXAMPLE
+        Show-XKCD -Path .\353.xkcdterm.json
+
+        Displays the comic saved to '.\353.xkcdterm.json' by Export-XKCDTerminalImage, without fetching
+        anything from the xkcd API.
+
+    .EXAMPLE
+        Export-XKCDTerminalImage -Num 353 -PassThru | Show-XKCD
+
+        Exports comic number 353 and immediately displays it from the saved file.
+
     .LINK
         https://xkcd.com/json.html
     #>
@@ -76,6 +94,14 @@ function Show-XKCD {
         [switch]
         $Previous,
 
+        # Displays the comic saved in the specified file(s), previously created with Export-XKCDTerminalImage,
+        # instead of fetching it from the xkcd API. Accepts array input and FileInfo objects via the pipeline
+        # (e.g. from Get-ChildItem or Export-XKCDTerminalImage -PassThru).
+        [Parameter(ParameterSetName = 'File', Mandatory, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('FullName')]
+        [string[]]
+        $Path,
+
         # Displays the higher resolution (_2x) version of the image, where available. Comics that do not have a
         # higher resolution version are displayed at the standard quality instead. Defaults to the value saved
         # with Set-XKCDDefault -HighQuality, if any.
@@ -89,6 +115,8 @@ function Show-XKCD {
     )
 
     Begin {
+        if ($PSCmdlet.ParameterSetName -eq 'File') { return }
+
         if ($Next) {
             $Latest = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
             $NextNum = (Get-XKCDLastReadComic -StatePath $StatePath) + 1
@@ -104,6 +132,45 @@ function Show-XKCD {
     }
 
     Process {
+        if ($PSCmdlet.ParameterSetName -eq 'File') {
+            $Path | ForEach-Object {
+                $File = $_
+
+                if (-not (Test-Path $File)) {
+                    Write-Warning "No saved terminal image was found at '$File'."
+                    return
+                }
+
+                try {
+                    $Saved = Get-Content $File -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+                }
+                catch {
+                    Write-Warning "Unable to read the saved terminal image at '$File': $_"
+                    return
+                }
+
+                $CurrentProtocol = Get-XKCDTerminalGraphicsProtocol
+
+                if ($CurrentProtocol -and $Saved.Protocol -ne $CurrentProtocol) {
+                    Write-Warning "The terminal image saved at '$File' was rendered for the $($Saved.Protocol) graphics protocol, but this terminal supports $CurrentProtocol instead -- it may not display correctly."
+                }
+
+                $Comic = $Saved | Select-Object * -ExcludeProperty Protocol, Image
+
+                Show-XKCDComic -Comic $Comic -TerminalImage $Saved.Image
+
+                $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
+                $LastReadComic = Get-XKCDLastReadComic -StatePath $StatePath
+                $NewLastViewed = [math]::Max($LastViewedComic, $Comic.num)
+
+                if (($Comic.num -ne $LastReadComic -or $NewLastViewed -ne $LastViewedComic) -and
+                    $PSCmdlet.ShouldProcess($StatePath, "Update last read comic to #$($Comic.num)")) {
+                    [pscustomobject]@{ LastViewed = $NewLastViewed; LastRead = $Comic.num } | ConvertTo-Json | Out-File $StatePath -Force
+                }
+            }
+            return
+        }
+
         $Num | ForEach-Object {
             $Comic = Get-XKCD -Num $_
             $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)

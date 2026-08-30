@@ -14,8 +14,8 @@ function Set-XKCDDefault {
 
         Supported preferences:
 
-        -HighQuality  Default for -HighQuality on Get-XKCD, Show-XKCD, Get-XKCDExplanation and Show-XKCDExplanation.
-        -Path         Default download directory for Get-XKCD -Download.
+        -HighQuality  Default for -HighQuality on Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation and Export-XKCDTerminalImage.
+        -Path         Default download directory for Get-XKCD -Download, and default save directory for Export-XKCDTerminalImage.
         -FullSearch   Default for -FullSearch on Find-XKCD.
         -CachePath    Default comic data cache location for Update-XKCDCache, Get-XKCDCache and Find-XKCD.
         -StatePath    Default location of the most-recently-viewed record for Show-XKCD, Get-XKCD -Show and Test-XKCD.
@@ -54,11 +54,13 @@ function Set-XKCDDefault {
     #>
     [cmdletbinding(SupportsShouldProcess)]
     Param(
-        # Sets the default for -HighQuality, used by Get-XKCD, Show-XKCD, Get-XKCDExplanation and Show-XKCDExplanation.
+        # Sets the default for -HighQuality, used by Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation
+        # and Export-XKCDTerminalImage.
         [switch]
         $HighQuality,
 
-        # Sets the default download directory used by Get-XKCD -Download.
+        # Sets the default download directory used by Get-XKCD -Download, and the default save directory used by
+        # Export-XKCDTerminalImage.
         [string]
         $Path,
 

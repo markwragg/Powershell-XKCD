@@ -157,11 +157,23 @@ Use the -Explain switch to display a comic's explanation via Show-XKCDExplanatio
 
 23) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
 
-Saves default preferences that other cmdlets in this module then use automatically, so you don't need to repeat the same parameters every time. Supported preferences: `-HighQuality` (Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation), `-Path` (Get-XKCD -Download), `-FullSearch` (Find-XKCD), `-CachePath` (Update-XKCDCache, Get-XKCDCache, Find-XKCD), `-StatePath` (Show-XKCD, Get-XKCD -Show/-Next/-Previous, Test-XKCD), and `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (Get-XKCDExplanation, Show-XKCDExplanation). Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences.
+Saves default preferences that other cmdlets in this module then use automatically, so you don't need to repeat the same parameters every time. Supported preferences: `-HighQuality` (Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation, Export-XKCDTerminalImage), `-Path` (Get-XKCD -Download, Export-XKCDTerminalImage), `-FullSearch` (Find-XKCD), `-CachePath` (Update-XKCDCache, Get-XKCDCache, Find-XKCD), `-StatePath` (Show-XKCD, Get-XKCD -Show/-Next/-Previous, Test-XKCD), and `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (Get-XKCDExplanation, Show-XKCDExplanation). Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences.
 
 24) `Get-XKCDDefault`
 
 Returns the default preferences currently saved by Set-XKCDDefault.
+
+25) `Export-XKCDTerminalImage` or `Export-XKCDTerminalImage 353 -Path C:\XKCD`
+
+Renders a comic using whichever inline graphics protocol your terminal supports and saves it to a file (as `<num>.xkcdterm.json`), alongside every field Get-XKCD returns for that comic, so it can be redisplayed instantly later -- via Import-XKCDTerminalImage or Show-XKCD -Path -- without needing network access or having to regenerate the image again (which for Sixel in particular can take a while for large images). Throws if the destination file already exists; use -Force to overwrite it.
+
+26) `Import-XKCDTerminalImage -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Import-XKCDTerminalImage`
+
+Writes just the saved image from a file created by Export-XKCDTerminalImage straight to the console, without fetching or re-rendering anything. Warns (but still displays it) if the saved image's graphics protocol doesn't match the one detected for your terminal.
+
+27) `Show-XKCD -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Show-XKCD`
+
+Displays the full comic -- title, image, and alt text -- from a file created by Export-XKCDTerminalImage instead of fetching it from the xkcd API, e.g. to view a comic offline. As with Import-XKCDTerminalImage, a warning is shown if the saved protocol doesn't match your terminal's.
 
 ## Contributions
 

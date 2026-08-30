@@ -3,7 +3,7 @@ function Show-XKCDComic {
     .SYNOPSIS
         Displays a comic's title above its image and its alt text below, formatted for the console.
     #>
-    [cmdletbinding()]
+    [cmdletbinding(DefaultParameterSetName = 'Bytes')]
     Param(
         # The comic object returned by the xkcd API (must have num, title, and alt properties).
         [Parameter(Mandatory)]
@@ -11,9 +11,15 @@ function Show-XKCDComic {
         $Comic,
 
         # The raw bytes of the comic image (e.g. PNG or JPEG).
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory, ParameterSetName = 'Bytes')]
         [byte[]]
-        $ImageBytes
+        $ImageBytes,
+
+        # A previously rendered terminal graphics escape sequence (e.g. from Export-XKCDTerminalImage), written
+        # to the console as-is instead of being rendered from raw image bytes.
+        [Parameter(Mandatory, ParameterSetName = 'TerminalImage')]
+        [string]
+        $TerminalImage
     )
 
     try {
@@ -40,7 +46,12 @@ function Show-XKCDComic {
         [Console]::Out.Write("$dim$MetaText$reset")
         [Console]::Out.Write($newLine + $newLine)
 
-        Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -Width $width
+        if ($PSCmdlet.ParameterSetName -eq 'TerminalImage') {
+            Show-XKCDComicImage -Comic $Comic -TerminalImage $TerminalImage -Width $width
+        }
+        else {
+            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -Width $width
+        }
     }
     catch {
         # Console access can fail in non-interactive/headless hosts (e.g. CI build agents) in ways that vary by

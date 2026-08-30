@@ -366,9 +366,9 @@ Task 'Deploy' -Depends 'Init' {
     try {
         $Version = Get-NextPSGalleryVersion -Name $env:BHProjectName -ErrorAction 'Stop'
 
-        # Ensure the next deploy is at least 1.6.0. Once the Gallery has a 1.6.0+ release published, Get-NextPSGalleryVersion will always be >= this floor
+        # Ensure the next deploy is at least 1.7.0. Once the Gallery has a 1.7.0+ release published, Get-NextPSGalleryVersion will always be >= this floor
         # on its own, so this check becomes a no-op and doesn't need to be removed later.
-        $MinimumVersion = [Version]'1.6.0'
+        $MinimumVersion = [Version]'1.7.0'
         if ($Version -lt $MinimumVersion) { $Version = $MinimumVersion }
 
         Update-Metadata -Path $env:BHPSModuleManifest -PropertyName 'ModuleVersion' -Value $Version -ErrorAction 'Stop'

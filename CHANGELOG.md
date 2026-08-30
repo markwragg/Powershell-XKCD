@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* Adds new `Export-XKCDTerminalImage` and `Import-XKCDTerminalImage` cmdlets. `Export-XKCDTerminalImage` renders a comic using whichever inline graphics protocol your terminal supports (Sixel, Kitty, or iTerm2) and saves it to a file -- alongside every field `Get-XKCD` returns for that comic -- so it can be redisplayed instantly later without needing network access or having to regenerate the image again (which for Sixel in particular can take a while for large images). Throws if the destination file already exists; use `-Force` to overwrite it. `Import-XKCDTerminalImage` writes the saved image from an exported file straight to the console, warning (but still displaying it) if the saved graphics protocol doesn't match the one detected for the current terminal.
+* Adds a `-Path` parameter to `Show-XKCD` to display the full comic -- title, image, and alt text -- from a file previously saved with `Export-XKCDTerminalImage`, instead of fetching it from the xkcd API. Accepts pipeline input, including directly from `Export-XKCDTerminalImage -PassThru` or `Get-ChildItem`.
+
 ## [1.6.4] - 2026-08-29
 
 * Adds an `-Explain` switch to `Get-XKCD`, to display a comic's explanation via `Show-XKCDExplanation` instead of returning the comic object, without needing to call `Show-XKCDExplanation` separately.
