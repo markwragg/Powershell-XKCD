@@ -97,7 +97,7 @@ function Export-XKCDTerminalImage {
                 throw "A terminal image for comic #$($Comic.num) already exists at '$OutFile'. Use -Force to overwrite it."
             }
 
-            $ImageBytes = Get-XKCDComicImageBytes -Comic $Comic -HighQuality:$HighQuality
+            $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
 
             $Protocol = Get-XKCDTerminalGraphicsProtocol
 

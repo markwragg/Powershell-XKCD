@@ -160,7 +160,7 @@ function Show-XKCD {
 
         $Num | ForEach-Object {
             $Comic = Get-XKCD -Num $_
-            $ImageBytes = Get-XKCDComicImageBytes -Comic $Comic -HighQuality:$HighQuality
+            $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
 
             Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
 

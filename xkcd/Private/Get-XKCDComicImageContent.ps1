@@ -1,4 +1,4 @@
-function Get-XKCDComicImageBytes {
+function Get-XKCDComicImageContent {
     <#
     .SYNOPSIS
         Downloads a comic's image, falling back to standard quality (with a warning) if -HighQuality was

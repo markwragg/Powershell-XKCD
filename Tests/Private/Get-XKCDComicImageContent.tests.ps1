@@ -14,20 +14,20 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         $ModuleObj = Get-Module $Module
     }
 
-    Context 'Get-XKCDComicImageBytes Tests' {
+    Context 'Get-XKCDComicImageContent Tests' {
 
         BeforeAll {
             $Comic = Get-XKCD -Num 353
         }
 
         It 'Returns the image bytes for the comic' {
-            $Result = & $ModuleObj { Param($Comic) Get-XKCDComicImageBytes -Comic $Comic } $Comic
+            $Result = & $ModuleObj { Param($Comic) Get-XKCDComicImageContent -Comic $Comic } $Comic
 
             $Result.Count | Should -BeGreaterThan 0
         }
     }
 
-    Context 'Get-XKCDComicImageBytes High Quality Tests' {
+    Context 'Get-XKCDComicImageContent High Quality Tests' {
 
         BeforeAll {
             # Comic 3290 is known to have a higher resolution (_2x) version available
@@ -35,14 +35,14 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
 
         It 'Returns a larger image when -HighQuality is specified and a _2x version is available' {
-            $Standard = & $ModuleObj { Param($Comic) Get-XKCDComicImageBytes -Comic $Comic } $Comic
-            $HighQuality = & $ModuleObj { Param($Comic) Get-XKCDComicImageBytes -Comic $Comic -HighQuality } $Comic
+            $Standard = & $ModuleObj { Param($Comic) Get-XKCDComicImageContent -Comic $Comic } $Comic
+            $HighQuality = & $ModuleObj { Param($Comic) Get-XKCDComicImageContent -Comic $Comic -HighQuality } $Comic
 
             $HighQuality.Length | Should -BeGreaterThan $Standard.Length
         }
     }
 
-    Context 'Get-XKCDComicImageBytes High Quality Fallback Tests' {
+    Context 'Get-XKCDComicImageContent High Quality Fallback Tests' {
 
         BeforeAll {
             # Comic 1 does not have a higher resolution version available, so should fall back to standard quality
@@ -53,7 +53,7 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             {
                 & $ModuleObj {
                     Param($Comic)
-                    Get-XKCDComicImageBytes -Comic $Comic -HighQuality -WarningAction SilentlyContinue
+                    Get-XKCDComicImageContent -Comic $Comic -HighQuality -WarningAction SilentlyContinue
                 } $Comic
             } | Should -Not -Throw
         }
