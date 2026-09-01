@@ -66,6 +66,22 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result | Should -Be 'FAKE-SIXEL-DATA'
         }
+
+        It 'Does not override the default -MaxWidth without -HighQuality' {
+            & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'Sixel' } $ImageBytes
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 1 -Exactly -ParameterFilter {
+                -not $PSBoundParameters.ContainsKey('MaxWidth')
+            }
+        }
+
+        It 'Raises -MaxWidth to 800 when -HighQuality is specified' {
+            & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'Sixel' -HighQuality } $ImageBytes
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 1 -Exactly -ParameterFilter {
+                $MaxWidth -eq 800
+            }
+        }
     }
 
     Context 'ConvertTo-XKCDTerminalImage Detected Protocol Tests' {

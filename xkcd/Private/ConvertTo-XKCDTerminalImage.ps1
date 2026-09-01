@@ -15,7 +15,14 @@ function ConvertTo-XKCDTerminalImage {
         # the current terminal.
         [ValidateSet('Kitty', 'iTerm2', 'Sixel')]
         [string]
-        $Protocol = (Get-XKCDTerminalGraphicsProtocol)
+        $Protocol = (Get-XKCDTerminalGraphicsProtocol),
+
+        # Indicates that $ImageBytes is a higher resolution (_2x) source image. For Sixel, this raises the
+        # -MaxWidth passed to ConvertTo-XKCDSixel (to 800, up from the default 640) so the extra resolution is
+        # actually visible on screen, rather than being downscaled straight back to the standard-quality size.
+        # Kitty and iTerm2 aren't affected, as neither is downscaled to a fixed width here.
+        [switch]
+        $HighQuality
     )
 
     $esc = [char]27
@@ -43,7 +50,12 @@ function ConvertTo-XKCDTerminalImage {
             "$esc]1337;File=inline=1;size=$($ImageBytes.Length):$base64$bel"
         }
         'Sixel' {
-            ConvertTo-XKCDSixel -ImageBytes $ImageBytes
+            if ($HighQuality) {
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 800
+            }
+            else {
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes
+            }
         }
         default {
             throw 'Your terminal does not appear to support inline image display (Sixel, Kitty, or iTerm2 graphics protocols).'

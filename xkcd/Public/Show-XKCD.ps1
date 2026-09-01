@@ -162,7 +162,7 @@ function Show-XKCD {
             $Comic = Get-XKCD -Num $_
             $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
 
-            Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes
+            Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality
 
             & $UpdateLastReadState -Num $Comic.num
         }

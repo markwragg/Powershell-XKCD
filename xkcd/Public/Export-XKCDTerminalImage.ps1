@@ -107,7 +107,7 @@ function Export-XKCDTerminalImage {
             }
 
             try {
-                $TerminalImage = ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol $Protocol
+                $TerminalImage = ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol $Protocol -HighQuality:$HighQuality
             }
             catch {
                 Write-Warning "Unable to render comic #$($Comic.num) as $($Protocol): $_"

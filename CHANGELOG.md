@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Fixes `-HighQuality` on `Show-XKCD`, `Show-XKCDExplanation`, and `Export-XKCDTerminalImage` having no visible effect in terminals using the Sixel graphics protocol -- the higher resolution `_2x` source image was fetched but then downscaled straight back to the same 640px cap used for standard quality, so it always displayed at the same size. Sixel rendering now uses an 800px cap when `-HighQuality` is specified, so the extra resolution is actually visible on screen. Kitty and iTerm2 were unaffected, as neither is downscaled to a fixed width.
+
 ## [1.7.2] - 2026-08-30
 
 * Fixes the published module missing its comic cache (`XKCD.json`) since moving to publishing a single combined psm1 file.

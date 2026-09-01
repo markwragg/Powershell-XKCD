@@ -139,7 +139,7 @@ function Show-XKCDExplanation {
                 $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
             }
 
-            Show-XKCDExplanationText -Explanation $ExplanationResult -Comic $Comic -ImageBytes $ImageBytes
+            Show-XKCDExplanationText -Explanation $ExplanationResult -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality
         }
     }
 }

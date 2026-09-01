@@ -18,7 +18,12 @@ function Show-XKCDExplanationText {
 
         # The raw bytes of the comic image (e.g. PNG or JPEG).
         [byte[]]
-        $ImageBytes
+        $ImageBytes,
+
+        # Indicates that $ImageBytes is a higher resolution (_2x) source image, so it should be rendered at a
+        # correspondingly higher quality rather than downscaled to the standard size.
+        [switch]
+        $HighQuality
     )
 
     try {
@@ -89,7 +94,7 @@ function Show-XKCDExplanationText {
         }
 
         if ($ImageBytes) {
-            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -Width $width
+            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $width
         }
 
         $Sections = [ordered]@{}

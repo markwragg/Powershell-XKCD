@@ -9,7 +9,12 @@ function Show-XKCDImage {
         # The raw bytes of the image to display (e.g. PNG or JPEG).
         [Parameter(Mandatory)]
         [byte[]]
-        $ImageBytes
+        $ImageBytes,
+
+        # Indicates that $ImageBytes is a higher resolution (_2x) source image, so it should be rendered at a
+        # correspondingly higher quality rather than downscaled to the standard size.
+        [switch]
+        $HighQuality
     )
 
     $protocol = Get-XKCDTerminalGraphicsProtocol
@@ -20,7 +25,7 @@ function Show-XKCDImage {
     }
 
     try {
-        $TerminalImage = ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol $protocol
+        $TerminalImage = ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol $protocol -HighQuality:$HighQuality
     }
     catch {
         Write-Warning "Unable to render the comic as $($protocol): $_"

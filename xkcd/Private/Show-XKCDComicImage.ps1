@@ -15,6 +15,12 @@ function Show-XKCDComicImage {
         [byte[]]
         $ImageBytes,
 
+        # Indicates that $ImageBytes is a higher resolution (_2x) source image, so it should be rendered at a
+        # correspondingly higher quality rather than downscaled to the standard size.
+        [Parameter(ParameterSetName = 'Bytes')]
+        [switch]
+        $HighQuality,
+
         # A previously rendered terminal graphics escape sequence (e.g. from Export-XKCDTerminalImage), written
         # to the console as-is instead of being rendered from raw image bytes.
         [Parameter(Mandatory, ParameterSetName = 'TerminalImage')]
@@ -36,7 +42,7 @@ function Show-XKCDComicImage {
         [Console]::Out.Write($newLine)
     }
     else {
-        Show-XKCDImage -ImageBytes $ImageBytes
+        Show-XKCDImage -ImageBytes $ImageBytes -HighQuality:$HighQuality
     }
 
     if ($Comic.alt) {
