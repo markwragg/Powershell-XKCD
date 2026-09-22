@@ -30,7 +30,8 @@ steps:
     clean: true
 
   - powershell: |
-      $modulesPath = Join-Path $env:USERPROFILE 'Documents\WindowsPowerShell\Modules'
+      $modulesPath = ($env:PSModulePath -split [IO.Path]::PathSeparator) |
+          Where-Object { $_ -like "$HOME*" } | Select-Object -First 1
       Write-Host "##vso[task.setvariable variable=ModulesPath]$modulesPath"
     displayName: "Set Modules Cache Path"
 
