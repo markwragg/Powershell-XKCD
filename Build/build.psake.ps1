@@ -1,5 +1,4 @@
-# Normalizes path separators/casing so a Windows path (backslashes) can be compared
-# against `git rev-parse` output (always forward slashes) without false mismatches.
+# Normalizes path separators/casing
 function ConvertTo-ComparablePath ([string]$Path) {
     ($Path -replace '\\', '/').TrimEnd('/').ToLowerInvariant()
 }
@@ -192,13 +191,23 @@ Task 'Test' -Depends 'ImportStagingModule' {
         Write-Error "Failed '$($TestResults.FailedCount)' tests, build failed"
     }
 
-    #Update readme.md with Code Coverage result
+    # Surface the coverage result as a pipeline output variable so a later stage (which runs in a
+    # separate, discarded workspace) can apply it to README.md without re-running the tests.
     $CoveragePercent = [math]::floor($TestResults.CodeCoverage.CoveragePercent)
 
-    Set-ShieldsIoBadge -Path (Join-Path $ProjectRoot 'README.md') -Subject 'coverage' -Status $CoveragePercent -AsPercentage
+    Write-Host "##vso[task.setvariable variable=CoveragePercent;isOutput=true]$CoveragePercent"
+}
 
-    "`n`tSTATUS: Running Update-XKCDCache to refresh cache file with latest comics"
-    Update-XKCDCache -Verbose
+
+# Update the coverage badge in README.md using a coverage percentage computed by an earlier Test task
+Task 'UpdateCoverageBadge' -Depends 'Init' {
+    $lines
+
+    if (-not $env:CoveragePercent) {
+        throw "CoveragePercent environment variable not set. Run the 'Test' task first and pass its coverage output through."
+    }
+
+    Set-ShieldsIoBadge -Path (Join-Path $ProjectRoot 'README.md') -Subject 'coverage' -Status $env:CoveragePercent -AsPercentage
 }
 
 
@@ -237,11 +246,6 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
     }
 
     # Derive the wiki repo URL from the main repo's origin remote.
-    # NOTE: Azure Pipelines' checkout sets remote.origin.url WITHOUT a trailing '.git'
-    # (e.g. "https://github.com/markwragg/Powershell-XKCD"), so a naive
-    # `-replace '\.git$', '.wiki.git'` silently no-ops and leaves $WikiUrl identical to
-    # $OriginUrl - i.e. the MAIN repo. Strip any trailing '.git' first (if present) and
-    # then always append '.wiki.git', so this works regardless of the origin URL's format.
     $OriginUrl = (git config --get remote.origin.url) -replace '\.git$', ''
     $WikiUrl = "$OriginUrl.wiki.git"
     $AuthedWikiUrl = $WikiUrl -replace '^https://', "https://x-access-token:$($env:GITHUBPAT)@"

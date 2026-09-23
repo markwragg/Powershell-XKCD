@@ -112,7 +112,7 @@ Describe "Test help for <_.Name>" -ForEach $commands {
         $links = (Get-Help $_.Name -ErrorAction SilentlyContinue).relatedLinks.navigationLink.uri | Where-Object { $_ }
 
         # Should have a valid uri if one is provided.
-        It '<_> should have 200 Status Code' -ForEach $links {
+        It '<_> should have 200 Status Code' -ForEach $links -AllowNullOrEmptyForEach {
             $Results = Invoke-WebRequest -Uri $_ -UseBasicParsing
             $Results.StatusCode | Should -Be '200'
         }
