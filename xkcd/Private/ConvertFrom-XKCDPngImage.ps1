@@ -1,4 +1,4 @@
-function ConvertFrom-XKCDPngBytes {
+function ConvertFrom-XKCDPngImage {
     <#
     .SYNOPSIS
         Decodes PNG image bytes into raw 8-bit RGBA pixel data.
@@ -48,28 +48,28 @@ function ConvertFrom-XKCDPngBytes {
         $type = [System.Text.Encoding]::ASCII.GetString($ImageBytes, $offset + 4, 4)
         $dataStart = $offset + 8
 
-        switch ($type) {
-            'IHDR' {
-                $width = Read-XKCDUInt32BE $ImageBytes $dataStart
-                $height = Read-XKCDUInt32BE $ImageBytes ($dataStart + 4)
-                $bitDepth = $ImageBytes[$dataStart + 8]
-                $colorType = $ImageBytes[$dataStart + 9]
-                $interlace = $ImageBytes[$dataStart + 12]
-            }
-            'PLTE' {
-                $palette = [byte[]]::new($length)
-                [Array]::Copy($ImageBytes, $dataStart, $palette, 0, $length)
-            }
-            'tRNS' {
-                $transparency = [byte[]]::new($length)
-                [Array]::Copy($ImageBytes, $dataStart, $transparency, 0, $length)
-            }
-            'IDAT' {
-                $chunk = [byte[]]::new($length)
-                [Array]::Copy($ImageBytes, $dataStart, $chunk, 0, $length)
-                $idatChunks.Add($chunk)
-            }
-            'IEND' { $offset = $ImageBytes.Length }
+        if ($type -eq 'IHDR') {
+            $width = Read-XKCDUInt32BE $ImageBytes $dataStart
+            $height = Read-XKCDUInt32BE $ImageBytes ($dataStart + 4)
+            $bitDepth = $ImageBytes[$dataStart + 8]
+            $colorType = $ImageBytes[$dataStart + 9]
+            $interlace = $ImageBytes[$dataStart + 12]
+        }
+        elseif ($type -eq 'PLTE') {
+            $palette = [byte[]]::new($length)
+            [Array]::Copy($ImageBytes, $dataStart, $palette, 0, $length)
+        }
+        elseif ($type -eq 'tRNS') {
+            $transparency = [byte[]]::new($length)
+            [Array]::Copy($ImageBytes, $dataStart, $transparency, 0, $length)
+        }
+        elseif ($type -eq 'IDAT') {
+            $chunk = [byte[]]::new($length)
+            [Array]::Copy($ImageBytes, $dataStart, $chunk, 0, $length)
+            $idatChunks.Add($chunk)
+        }
+        elseif ($type -eq 'IEND') {
+            $offset = $ImageBytes.Length
         }
 
         if ($type -ne 'IEND') {
@@ -81,14 +81,12 @@ function ConvertFrom-XKCDPngBytes {
         throw 'ConvertTo-XKCDSixel does not support interlaced PNG images.'
     }
 
-    $channels = switch ($colorType) {
-        0 { 1 } # Grayscale
-        2 { 3 } # RGB
-        3 { 1 } # Palette
-        4 { 2 } # Grayscale + alpha
-        6 { 4 } # RGBA
-        default { throw "ConvertTo-XKCDSixel does not support PNG colour type $colorType." }
-    }
+    $channels = if ($colorType -eq 0) { 1 } # Grayscale
+    elseif ($colorType -eq 2) { 3 } # RGB
+    elseif ($colorType -eq 3) { 1 } # Palette
+    elseif ($colorType -eq 4) { 2 } # Grayscale + alpha
+    elseif ($colorType -eq 6) { 4 } # RGBA
+    else { throw "ConvertTo-XKCDSixel does not support PNG colour type $colorType." }
 
     if ($bitDepth -notin 1, 2, 4, 8, 16) {
         throw "ConvertTo-XKCDSixel does not support PNG bit depth $bitDepth."
@@ -145,20 +143,18 @@ function ConvertFrom-XKCDPngBytes {
             $c = if ($i -ge $bpp) { $prevRow[$i - $bpp] } else { 0 }
             $x = $row[$i]
 
-            $value = switch ($filterType) {
-                0 { $x }
-                1 { $x + $a }
-                2 { $x + $b }
-                3 { $x + [Math]::Floor(($a + $b) / 2) }
-                4 {
-                    $p = $a + $b - $c
-                    $pa = [Math]::Abs($p - $a)
-                    $pb = [Math]::Abs($p - $b)
-                    $pc = [Math]::Abs($p - $c)
-                    $x + $(if ($pa -le $pb -and $pa -le $pc) { $a } elseif ($pb -le $pc) { $b } else { $c })
-                }
-                default { throw "ConvertTo-XKCDSixel encountered an unsupported PNG filter type $filterType." }
+            $value = if ($filterType -eq 0) { $x }
+            elseif ($filterType -eq 1) { $x + $a }
+            elseif ($filterType -eq 2) { $x + $b }
+            elseif ($filterType -eq 3) { $x + [Math]::Floor(($a + $b) / 2) }
+            elseif ($filterType -eq 4) {
+                $p = $a + $b - $c
+                $pa = [Math]::Abs($p - $a)
+                $pb = [Math]::Abs($p - $b)
+                $pc = [Math]::Abs($p - $c)
+                $x + $(if ($pa -le $pb -and $pa -le $pc) { $a } elseif ($pb -le $pc) { $b } else { $c })
             }
+            else { throw "ConvertTo-XKCDSixel encountered an unsupported PNG filter type $filterType." }
 
             $row[$i] = [byte]($value -band 0xFF)
         }
@@ -168,16 +164,18 @@ function ConvertFrom-XKCDPngBytes {
     }
 
     function Get-XKCDPngRawSample ([byte[]]$PixelData, [int]$RowStart, [int]$SampleIndex, [int]$BitDepth) {
-        switch ($BitDepth) {
-            8 { return $PixelData[$RowStart + $SampleIndex] }
-            16 { return $PixelData[$RowStart + ($SampleIndex * 2)] }
-            default {
-                $bitOffset = $SampleIndex * $BitDepth
-                $byteIndex = $RowStart + [int][Math]::Floor($bitOffset / 8)
-                $shift = 8 - $BitDepth - ($bitOffset % 8)
-                $mask = (1 -shl $BitDepth) - 1
-                return ($PixelData[$byteIndex] -shr $shift) -band $mask
-            }
+        if ($BitDepth -eq 8) {
+            return $PixelData[$RowStart + $SampleIndex]
+        }
+        elseif ($BitDepth -eq 16) {
+            return $PixelData[$RowStart + ($SampleIndex * 2)]
+        }
+        else {
+            $bitOffset = $SampleIndex * $BitDepth
+            $byteIndex = $RowStart + [int][Math]::Floor($bitOffset / 8)
+            $shift = 8 - $BitDepth - ($bitOffset % 8)
+            $mask = (1 -shl $BitDepth) - 1
+            return ($PixelData[$byteIndex] -shr $shift) -band $mask
         }
     }
 
@@ -190,44 +188,42 @@ function ConvertFrom-XKCDPngBytes {
             $rgbaOffset = (($y * $width) + $x) * 4
             $sampleBase = $x * $channels
 
-            switch ($colorType) {
-                0 {
-                    # Grayscale: <8-bit samples are scaled up to fill the full 0-255 range.
-                    $raw = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
-                    $gray = if ($bitDepth -eq 8 -or $bitDepth -eq 16) { $raw } else { [byte]([Math]::Round($raw * 255 / ((1 -shl $bitDepth) - 1))) }
-                    $rgba[$rgbaOffset] = $gray
-                    $rgba[$rgbaOffset + 1] = $gray
-                    $rgba[$rgbaOffset + 2] = $gray
-                    $rgba[$rgbaOffset + 3] = 255
-                }
-                2 {
-                    $rgba[$rgbaOffset] = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
-                    $rgba[$rgbaOffset + 1] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 1) $bitDepth
-                    $rgba[$rgbaOffset + 2] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 2) $bitDepth
-                    $rgba[$rgbaOffset + 3] = 255
-                }
-                3 {
-                    # Palette: the sample is a raw index, never scaled.
-                    $index = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
-                    $paletteOffset = $index * 3
-                    $rgba[$rgbaOffset] = $palette[$paletteOffset]
-                    $rgba[$rgbaOffset + 1] = $palette[$paletteOffset + 1]
-                    $rgba[$rgbaOffset + 2] = $palette[$paletteOffset + 2]
-                    $rgba[$rgbaOffset + 3] = if ($transparency -and $index -lt $transparency.Length) { $transparency[$index] } else { 255 }
-                }
-                4 {
-                    $gray = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
-                    $rgba[$rgbaOffset] = $gray
-                    $rgba[$rgbaOffset + 1] = $gray
-                    $rgba[$rgbaOffset + 2] = $gray
-                    $rgba[$rgbaOffset + 3] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 1) $bitDepth
-                }
-                6 {
-                    $rgba[$rgbaOffset] = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
-                    $rgba[$rgbaOffset + 1] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 1) $bitDepth
-                    $rgba[$rgbaOffset + 2] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 2) $bitDepth
-                    $rgba[$rgbaOffset + 3] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 3) $bitDepth
-                }
+            if ($colorType -eq 0) {
+                # Grayscale: <8-bit samples are scaled up to fill the full 0-255 range.
+                $raw = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
+                $gray = if ($bitDepth -eq 8 -or $bitDepth -eq 16) { $raw } else { [byte]([Math]::Round($raw * 255 / ((1 -shl $bitDepth) - 1))) }
+                $rgba[$rgbaOffset] = $gray
+                $rgba[$rgbaOffset + 1] = $gray
+                $rgba[$rgbaOffset + 2] = $gray
+                $rgba[$rgbaOffset + 3] = 255
+            }
+            elseif ($colorType -eq 2) {
+                $rgba[$rgbaOffset] = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
+                $rgba[$rgbaOffset + 1] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 1) $bitDepth
+                $rgba[$rgbaOffset + 2] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 2) $bitDepth
+                $rgba[$rgbaOffset + 3] = 255
+            }
+            elseif ($colorType -eq 3) {
+                # Palette: the sample is a raw index, never scaled.
+                $index = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
+                $paletteOffset = $index * 3
+                $rgba[$rgbaOffset] = $palette[$paletteOffset]
+                $rgba[$rgbaOffset + 1] = $palette[$paletteOffset + 1]
+                $rgba[$rgbaOffset + 2] = $palette[$paletteOffset + 2]
+                $rgba[$rgbaOffset + 3] = if ($transparency -and $index -lt $transparency.Length) { $transparency[$index] } else { 255 }
+            }
+            elseif ($colorType -eq 4) {
+                $gray = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
+                $rgba[$rgbaOffset] = $gray
+                $rgba[$rgbaOffset + 1] = $gray
+                $rgba[$rgbaOffset + 2] = $gray
+                $rgba[$rgbaOffset + 3] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 1) $bitDepth
+            }
+            elseif ($colorType -eq 6) {
+                $rgba[$rgbaOffset] = Get-XKCDPngRawSample $pixelData $rowStart $sampleBase $bitDepth
+                $rgba[$rgbaOffset + 1] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 1) $bitDepth
+                $rgba[$rgbaOffset + 2] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 2) $bitDepth
+                $rgba[$rgbaOffset + 3] = Get-XKCDPngRawSample $pixelData $rowStart ($sampleBase + 3) $bitDepth
             }
         }
     }

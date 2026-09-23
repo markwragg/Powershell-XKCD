@@ -2,7 +2,7 @@
 
 ## !Deploy
 
-* Fixes Sixel image rendering (used by `Show-XKCD`, `Show-XKCDExplanation`, and `Export-XKCDTerminalImage`) failing on Linux and macOS. `ConvertTo-XKCDSixel` decoded images with `System.Drawing`, which has been Windows-only since .NET 6. Windows still uses `System.Drawing` as before, so Windows behaviour and performance are unchanged. Linux/macOS now decode PNG images (everything xkcd has served since roughly comic #150) with a new private `ConvertFrom-XKCDPngBytes` function instead, a pure PowerShell/.NET decoder with no platform dependency; other formats -- namely the JPEGs used by xkcd's oldest comics (up to roughly #130) -- still can't be rendered as Sixel there.
+* Fixes Sixel image rendering (used by `Show-XKCD`, `Show-XKCDExplanation`, and `Export-XKCDTerminalImage`) failing on Linux and macOS. `ConvertTo-XKCDSixel` decoded images with `System.Drawing`, which has been Windows-only since .NET 6. Windows still uses `System.Drawing` as before, so Windows behaviour and performance are unchanged. Linux/macOS now decode PNG images (everything xkcd has served since roughly comic #150) with a new private `ConvertFrom-XKCDPngImage` function instead, a pure PowerShell/.NET decoder with no platform dependency; other formats -- namely the JPEGs used by xkcd's oldest comics (up to roughly #130) -- still can't be rendered as Sixel there.
 * Raises the standard Sixel rendering width from 640px to 740px, matching xkcd.com's own cap on comic image width, so wide comics render at the same size/detail as on the real site. The `-HighQuality` cap rises correspondingly, from 800px to 925px, to keep it a meaningfully sharper step up from standard quality.
 
 ## [1.7.3] - 2026-09-01

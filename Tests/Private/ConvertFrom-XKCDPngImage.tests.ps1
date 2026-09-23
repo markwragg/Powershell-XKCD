@@ -13,10 +13,10 @@ Describe "Unit Tests PS$PSVersion" {
 
         $ModuleObj = Get-Module $Module
 
-        function ConvertFrom-XKCDTestPngBytes {
+        function ConvertFrom-XKCDTestPngImage {
             Param([byte[]]$ImageBytes)
 
-            & $ModuleObj { Param($ImageBytes) ConvertFrom-XKCDPngBytes -ImageBytes $ImageBytes } $ImageBytes
+            & $ModuleObj { Param($ImageBytes) ConvertFrom-XKCDPngImage -ImageBytes $ImageBytes } $ImageBytes
         }
 
         # Hand-assembles a minimal valid PNG from raw (pre-filtered, pre-compressed) scanline bytes, so each
@@ -75,7 +75,7 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
-    Context 'ConvertFrom-XKCDPngBytes RGB Tests' {
+    Context 'ConvertFrom-XKCDPngImage RGB Tests' {
 
         BeforeAll {
             # 2x2 RGB (colour type 2), one filter-type-0 (None) byte per row followed by 2 pixels of 3 bytes each.
@@ -84,7 +84,7 @@ Describe "Unit Tests PS$PSVersion" {
                 0, 0, 0, 255, 255, 255, 255
             )
             $ImageBytes = New-XKCDTestPngBytes -Width 2 -Height 2 -BitDepth 8 -ColorType 2 -ScanlineData $ScanlineData
-            $Decoded = ConvertFrom-XKCDTestPngBytes -ImageBytes $ImageBytes
+            $Decoded = ConvertFrom-XKCDTestPngImage -ImageBytes $ImageBytes
         }
 
         It 'Returns the image dimensions from IHDR' {
@@ -100,13 +100,13 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
-    Context 'ConvertFrom-XKCDPngBytes RGBA Tests' {
+    Context 'ConvertFrom-XKCDPngImage RGBA Tests' {
 
         BeforeAll {
             # 2x1 RGBA (colour type 6), each pixel carrying its own alpha byte.
             $ScanlineData = [byte[]]@(0, 10, 20, 30, 128, 200, 150, 100, 255)
             $ImageBytes = New-XKCDTestPngBytes -Width 2 -Height 1 -BitDepth 8 -ColorType 6 -ScanlineData $ScanlineData
-            $Decoded = ConvertFrom-XKCDTestPngBytes -ImageBytes $ImageBytes
+            $Decoded = ConvertFrom-XKCDTestPngImage -ImageBytes $ImageBytes
         }
 
         It 'Preserves the per-pixel alpha channel' {
@@ -115,7 +115,7 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
-    Context 'ConvertFrom-XKCDPngBytes Palette Tests' {
+    Context 'ConvertFrom-XKCDPngImage Palette Tests' {
 
         BeforeAll {
             $Palette = [byte[]]@(255, 0, 0, 0, 255, 0, 0, 0, 255)
@@ -123,7 +123,7 @@ Describe "Unit Tests PS$PSVersion" {
             # 3x1 palette (colour type 3) image, one index byte per pixel.
             $ScanlineData = [byte[]]@(0, 0, 1, 2)
             $ImageBytes = New-XKCDTestPngBytes -Width 3 -Height 1 -BitDepth 8 -ColorType 3 -ScanlineData $ScanlineData -Palette $Palette -Transparency $Transparency
-            $Decoded = ConvertFrom-XKCDTestPngBytes -ImageBytes $ImageBytes
+            $Decoded = ConvertFrom-XKCDTestPngImage -ImageBytes $ImageBytes
         }
 
         It 'Looks up each pixel''s colour from PLTE by index' {
@@ -139,13 +139,13 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
-    Context 'ConvertFrom-XKCDPngBytes Sub-Byte Bit Depth Tests' {
+    Context 'ConvertFrom-XKCDPngImage Sub-Byte Bit Depth Tests' {
 
         BeforeAll {
             # 8x1 1-bit grayscale (colour type 0): bits 10110010, MSB first.
             $ScanlineData = [byte[]]@(0, 0xB2)
             $ImageBytes = New-XKCDTestPngBytes -Width 8 -Height 1 -BitDepth 1 -ColorType 0 -ScanlineData $ScanlineData
-            $Decoded = ConvertFrom-XKCDTestPngBytes -ImageBytes $ImageBytes
+            $Decoded = ConvertFrom-XKCDTestPngImage -ImageBytes $ImageBytes
         }
 
         It 'Unpacks each 1-bit sample and scales it to a full-range grayscale byte' {
@@ -154,19 +154,19 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
-    Context 'ConvertFrom-XKCDPngBytes Invalid Signature Tests' {
+    Context 'ConvertFrom-XKCDPngImage Invalid Signature Tests' {
 
         It 'Throws when the bytes do not start with the PNG signature' {
-            { ConvertFrom-XKCDTestPngBytes -ImageBytes ([byte[]]@(1, 2, 3, 4, 5, 6, 7, 8)) } | Should -Throw '*PNG*'
+            { ConvertFrom-XKCDTestPngImage -ImageBytes ([byte[]]@(1, 2, 3, 4, 5, 6, 7, 8)) } | Should -Throw '*PNG*'
         }
     }
 
-    Context 'ConvertFrom-XKCDPngBytes Interlaced Tests' {
+    Context 'ConvertFrom-XKCDPngImage Interlaced Tests' {
 
         It 'Throws for an interlaced (Adam7) image' {
             $ScanlineData = [byte[]]@(0, 255, 0, 0)
             $ImageBytes = New-XKCDTestPngBytes -Width 1 -Height 1 -BitDepth 8 -ColorType 2 -ScanlineData $ScanlineData -Interlace 1
-            { ConvertFrom-XKCDTestPngBytes -ImageBytes $ImageBytes } | Should -Throw '*interlaced*'
+            { ConvertFrom-XKCDTestPngImage -ImageBytes $ImageBytes } | Should -Throw '*interlaced*'
         }
     }
 }

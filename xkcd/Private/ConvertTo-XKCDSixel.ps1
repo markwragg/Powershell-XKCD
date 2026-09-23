@@ -7,7 +7,7 @@ function ConvertTo-XKCDSixel {
         Decodes with System.Drawing on Windows (any format it supports, e.g. PNG or JPEG) since it's native code
         and roughly three orders of magnitude faster than decoding in PowerShell itself. System.Drawing is
         Windows-only from .NET 6 onwards though, so on Linux/macOS this instead decodes PNG images (which is
-        all xkcd has served for every comic from roughly #150 onwards) with ConvertFrom-XKCDPngBytes, a pure
+        all xkcd has served for every comic from roughly #150 onwards) with ConvertFrom-XKCDPngImage, a pure
         PowerShell/.NET decoder that works identically on every OS -- other formats (e.g. the JPEGs used by
         xkcd's earliest comics) fail with a clear error there.
 
@@ -57,12 +57,12 @@ function ConvertTo-XKCDSixel {
         $bIdx = 0
     }
     elseif ($ImageBytes.Length -ge 8 -and $ImageBytes[0] -eq 137 -and $ImageBytes[1] -eq 80 -and $ImageBytes[2] -eq 78 -and $ImageBytes[3] -eq 71) {
-        $decoded = ConvertFrom-XKCDPngBytes -ImageBytes $ImageBytes
+        $decoded = ConvertFrom-XKCDPngImage -ImageBytes $ImageBytes
         $pixelBytes = $decoded.Pixels
         $width = $decoded.Width
         $height = $decoded.Height
 
-        # ConvertFrom-XKCDPngBytes stores each pixel as R,G,B,A in memory.
+        # ConvertFrom-XKCDPngImage stores each pixel as R,G,B,A in memory.
         $rIdx = 0
         $bIdx = 2
     }
