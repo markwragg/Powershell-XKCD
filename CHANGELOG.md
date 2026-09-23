@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* Fixes Sixel image rendering (used by `Show-XKCD`, `Show-XKCDExplanation`, and `Export-XKCDTerminalImage`) failing on Linux and macOS. `ConvertTo-XKCDSixel` decoded images with `System.Drawing`, which has been Windows-only since .NET 6. Windows still uses `System.Drawing` as before, so Windows behaviour and performance are unchanged. Linux/macOS now decode PNG images (everything xkcd has served since roughly comic #150) with a new private `ConvertFrom-XKCDPngBytes` function instead, a pure PowerShell/.NET decoder with no platform dependency; other formats -- namely the JPEGs used by xkcd's oldest comics (up to roughly #130) -- still can't be rendered as Sixel there.
+* Raises the standard Sixel rendering width from 640px to 740px, matching xkcd.com's own cap on comic image width, so wide comics render at the same size/detail as on the real site. The `-HighQuality` cap rises correspondingly, from 800px to 925px, to keep it a meaningfully sharper step up from standard quality.
+
 ## [1.7.3] - 2026-09-01
 
 * Fixes `-HighQuality` on `Show-XKCD`, `Show-XKCDExplanation`, and `Export-XKCDTerminalImage` having no visible effect in terminals using the Sixel graphics protocol -- the higher resolution `_2x` source image was fetched but then downscaled straight back to the same 640px cap used for standard quality, so it always displayed at the same size. Sixel rendering now uses an 800px cap when `-HighQuality` is specified, so the extra resolution is actually visible on screen. Kitty and iTerm2 were unaffected, as neither is downscaled to a fixed width.
@@ -12,7 +17,7 @@
 
 * Fixes the deploy pipeline so it actually publishes the combined single-file module built by the `CombineFunctionsAndStage` build task, rather than always silently falling back to the uncombined source. A psake `Properties` variable referenced in `deploy.psdeploy.ps1` was never visible there, since `Invoke-PSDeploy` dot-sources that file from inside PSDeploy's own module function scope, which module boundaries keep separate from psake's -- so every previous release was published from source regardless of whether `CombineFunctionsAndStage` had run.
 
-## [1.7.0] - 2026-08-30
+## [1.8.0] - 2026-08-30
 
 * Adds new `Export-XKCDTerminalImage` and `Import-XKCDTerminalImage` cmdlets. `Export-XKCDTerminalImage` renders a comic using whichever inline graphics protocol your terminal supports (Sixel, Kitty, or iTerm2) and saves it to a file -- alongside every field `Get-XKCD` returns for that comic -- so it can be redisplayed instantly later without needing network access or having to regenerate the image again (which for Sixel in particular can take a while for large images). Throws if the destination file already exists; use `-Force` to overwrite it. `Import-XKCDTerminalImage` writes the saved image from an exported file straight to the console, warning (but still displaying it) if the saved graphics protocol doesn't match the one detected for the current terminal.
 * Adds a `-Path` parameter to `Show-XKCD` to display the full comic -- title, image, and alt text -- from a file previously saved with `Export-XKCDTerminalImage`, instead of fetching it from the xkcd API. Accepts pipeline input, including directly from `Export-XKCDTerminalImage -PassThru` or `Get-ChildItem`.

@@ -75,11 +75,11 @@ Describe "Unit Tests PS$PSVersion" {
             }
         }
 
-        It 'Raises -MaxWidth to 800 when -HighQuality is specified' {
+        It 'Raises -MaxWidth to 925 when -HighQuality is specified' {
             & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'Sixel' -HighQuality } $ImageBytes
 
             Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 1 -Exactly -ParameterFilter {
-                $MaxWidth -eq 800
+                $MaxWidth -eq 925
             }
         }
     }

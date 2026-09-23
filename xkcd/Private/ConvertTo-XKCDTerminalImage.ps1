@@ -18,7 +18,7 @@ function ConvertTo-XKCDTerminalImage {
         $Protocol = (Get-XKCDTerminalGraphicsProtocol),
 
         # Indicates that $ImageBytes is a higher resolution (_2x) source image. For Sixel, this raises the
-        # -MaxWidth passed to ConvertTo-XKCDSixel (to 800, up from the default 640) so the extra resolution is
+        # -MaxWidth passed to ConvertTo-XKCDSixel (to 925, up from the default 740) so the extra resolution is
         # actually visible on screen, rather than being downscaled straight back to the standard-quality size.
         # Kitty and iTerm2 aren't affected, as neither is downscaled to a fixed width here.
         [switch]
@@ -51,7 +51,7 @@ function ConvertTo-XKCDTerminalImage {
         }
         'Sixel' {
             if ($HighQuality) {
-                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 800
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 925
             }
             else {
                 ConvertTo-XKCDSixel -ImageBytes $ImageBytes
