@@ -13,6 +13,10 @@ function Find-XKCD {
         The query used is appended to the resulting comic objects as a NoteProperty called 'query'.
         This allows you to group or filter the results by the search term.
 
+        Each returned comic also has 'html_img' and 'html' properties, computed from those properties, for
+        embedding the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in
+        a link to the comic's page on xkcd.com.
+
     .EXAMPLE
         Find-XKCD -Query 'Spider' | Format-Table
 
@@ -65,10 +69,10 @@ function Find-XKCD {
             $FullText = $_ | Out-String
             $AllComics | ForEach-Object {
                 $FullText = $_ | Out-String
-                $_ | Where-Object { $FullText -like "*$Query*"} | Add-Member NoteProperty -Name 'query' -Value $Query -PassThru
+                $_ | Where-Object { $FullText -like "*$Query*"} | Add-Member NoteProperty -Name 'query' -Value $Query -PassThru | Add-XKCDHtmlProperty
             }
         } else {
-            $AllComics | Where-Object { $_.Title -like "*$Query*" } | Add-Member NoteProperty -Name 'query' -Value $Query -PassThru
+            $AllComics | Where-Object { $_.Title -like "*$Query*" } | Add-Member NoteProperty -Name 'query' -Value $Query -PassThru | Add-XKCDHtmlProperty
         }
     }
 }

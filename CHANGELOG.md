@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* Adds `html_img` and `html` properties to the comic objects returned by `Get-XKCD` and `Find-XKCD`, for embedding a comic in HTML output. `html_img` is just an `<img>` tag; `html` wraps that same tag in a link to the comic's page on xkcd.com. Alt/title text is HTML-encoded.
+* Moves the default location of saved preferences (`Set-XKCDDefault`) and view-tracking state (`Show-XKCD`, `Get-XKCD -Show`, `Test-XKCD`) from inside the module's own install folder to a new `.xkcd` folder in the user's home directory, so they survive a module upgrade instead of being silently orphaned in the old version's folder -- PowerShell Gallery installs each version into its own version-numbered directory. Existing preferences/state are migrated automatically the first time they're read after upgrading.
+
 ## [1.8.0] - 2026-09-23
 
 * Fixes Sixel image rendering (used by `Show-XKCD`, `Show-XKCDExplanation`, and `Export-XKCDTerminalImage`) failing on Linux and macOS. `ConvertTo-XKCDSixel` decoded images with `System.Drawing`, which has been Windows-only since .NET 6. Windows still uses `System.Drawing` as before, so Windows behaviour and performance are unchanged. Linux/macOS now decode PNG images (everything xkcd has served since roughly comic #150) with a new private `ConvertFrom-XKCDPngImage` function instead, a pure PowerShell/.NET decoder with no platform dependency; other formats -- namely the JPEGs used by xkcd's oldest comics (up to roughly #130) -- still can't be rendered as Sixel there.

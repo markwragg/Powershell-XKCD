@@ -55,6 +55,17 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         It "Find-XKCD tags each result with a 'query' NoteProperty matching the search term" {
             $Default | ForEach-Object { $_.query | Should -Be 'Spiders' }
         }
+
+        It 'Find-XKCD returns a html_img property containing just an img tag for the comic' {
+            $Comic = $Default | Select-Object -First 1
+            $Comic.html_img | Should -Not -Match '<a '
+            $Comic.html_img | Should -Match '<img '
+        }
+
+        It 'Find-XKCD returns a html property wrapping the same img tag in a link to the comic' {
+            $Comic = $Default | Select-Object -First 1
+            $Comic.html | Should -Be "<a href=`"https://xkcd.com/$($Comic.num)`">$($Comic.html_img)</a>"
+        }
     }
 
     Context 'Pipeline Input Tests' {

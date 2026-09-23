@@ -96,9 +96,10 @@ function Set-XKCDDefault {
         [switch]
         $Reset,
 
-        # Path to the file used to store default preferences. By default this is within the module path.
+        # Path to the file used to store default preferences. By default this is in the user's per-user data
+        # directory (~/.xkcd).
         [string]
-        $DefaultsPath = (Join-Path $PSScriptRoot 'XKCD.defaults.json')
+        $DefaultsPath = (Get-XKCDUserDataPath -FileName 'XKCD.defaults.json' -LegacyDirectory $PSScriptRoot)
     )
 
     if ($Reset) {

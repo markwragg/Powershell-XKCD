@@ -265,6 +265,32 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Html Property Tests' {
+
+        It 'Get-XKCD returns a html_img property containing just an img tag for the comic' {
+            $Comic = Get-XKCD -Num 1
+            $ExpectedImgTag = [regex]::Escape("<img src=`"$($Comic.img)`"")
+
+            $Comic.html_img | Should -Not -Match '<a '
+            $Comic.html_img | Should -Match $ExpectedImgTag
+        }
+
+        It 'Get-XKCD returns a html property wrapping the same img tag in a link to the comic' {
+            $Comic = Get-XKCD -Num 1
+
+            $Comic.html | Should -Match '^<a href="https://xkcd\.com/1">'
+            $Comic.html | Should -Be "<a href=`"https://xkcd.com/1`">$($Comic.html_img)</a>"
+        }
+
+        It 'Get-XKCD HTML-encodes special characters in the alt text' {
+            # Comic 353's alt text contains an apostrophe ("Perl, I'm leaving you.")
+            $Comic = Get-XKCD -Num 353
+            $Comic.html_img | Should -Not -Match "I'm leaving you"
+            $Comic.html_img | Should -Match 'I&#39;m leaving you'
+            $Comic.html | Should -Match 'I&#39;m leaving you'
+        }
+    }
+
     Context 'Random Range Tests' {
 
         It 'Get-XKCD -Random -Min -Max returns a comic within the specified range' {

@@ -68,11 +68,11 @@ function Test-XKCD {
         $Detailed,
 
         # Path to the file that tracks the number of the most recently viewed comic (written by Show-XKCD and
-        # Get-XKCD -Show). By default this is within the module path, unless a default has been saved with
-        # Set-XKCDDefault -StatePath.
+        # Get-XKCD -Show). By default this is in the user's per-user data directory (~/.xkcd), unless a default
+        # has been saved with Set-XKCDDefault -StatePath.
         [Parameter(ParameterSetName = 'Default')]
         [string]
-        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
     )
 
     if ($PSCmdlet.ParameterSetName -eq 'Num') {

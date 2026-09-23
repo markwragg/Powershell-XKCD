@@ -5,7 +5,10 @@
 
     .DESCRIPTION
         The Get-XKCD cmdlet gets the details of one or more comics from the XKCD API: https://xkcd.com/json.html.
-        This includes title, number, image URL, alt text, day, month, year, news, safe_title and transcript.
+        This includes title, number, image URL, alt text, day, month, year, news, safe_title and transcript. Each
+        returned comic also has 'html_img' and 'html' properties, computed from those properties, for embedding
+        the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in a link to
+        the comic's page on xkcd.com.
 
         By default, Get-XKCD returns the details of the latest available comic. When you use the -num parameter
         you can specify one or more specific comics to return.
@@ -88,6 +91,17 @@
 
         This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
 
+    .EXAMPLE
+        (Get-XKCD).html
+
+        This command returns an HTML <img> tag (linking to the comic's page on xkcd.com) for the latest comic,
+        suitable for embedding in an HTML page or email.
+
+    .EXAMPLE
+        (Get-XKCD).html_img
+
+        This command returns a plain HTML <img> tag (with no surrounding link) for the latest comic.
+
     .LINK
         https://xkcd.com/json.html
     #>
@@ -155,10 +169,10 @@
         $HighQuality = (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false),
 
         # Use with -Show to specify the file used to track the number of the most recently viewed comic (used by
-        # Test-XKCD). By default this is within the module path, unless a default has been saved with
-        # Set-XKCDDefault -StatePath.
+        # Test-XKCD). By default this is in the user's per-user data directory (~/.xkcd), unless a default has
+        # been saved with Set-XKCDDefault -StatePath.
         [string]
-        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json')),
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot)),
 
         # Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
@@ -235,7 +249,7 @@
             }
 
             if (-not $Show -and -not $Explain) {
-                return $Comic
+                return (Add-XKCDHtmlProperty -Comic $Comic)
             }
         }
     }

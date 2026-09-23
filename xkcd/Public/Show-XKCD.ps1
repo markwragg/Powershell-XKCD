@@ -109,9 +109,10 @@ function Show-XKCD {
         $HighQuality = (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false),
 
         # Path to the file used to track the number of the most recently viewed comic (used by Test-XKCD). By
-        # default this is within the module path, unless a default has been saved with Set-XKCDDefault -StatePath.
+        # default this is in the user's per-user data directory (~/.xkcd), unless a default has been saved with
+        # Set-XKCDDefault -StatePath.
         [string]
-        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
     )
 
     Begin {
