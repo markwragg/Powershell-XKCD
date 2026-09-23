@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.8.1] - 2026-09-23
 
 * Adds `html_img` and `html` properties to the comic objects returned by `Get-XKCD` and `Find-XKCD`, for embedding a comic in HTML output. `html_img` is just an `<img>` tag; `html` wraps that same tag in a link to the comic's page on xkcd.com. Alt/title text is HTML-encoded.
 * Moves the default location of saved preferences (`Set-XKCDDefault`) and view-tracking state (`Show-XKCD`, `Get-XKCD -Show`, `Test-XKCD`) from inside the module's own install folder to a new `.xkcd` folder in the user's home directory, so they survive a module upgrade instead of being silently orphaned in the old version's folder -- PowerShell Gallery installs each version into its own version-numbered directory. Existing preferences/state are migrated automatically the first time they're read after upgrading.

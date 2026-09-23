@@ -28,7 +28,8 @@ Returns the currently saved default preferences.
 
 ### -DefaultsPath
 Path to the file used to store default preferences.
-By default this is within the module path.
+By default this is in the user's per-user data
+directory (~/.xkcd).
 
 ```yaml
 Type: String
@@ -37,7 +38,7 @@ Aliases:
 
 Required: False
 Position: 1
-Default value: (Join-Path $PSScriptRoot 'XKCD.defaults.json')
+Default value: (Get-XKCDUserDataPath -FileName 'XKCD.defaults.json' -LegacyDirectory $PSScriptRoot)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

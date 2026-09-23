@@ -218,7 +218,8 @@ Accept wildcard characters: False
 ### -StatePath
 Path to the file used to track the number of the most recently viewed comic (used by Test-XKCD).
 By
-default this is within the module path, unless a default has been saved with Set-XKCDDefault -StatePath.
+default this is in the user's per-user data directory (~/.xkcd), unless a default has been saved with
+Set-XKCDDefault -StatePath.
 
 ```yaml
 Type: String
@@ -227,7 +228,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
+Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

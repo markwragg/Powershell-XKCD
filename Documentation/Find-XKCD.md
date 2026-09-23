@@ -23,6 +23,10 @@ performed against the local cache.
 The query used is appended to the resulting comic objects as a NoteProperty called 'query'.
 This allows you to group or filter the results by the search term.
 
+Each returned comic also has 'html_img' and 'html' properties, computed from those properties, for
+embedding the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'html' wraps that same tag in
+a link to the comic's page on xkcd.com.
+
 ## EXAMPLES
 
 ### EXAMPLE 1
