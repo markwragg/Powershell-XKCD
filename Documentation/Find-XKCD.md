@@ -9,7 +9,8 @@ use the -FullSearch switch.
 ## SYNTAX
 
 ```
-Find-XKCD [-Query] <String> [-FullSearch] [-CachePath <String>] [<CommonParameters>]
+Find-XKCD [-Query] <String> [-FullSearch] [-CachePath <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -101,6 +102,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -7,22 +7,26 @@ Displays a comic's title, image, and alt text in the console.
 
 ### Specific (Default)
 ```
-Show-XKCD [[-Num] <Int32[]>] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-XKCD [[-Num] <Int32[]>] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Next
 ```
-Show-XKCD [-Next] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-XKCD [-Next] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### Previous
 ```
-Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### File
 ```
-Show-XKCD [-Path] <String[]> [-HighQuality] [-StatePath <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-XKCD [-Path] <String[]> [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -251,6 +255,21 @@ Prompts you for confirmation before running the cmdlet.
 Type: SwitchParameter
 Parameter Sets: (All)
 Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
 
 Required: False
 Position: Named

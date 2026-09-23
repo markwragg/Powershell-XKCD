@@ -7,12 +7,12 @@ Checks whether any new comics have been published since the last time Test-XKCD 
 
 ### Default (Default)
 ```
-Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [<CommonParameters>]
+Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Num
 ```
-Test-XKCD [-Num] <Int32> [<CommonParameters>]
+Test-XKCD [-Num] <Int32> [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -136,6 +136,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Join-Path $PSScriptRoot 'XKCD.state.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -8,19 +8,20 @@ Gets the explanation of a comic from the explain xkcd wiki: https://www.explainx
 ### Specific (Default)
 ```
 Get-XKCDExplanation [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Show] [-HighQuality]
- [-ApiUrl <String>] [[-Num] <Int32[]>] [-Force] [<CommonParameters>]
+ [-ApiUrl <String>] [[-Num] <Int32[]>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Random
 ```
 Get-XKCDExplanation [-Random] [-Min <Int32>] [-Max <Int32>] [-Open] [-Explanation] [-Transcript] [-Discussion]
- [-Full] [-Show] [-HighQuality] [-ApiUrl <String>] [-Force] [<CommonParameters>]
+ [-Full] [-Show] [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### Newest
 ```
 Get-XKCDExplanation [-Newest <Int32>] [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Show]
- [-HighQuality] [-ApiUrl <String>] [-Force] [<CommonParameters>]
+ [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -362,6 +363,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -6,7 +6,8 @@ Returns the details of comics @ https://xkcd.com/ from the local cache.
 ## SYNTAX
 
 ```
-Get-XKCDCache [[-Num] <Int32[]>] [-CachePath <String>] [<CommonParameters>]
+Get-XKCDCache [[-Num] <Int32[]>] [-CachePath <String>] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -91,6 +92,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

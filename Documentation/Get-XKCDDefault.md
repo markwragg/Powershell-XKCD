@@ -6,7 +6,7 @@ Gets the default preferences saved by Set-XKCDDefault.
 ## SYNTAX
 
 ```
-Get-XKCDDefault [[-DefaultsPath] <String>] [<CommonParameters>]
+Get-XKCDDefault [[-DefaultsPath] <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -38,6 +38,21 @@ Aliases:
 Required: False
 Position: 1
 Default value: (Join-Path $PSScriptRoot 'XKCD.defaults.json')
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

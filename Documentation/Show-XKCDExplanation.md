@@ -7,7 +7,7 @@ Displays a comic's title, image, and explanation in the console.
 
 ```
 Show-XKCDExplanation [[-Num] <Int32[]>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-HighQuality]
- [<CommonParameters>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -205,6 +205,21 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'HighQuality' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ProgressAction
+{{Fill ProgressAction Description}}
+
+```yaml
+Type: ActionPreference
+Parameter Sets: (All)
+Aliases: proga
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
