@@ -39,20 +39,24 @@ Install-PSResource -Name XKCD
 
 By default (and with no specified parameters) the function will return a PowerShell object with the details of the latest webcomic. For example:
 
+```powershell
+Get-XKCD
 ```
-month      : 1
-num        : 1786
-link       :
-year       : 2017
-news       :
-safe_title : Trash
-transcript :
-alt        : Plus, time's all weird in there, so most of it probably broke down and decomposed hundreds of years ago. Which reminds me, I've been meaning to get in touch
-             with Yucca Mountain to see if they're interested in a partnership.
-img        : https://imgs.xkcd.com/comics/trash.png
-title      : Trash
-day        : 16
+
 ```
+Num      : 3304
+Title    : Jupiter Icy Moons Explorer
+Date     : 2026-09-28
+Alt      : "I did briefly visit Venus in August 2025, but I figured out the mistake on my own because it didn't have any moons."
+Img      : https://imgs.xkcd.com/comics/jupiter_icy_moons_explorer.png
+Html Img : <img src="https://imgs.xkcd.com/comics/jupiter_icy_moons_explorer.png" alt="&quot;I did briefly visit Venus in August 2025, but I figured out the mistake on my own because it didn&#39;t have
+           any moons.&quot;" title="&quot;I did briefly visit Venus in August 2025, but I figured out the mistake on my own because it didn&#39;t have any moons.&quot;">
+Html     : <a href="https://xkcd.com/3304"><img src="https://imgs.xkcd.com/comics/jupiter_icy_moons_explorer.png" alt="&quot;I did briefly visit Venus in August 2025, but I figured out the mistake on my
+           own because it didn&#39;t have any moons.&quot;" title="&quot;I did briefly visit Venus in August 2025, but I figured out the mistake on my own because it didn&#39;t have any
+           moons.&quot;"></a>
+```
+
+Note that by default this does not return all of the available properties. To see all of the object properties returned, use `Get-XKCD | FL *`.
 
 2) `Get-XKCD 1` or `Get-XKCD -num 1`
 
