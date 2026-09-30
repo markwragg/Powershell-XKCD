@@ -107,6 +107,12 @@ Task 'CombineFunctionsAndStage' -Depends 'Clean' {
     # Copy existing manifest
     Copy-Item -Path $env:BHPSModuleManifest -Destination $StagingModulePath -Recurse
 
+    # Copy format/type ps1xml files (e.g. xkcd.Format.ps1xml) so the views they define ship with the
+    # built module -- FormatsToProcess in the manifest references them by filename relative to the
+    # module root, which the combined psm1 also resolves $PSScriptRoot to, so they need to sit
+    # alongside it in Staging the same way they do in source.
+    Get-ChildItem -Path $env:BHModulePath -Filter '*.ps1xml' -File | Copy-Item -Destination $StagingModulePath
+
     # Seed the staged module with the existing comic cache, so the 'Test' task's Update-XKCDCache call
     # can update it incrementally instead of rebuilding the entire cache from the XKCD API from scratch,
     # and so the cache ships as part of the published module (users don't have to build it themselves).
@@ -379,9 +385,9 @@ Task 'Deploy' -Depends 'Init' {
     try {
         $Version = Get-NextPSGalleryVersion -Name $env:BHProjectName -ErrorAction 'Stop'
 
-        # Ensure the next deploy is at least 1.9.0. Once the Gallery has a 1.9.0+ release published, Get-NextPSGalleryVersion will always be >= this floor
+        # Ensure the next deploy is at least 1.10.0. Once the Gallery has a 1.10.0+ release published, Get-NextPSGalleryVersion will always be >= this floor
         # on its own, so this check becomes a no-op and doesn't need to be removed later.
-        $MinimumVersion = [Version]'1.9.0'
+        $MinimumVersion = [Version]'1.10.0'
         if ($Version -lt $MinimumVersion) { $Version = $MinimumVersion }
 
         Update-Metadata -Path $env:BHPSModuleManifest -PropertyName 'ModuleVersion' -Value $Version -ErrorAction 'Stop'

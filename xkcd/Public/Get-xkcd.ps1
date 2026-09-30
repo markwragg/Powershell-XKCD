@@ -6,9 +6,10 @@
     .DESCRIPTION
         The Get-XKCD cmdlet gets the details of one or more comics from the XKCD API: https://xkcd.com/json.html.
         This includes title, number, image URL, alt text, day, month, year, news, safe_title and transcript. Each
-        returned comic also has 'html_img' and 'html' properties, computed from those properties, for embedding
-        the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in a link to
-        the comic's page on xkcd.com.
+        returned comic also has a 'date' property (a [datetime] combining day/month/year, so results can be
+        sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
+        embedding the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in
+        a link to the comic's page on xkcd.com.
 
         By default, Get-XKCD returns the details of the latest available comic. When you use the -num parameter
         you can specify one or more specific comics to return.
@@ -91,6 +92,12 @@
 
         This command displays the explanation of the latest comic directly in the console, via
         Show-XKCDExplanation. Unlike other parameter combinations, -Explain does not return the comic object.
+
+    .EXAMPLE
+        Get-XKCD -Raw
+
+        This command returns the latest comic exactly as received from the xkcd API, without the 'date',
+        'html_img' or 'html' properties Get-XKCD normally adds.
 
     .EXAMPLE
         1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
@@ -193,7 +200,13 @@
         # cmdlets (e.g. Show-XKCDExplanation, Export-XKCDTerminalImage) that fetch comic data as a means to
         # another end, so that fetch doesn't itself count as a comic having been read/viewed.
         [switch]
-        $NoStateUpdate
+        $NoStateUpdate,
+
+        # Returns the comic object exactly as received from the xkcd API, without the 'date', 'html_img' or
+        # 'html' properties Get-XKCD normally adds, and without the 'XKCD.Comic' type name that drives its
+        # table/list formatting.
+        [switch]
+        $Raw
     )
     Begin {
         if (-not $Max) { $Max = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
@@ -263,6 +276,9 @@
             if (-not $Show -and -not $Explain) {
                 if (-not $NoStateUpdate) {
                     Update-XKCDLastReadState -Num $ID -StatePath $StatePath -Cmdlet $PSCmdlet
+                }
+                if ($Raw) {
+                    return $Comic
                 }
                 return (Add-XKCDHtmlProperty -Comic $Comic)
             }

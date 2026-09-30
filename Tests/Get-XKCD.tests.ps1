@@ -364,6 +364,61 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Date Property Tests' {
+
+        It 'Get-XKCD returns a date property matching the comic''s day/month/year' {
+            $Comic = Get-XKCD -Num 1
+
+            $Comic.date | Should -BeOfType 'datetime'
+            $Comic.date | Should -Be ([datetime]::new($Comic.year, $Comic.month, $Comic.day))
+        }
+
+        It 'Get-XKCD results can be sorted by date' {
+            $Comics = Get-XKCD -Newest 5 | Sort-Object date
+
+            # Comic numbers increase monotonically with publish date, so a date sort should match a num sort
+            @($Comics.num) | Should -Be @($Comics.num | Sort-Object)
+        }
+
+        It 'Get-XKCD results can be filtered by date' {
+            $Comics = Get-XKCD -Newest 5 | Where-Object date -gt ([datetime]'2000-01-01')
+
+            @($Comics).Count | Should -Be 5
+        }
+    }
+
+    Context 'Raw Parameter Tests' {
+
+        It 'Get-XKCD -Raw does not add the date, html_img or html properties' {
+            $Comic = Get-XKCD -Num 1 -Raw
+
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'date'
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'html_img'
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'html'
+        }
+
+        It 'Get-XKCD -Raw does not tag the object with the XKCD.Comic type name' {
+            $Comic = Get-XKCD -Num 1 -Raw
+
+            $Comic.PSObject.TypeNames | Should -Not -Contain 'XKCD.Comic'
+        }
+
+        It 'Get-XKCD -Raw still returns the comic''s own API properties' {
+            $Comic = Get-XKCD -Num 1 -Raw
+
+            $Comic.num | Should -Be 1
+            $Comic.title | Should -Be 'Barrel - Part 1'
+        }
+
+        It 'Get-XKCD without -Raw still adds the date, html_img and html properties' {
+            $Comic = Get-XKCD -Num 1
+
+            $Comic.PSObject.Properties.Name | Should -Contain 'date'
+            $Comic.PSObject.Properties.Name | Should -Contain 'html_img'
+            $Comic.PSObject.Properties.Name | Should -Contain 'html'
+        }
+    }
+
     Context 'Random Range Tests' {
 
         It 'Get-XKCD -Random -Min -Max returns a comic within the specified range' {

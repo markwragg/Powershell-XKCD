@@ -104,4 +104,146 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $FullSearch | ForEach-Object { $_.query | Should -Be 'guitar' }
         }
     }
+
+    Context 'Query Array Tests' {
+
+        It 'Find-XKCD -Query accepts an array and OR-combines the terms in a single call' {
+            $Result = Find-XKCD -Query 'romance', 'math'
+            @($Result).Count | Should -Be 9
+        }
+
+        It 'Find-XKCD -Query array tags each result with the specific term it matched, not the full list' {
+            $Result = Find-XKCD -Query 'romance', 'math'
+
+            ($Result | Where-Object num -eq 919).query | Should -Be 'romance'
+            ($Result | Where-Object num -eq 410).query | Should -Be 'math'
+        }
+
+        It 'Find-XKCD -Query array tags a comic matching more than one term with all of them' {
+            $Result = Find-XKCD -Query 'Time', 'Machine'
+
+            ($Result | Where-Object num -eq 716).query | Should -Be 'Time, Machine'
+        }
+
+        It 'Find-XKCD does not throw when the same comic matches more than one piped query' {
+            # Comic 716 ("Time Machine") matches both terms
+            { 'Time', 'Machine' | Find-XKCD -ErrorAction Stop } | Should -Not -Throw
+        }
+    }
+
+    Context 'Or Parameter Tests' {
+
+        It 'Find-XKCD -Or matches comics that contain either the -Query or -Or term' {
+            $Result = Find-XKCD -Query 'Spiders' -Or 'romance'
+            @($Result).Count | Should -Be 5
+        }
+    }
+
+    Context 'And Parameter Tests' {
+
+        It 'Find-XKCD -And only matches comics that contain every term' {
+            $Result = Find-XKCD -Query 'Time' -And 'Machine'
+            @($Result).Count | Should -Be 3
+            $Result | ForEach-Object {
+                $_.title | Should -BeLike '*Time*'
+                $_.title | Should -BeLike '*Machine*'
+            }
+        }
+
+        It "Find-XKCD -And includes its term(s) in the 'query' tag, alongside the matched -Query/-Or term(s)" {
+            $Result = Find-XKCD -Query 'Time' -And 'Machine'
+
+            $Result | ForEach-Object { $_.query | Should -Be 'Time, Machine' }
+        }
+    }
+
+    Context 'Not Parameter Tests' {
+
+        It 'Find-XKCD -Not excludes comics that contain the given term' {
+            $Result = Find-XKCD -Query 'Time' -Not 'Machine'
+
+            $Result | ForEach-Object { $_.title | Should -Not -BeLike '*Machine*' }
+        }
+
+        It 'Find-XKCD -Not and -And on the same term together account for every -Query match exactly once' {
+            $TimeOnly = Find-XKCD -Query 'Time'
+            $TimeNotMachine = Find-XKCD -Query 'Time' -Not 'Machine'
+            $TimeAndMachine = Find-XKCD -Query 'Time' -And 'Machine'
+
+            (@($TimeNotMachine).Count + @($TimeAndMachine).Count) | Should -Be @($TimeOnly).Count
+        }
+
+        It 'Find-XKCD -Not excludes a comic matching ANY of several terms' {
+            $Result = Find-XKCD -Query 'Time' -Not 'Machine', 'Capsule'
+
+            $Result | ForEach-Object {
+                $_.title | Should -Not -BeLike '*Machine*'
+                $_.title | Should -Not -BeLike '*Capsule*'
+            }
+        }
+
+        It "Find-XKCD -Not still tags each result with the -Query/-Or term it matched" {
+            $Result = Find-XKCD -Query 'Time' -Not 'Machine'
+
+            $Result | Select-Object -First 1 -ExpandProperty query | Should -Be 'Time'
+        }
+
+        It 'Find-XKCD -And and -Not can be combined' {
+            # Comic 3251 ("Time Machine Conversation") matches -And but is excluded by -Not
+            $Result = Find-XKCD -Query 'Time' -And 'Machine' -Not 'Conversation'
+
+            @($Result | Where-Object num -eq 3251).Count | Should -Be 0
+            $Result | ForEach-Object {
+                $_.title | Should -BeLike '*Time*'
+                $_.title | Should -BeLike '*Machine*'
+                $_.title | Should -Not -BeLike '*Conversation*'
+            }
+        }
+    }
+
+    Context 'Raw Parameter Tests' {
+
+        It 'Find-XKCD -Raw does not add the date, html_img or html properties' {
+            $Comic = Find-XKCD -Query 'Spiders' -Raw | Select-Object -First 1
+
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'date'
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'html_img'
+            $Comic.PSObject.Properties.Name | Should -Not -Contain 'html'
+        }
+
+        It 'Find-XKCD -Raw does not tag the object with the XKCD.Comic/XKCD.Comic.Search type names' {
+            $Comic = Find-XKCD -Query 'Spiders' -Raw | Select-Object -First 1
+
+            $Comic.PSObject.TypeNames | Should -Not -Contain 'XKCD.Comic'
+            $Comic.PSObject.TypeNames | Should -Not -Contain 'XKCD.Comic.Search'
+        }
+
+        It "Find-XKCD -Raw still tags each result with a 'query' NoteProperty" {
+            $Comic = Find-XKCD -Query 'Spiders' -Raw | Select-Object -First 1
+
+            $Comic.query | Should -Be 'Spiders'
+        }
+
+        It 'Find-XKCD -Raw still returns the comic''s own API properties' {
+            $Comic = Find-XKCD -Query 'Spiders' -Raw | Select-Object -First 1
+
+            $Comic.num | Should -Not -BeNullOrEmpty
+            $Comic.title | Should -Not -BeNullOrEmpty
+        }
+
+        It 'Find-XKCD -Raw works alongside -Or/-And/-Not' {
+            $Result = Find-XKCD -Query 'Time' -And 'Machine' -Not 'Conversation' -Raw
+
+            @($Result).Count | Should -Be 2
+            $Result | ForEach-Object { $_.PSObject.Properties.Name | Should -Not -Contain 'date' }
+        }
+
+        It 'Find-XKCD without -Raw still adds the date, html_img and html properties' {
+            $Comic = Find-XKCD -Query 'Spiders' | Select-Object -First 1
+
+            $Comic.PSObject.Properties.Name | Should -Contain 'date'
+            $Comic.PSObject.Properties.Name | Should -Contain 'html_img'
+            $Comic.PSObject.Properties.Name | Should -Contain 'html'
+        }
+    }
 }

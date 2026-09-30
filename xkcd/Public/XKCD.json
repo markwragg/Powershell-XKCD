@@ -43113,5 +43113,57 @@
     "img": "https://imgs.xkcd.com/comics/stargazing_5.png",
     "title": "Stargazing 5",
     "day": "21"
+  },
+  {
+    "month": "9",
+    "num": 3301,
+    "link": "",
+    "year": "2026",
+    "news": "<br />Previously: <a href=\"https://xkcd.com/1644/\">Stargazing</a> • <a href=\"https://xkcd.com/2017/\">Stargazing 2</a> • <a href=\"https://xkcd.com/2274/\">Stargazing 3</a> • <a href=\"https://xkcd.com/3072/\">Stargazing 4</a>",
+    "safe_title": "Stargazing 5",
+    "transcript": "",
+    "alt": "The sun and the moon appear the same size in the sky, even though in real life the sun is more than twice as big. Some call this lucky alignment coincidence; others say it's proof that sometimes things can be the same size.",
+    "img": "https://imgs.xkcd.com/comics/stargazing_5.png",
+    "title": "Stargazing 5",
+    "day": "21"
+  },
+  {
+    "month": "9",
+    "num": 3302,
+    "link": "",
+    "year": "2026",
+    "news": "",
+    "safe_title": "Voyager Instruments",
+    "transcript": "",
+    "alt": "Convincing him to turn off the stupid laser show and useless sound system was such a huge ordeal that no one has wanted to do it again.",
+    "img": "https://imgs.xkcd.com/comics/voyager_instruments.png",
+    "title": "Voyager Instruments",
+    "day": "23"
+  },
+  {
+    "month": "9",
+    "num": 3303,
+    "link": "",
+    "year": "2026",
+    "news": "",
+    "safe_title": "Slab Graveyard",
+    "transcript": "",
+    "alt": "It's ok if you want to close close your eyes for the slab graveyard, so you can still have fun riding the mantle plume back up afterward!",
+    "img": "https://imgs.xkcd.com/comics/slab_graveyard.png",
+    "title": "Slab Graveyard",
+    "day": "25"
+  },
+  {
+    "month": "9",
+    "num": 3304,
+    "link": "",
+    "year": "2026",
+    "news": "",
+    "safe_title": "Jupiter Icy Moons Explorer",
+    "transcript": "",
+    "alt": "\"I did briefly visit Venus in August 2025, but I figured out the mistake on my own because it didn't have any moons.\"",
+    "img": "https://imgs.xkcd.com/comics/jupiter_icy_moons_explorer.png",
+    "title": "Jupiter Icy Moons Explorer",
+    "day": "28"
   }
 ]

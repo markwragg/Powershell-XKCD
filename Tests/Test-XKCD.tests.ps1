@@ -181,6 +181,157 @@ Describe "Unit Tests PS$PSVersion" {
             (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 10
         }
     }
+
+    Context 'AddToProfile Tests' {
+
+        BeforeEach {
+            $script:OriginalProfile = $global:PROFILE
+            $script:FakeProfile = Join-Path $TestDrive 'profile.ps1'
+            Remove-Item $script:FakeProfile -Force -ErrorAction SilentlyContinue
+            $global:PROFILE = $script:FakeProfile
+        }
+
+        AfterEach {
+            $global:PROFILE = $script:OriginalProfile
+        }
+
+        It 'Creates the profile file if it does not already exist' {
+            Test-XKCD -AddToProfile | Out-Null
+
+            $script:FakeProfile | Should -Exist
+        }
+
+        It 'Creates the containing directory if it does not already exist' {
+            $NestedProfile = Join-Path $TestDrive 'nested/sub/profile.ps1'
+            $global:PROFILE = $NestedProfile
+
+            Test-XKCD -AddToProfile | Out-Null
+
+            $NestedProfile | Should -Exist
+        }
+
+        It 'Adds the line to the profile' {
+            Test-XKCD -AddToProfile | Out-Null
+
+            Get-Content $script:FakeProfile -Raw | Should -Match ([regex]::Escape('if (Test-XKCD -Quiet) { Test-XKCD }'))
+        }
+
+        It 'Does not add the line again on a second call' {
+            Test-XKCD -AddToProfile | Out-Null
+            Test-XKCD -AddToProfile | Out-Null
+
+            @(Get-Content $script:FakeProfile | Select-String -SimpleMatch 'if (Test-XKCD -Quiet) { Test-XKCD }').Count | Should -Be 1
+        }
+
+        It 'Does not add the line again if it was already present some other way' {
+            Set-Content -Path $script:FakeProfile -Value 'if (Test-XKCD -Quiet) { Test-XKCD }'
+
+            Test-XKCD -AddToProfile | Out-Null
+
+            @(Get-Content $script:FakeProfile | Select-String -SimpleMatch 'if (Test-XKCD -Quiet) { Test-XKCD }').Count | Should -Be 1
+        }
+
+        It 'Does not create the profile file when -WhatIf is specified' {
+            Test-XKCD -AddToProfile -WhatIf | Out-Null
+
+            $script:FakeProfile | Should -Not -Exist
+        }
+
+        It 'Returns a confirmation message including the profile path' {
+            $Message = Test-XKCD -AddToProfile
+
+            $Message | Should -Match 'Added'
+            $Message | Should -Match ([regex]::Escape($script:FakeProfile))
+        }
+
+        It 'Returns a message stating the line is already present, on a second call' {
+            Test-XKCD -AddToProfile | Out-Null
+            $Message = Test-XKCD -AddToProfile
+
+            $Message | Should -Match 'already present'
+        }
+    }
+
+    Context 'RemoveFromProfile Tests' {
+
+        BeforeEach {
+            $script:OriginalProfile = $global:PROFILE
+            $script:FakeProfile = Join-Path $TestDrive 'profile.ps1'
+            Remove-Item $script:FakeProfile -Force -ErrorAction SilentlyContinue
+            $global:PROFILE = $script:FakeProfile
+        }
+
+        AfterEach {
+            $global:PROFILE = $script:OriginalProfile
+        }
+
+        It 'Does nothing and returns a message when the profile does not exist' {
+            $Message = Test-XKCD -RemoveFromProfile
+
+            $script:FakeProfile | Should -Not -Exist
+            $Message | Should -Match 'not found'
+        }
+
+        It 'Does nothing and returns a message when the profile exists but does not contain the line' {
+            Set-Content -Path $script:FakeProfile -Value 'Write-Host "hello"'
+
+            $Message = Test-XKCD -RemoveFromProfile
+
+            Get-Content $script:FakeProfile -Raw | Should -Match 'hello'
+            $Message | Should -Match 'not found'
+        }
+
+        It 'Removes a line added by -AddToProfile, along with its comment and blank line' {
+            Test-XKCD -AddToProfile | Out-Null
+
+            Test-XKCD -RemoveFromProfile | Out-Null
+
+            Get-Content $script:FakeProfile -Raw | Should -BeNullOrEmpty
+        }
+
+        It 'Removes a line that was added some other way, without touching surrounding content' {
+            Set-Content -Path $script:FakeProfile -Value @(
+                'Write-Host "hello"'
+                'if (Test-XKCD -Quiet) { Test-XKCD }'
+                'Write-Host "world"'
+            )
+
+            Test-XKCD -RemoveFromProfile | Out-Null
+
+            $Remaining = Get-Content $script:FakeProfile
+            $Remaining | Should -Not -Contain 'if (Test-XKCD -Quiet) { Test-XKCD }'
+            $Remaining | Should -Contain 'Write-Host "hello"'
+            $Remaining | Should -Contain 'Write-Host "world"'
+        }
+
+        It 'Removes every occurrence if the line appears more than once' {
+            Set-Content -Path $script:FakeProfile -Value @(
+                'if (Test-XKCD -Quiet) { Test-XKCD }'
+                'if (Test-XKCD -Quiet) { Test-XKCD }'
+            )
+
+            Test-XKCD -RemoveFromProfile | Out-Null
+
+            @(Get-Content $script:FakeProfile | Select-String -SimpleMatch 'if (Test-XKCD -Quiet) { Test-XKCD }').Count | Should -Be 0
+        }
+
+        It 'Does not modify the file when -WhatIf is specified' {
+            Set-Content -Path $script:FakeProfile -Value 'if (Test-XKCD -Quiet) { Test-XKCD }'
+
+            Test-XKCD -RemoveFromProfile -WhatIf | Out-Null
+
+            Get-Content $script:FakeProfile -Raw | Should -Match ([regex]::Escape('if (Test-XKCD -Quiet) { Test-XKCD }'))
+        }
+
+        It 'Returns a confirmation message including the profile path when removed' {
+            Set-Content -Path $script:FakeProfile -Value 'if (Test-XKCD -Quiet) { Test-XKCD }'
+
+            $Message = Test-XKCD -RemoveFromProfile
+
+            $Message | Should -Match 'Removed'
+            $Message | Should -Match ([regex]::Escape($script:FakeProfile))
+        }
+    }
 }
 
 

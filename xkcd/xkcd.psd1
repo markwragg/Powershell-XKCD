@@ -12,7 +12,7 @@
 RootModule = 'xkcd.psm1'
 
 # Version number of this module.
-ModuleVersion = '1.8.0'
+ModuleVersion = '1.10.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -30,7 +30,7 @@ CompanyName = 'http://wragg.io'
 Copyright = '(c) 2017 Mark Wragg. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'Commands related to the webcomic XKCD: http://xkcd.com'
+Description = 'Commands related to the webcomic XKCD: https://xkcd.com'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '3.0'
@@ -63,7 +63,7 @@ PowerShellVersion = '3.0'
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+FormatsToProcess = 'xkcd.Format.ps1xml'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()
@@ -107,7 +107,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'https://github.com/markwragg/Powershell-XKCD/blob/master/README.md'
+        ReleaseNotes = 'https://github.com/markwragg/Powershell-XKCD/blob/master/CHANGELOG.md'
 
         # Prerelease string of this module
         # Prerelease = ''

@@ -10,12 +10,24 @@ function Find-XKCD {
         exist. It also refreshes the local cache if it's found to be out of date. Comic searches are then
         performed against the local cache.
 
-        The query used is appended to the resulting comic objects as a NoteProperty called 'query'.
-        This allows you to group or filter the results by the search term.
+        -Query accepts more than one search string. A comic matches if it contains ANY of them, or any of the
+        -Or terms (-Query and -Or are simply two ways of building the same "match any of these" group -- -Or
+        exists so you can add alternatives without crowding the primary -Query list). If -And is also given, a
+        comic must additionally contain ALL of those terms to match. If -Not is also given, a comic must
+        additionally contain NONE of those terms to match, e.g. `Find-XKCD -Query 'Spider' -Not 'Man'` returns
+        comics with 'Spider' in the title, excluding any that also have 'Man' in it.
 
-        Each returned comic also has 'html_img' and 'html' properties, computed from those properties, for
+        Each resulting comic object is tagged with a NoteProperty called 'query' -- specifically, every term
+        that was actually part of why that comic matched: whichever -Query/-Or term(s) it matched (joined with
+        ', ' if more than one), plus any -And terms (since all of those are required to be present, they're
+        always part of the reason it matched too). -Not terms are never included, since they describe what must
+        be absent, not why a comic matched.
+
+        Each returned comic also has a 'date' property (a [datetime] combining day/month/year, so results can be
+        sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
         embedding the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in
-        a link to the comic's page on xkcd.com.
+        a link to the comic's page on xkcd.com. Use -Raw to omit these and get each comic exactly as cached
+        (still tagged with 'query').
 
     .EXAMPLE
         Find-XKCD -Query 'Spider' | Format-Table
@@ -39,20 +51,69 @@ function Find-XKCD {
 
         Returns any comics with the word 'romance' or 'math' in the title and then groups the results by the search term.
 
+    .EXAMPLE
+        Find-XKCD -Query 'Spider','Robot'
+
+        Returns any comics with the word 'Spider' OR 'Robot' in the title, in a single combined result set, each
+        tagged with whichever of the two it actually matched. Piping the terms in separately instead
+        (`'Spider','Robot' | Find-XKCD`) returns the same comics tagged the same way, except a comic matching
+        both terms would appear twice (once per piped query) rather than once with 'query' set to 'Spider, Robot'.
+
+    .EXAMPLE
+        Find-XKCD -Query 'Time' -And 'Machine'
+
+        Returns any comics with both 'Time' AND 'Machine' in the title, each tagged with 'query' set to
+        'Time, Machine'.
+
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' -Not 'Man'
+
+        Returns comics with 'Spider' in the title, excluding any that also have 'Man' in it.
+
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' -Not 'Man','Egg'
+
+        Returns comics with 'Spider' in the title, excluding any that also have 'Man' OR 'Egg' in it.
+
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' -Raw
+
+        Returns each matching comic exactly as cached, without the 'date', 'html_img' or 'html' properties
+        Find-XKCD normally adds (the 'query' property is still added).
+
     .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding()]
     Param(
-        # The search string to find
+        # The search string(s) to find. A comic matches if it contains any of these (or any of -Or).
         [Parameter(Mandatory, Position = 0, ValueFromPipeline = $true)]
-        [string]
+        [string[]]
         $Query,
+
+        # Additional search string(s) to match, alongside -Query -- a comic matches if it contains any of
+        # -Query OR any of these.
+        [string[]]
+        $Or,
+
+        # Search string(s) that must ALL also be present for a comic to match, alongside -Query/-Or.
+        [string[]]
+        $And,
+
+        # Search string(s) that must NONE be present for a comic to match, alongside -Query/-Or/-And.
+        [string[]]
+        $Not,
 
         # Search the full text of the comic data, not just the title. Defaults to the value saved with
         # Set-XKCDDefault -FullSearch, if any.
         [switch]
         $FullSearch = (Get-XKCDDefaultValue -Name 'FullSearch' -Value $false),
+
+        # Returns each matching comic object exactly as cached, without the 'date', 'html_img' or 'html'
+        # properties Find-XKCD normally adds, and without the 'XKCD.Comic'/'XKCD.Comic.Search' type names that
+        # drive its table/list formatting. The 'query' property is still added.
+        [switch]
+        $Raw,
 
         # Path to where comic data is cached. By default this is within the module path, unless a default has
         # been saved with Set-XKCDDefault -CachePath.
@@ -65,16 +126,37 @@ function Find-XKCD {
         $AllComics = Get-Content $CachePath | ConvertFrom-Json
     }
     process {
-        if ($FullSearch) {
-            $FullText = $_ | Out-String
-            $AllComics | ForEach-Object {
-                $FullText = $_ | Out-String
-                $_ | Where-Object { $FullText -like "*$Query*"} | Add-Member NoteProperty -Name 'query' -Value $Query -PassThru | Add-XKCDHtmlProperty
+        # Filters out the trailing $null that @(...) + @(...) leaves behind when -Or isn't passed (@($null) is
+        # a one-element array, not an empty one) -- a $null term would otherwise become the always-matching
+        # wildcard pattern "*$null*" = "**".
+        $OrTerms = (@($Query) + @($Or)) | Where-Object { $_ }
+        $AndTerms = @($And) | Where-Object { $_ }
+        $NotTerms = @($Not) | Where-Object { $_ }
+
+        $AllComics | ForEach-Object {
+            $Text = if ($FullSearch) { $_ | Out-String } else { $_.title }
+
+            # The specific -Query/-Or term(s) this comic actually matched, not just whatever was passed in --
+            # e.g. with -Query 'romance','math', a comic matching only 'math' gets tagged 'math', not
+            # 'romance, math'.
+            $MatchedTerms = @($OrTerms | Where-Object { $Text -like "*$_*" })
+            $MatchesAny = $MatchedTerms.Count -gt 0
+            $MatchesAll = @($AndTerms | Where-Object { $Text -notlike "*$_*" }).Count -eq 0
+            $MatchesNone = @($NotTerms | Where-Object { $Text -like "*$_*" }).Count -eq 0
+
+            if ($MatchesAny -and $MatchesAll -and $MatchesNone) {
+                # 'query' is every term that was actually part of why this comic matched -- the -Query/-Or
+                # term(s) above, plus $AndTerms (all guaranteed present here, since $MatchesAll is true).
+                $Tag = (@($MatchedTerms) + @($AndTerms)) -join ', '
+
+                # Select-Object * clones the comic instead of tagging the shared cache object $AllComics
+                # holds directly -- without it, the same comic matching more than one query in a single
+                # pipeline run (e.g. 'romance','time' | Find-XKCD, if a comic matches both) would throw on
+                # the second Add-Member, since it'd already carry a 'query' member from the first.
+                $Result = $_ | Select-Object * | Add-Member NoteProperty -Name 'query' -Value $Tag -PassThru
+
+                if ($Raw) { $Result } else { $Result | Add-XKCDHtmlProperty -TypeName 'XKCD.Comic.Search' }
             }
-        } else {
-            $AllComics | Where-Object { $_.Title -like "*$Query*" } | Add-Member NoteProperty -Name 'query' -Value $Query -PassThru | Add-XKCDHtmlProperty
         }
     }
 }
-
-

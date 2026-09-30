@@ -15,6 +15,11 @@ function Test-XKCD {
 
         Use -Num to instead test whether a specific numbered comic exists, returning $true or $false.
 
+        Use -AddToProfile to add `if (Test-XKCD -Quiet) { Test-XKCD }` to your PowerShell profile (creating it,
+        and its containing directory, if either doesn't already exist), so new comics are reported automatically
+        whenever you open a new session. Does nothing if that line is already present. Use -RemoveFromProfile to
+        remove it again -- does nothing if the profile doesn't exist or doesn't contain that line.
+
     .EXAMPLE
         Test-XKCD
 
@@ -46,16 +51,42 @@ function Test-XKCD {
         Add this to your PowerShell profile.ps1 to have it run automatically when you open a new session and prompt you only when new
         comics are available.
 
+    .EXAMPLE
+        Test-XKCD -AddToProfile
+
+        Adds `if (Test-XKCD -Quiet) { Test-XKCD }` to your PowerShell profile, creating the profile file (and its
+        containing directory) if it doesn't already exist. Does nothing if that line is already present.
+
+    .EXAMPLE
+        Test-XKCD -RemoveFromProfile
+
+        Removes `if (Test-XKCD -Quiet) { Test-XKCD }` from your PowerShell profile, if it's there. Does nothing
+        if the profile doesn't exist or doesn't contain that line.
+
     .LINK
         https://xkcd.com/json.html
     #>
-    [cmdletbinding(DefaultParameterSetName = 'Default')]
+    [cmdletbinding(DefaultParameterSetName = 'Default', SupportsShouldProcess)]
     Param(
         # Tests whether the specified comic number exists, returning $true or $false. When used, no other
         # parameters are considered.
         [Parameter(ParameterSetName = 'Num', Mandatory, Position = 0)]
         [int]
         $Num,
+
+        # Adds `if (Test-XKCD -Quiet) { Test-XKCD }` to your PowerShell profile (creating it, and its containing
+        # directory, if either doesn't already exist), so new comics are reported automatically whenever you
+        # open a new session. Does nothing if that line is already present.
+        [Parameter(ParameterSetName = 'AddToProfile', Mandatory)]
+        [switch]
+        $AddToProfile,
+
+        # Removes `if (Test-XKCD -Quiet) { Test-XKCD }` (and, if present immediately above it, the comment
+        # -AddToProfile adds) from your PowerShell profile. Does nothing if the profile doesn't exist or doesn't
+        # contain that line.
+        [Parameter(ParameterSetName = 'RemoveFromProfile', Mandatory)]
+        [switch]
+        $RemoveFromProfile,
 
         # Suppresses the friendly console message and instead returns a boolean.
         [Parameter(ParameterSetName = 'Default')]
@@ -74,6 +105,67 @@ function Test-XKCD {
         [string]
         $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
     )
+
+    if ($AddToProfile -or $RemoveFromProfile) {
+        $Line = 'if (Test-XKCD -Quiet) { Test-XKCD }'
+        $Comment = '# Added by Test-XKCD -AddToProfile: notify about new XKCD comics on every new session'
+
+        # -SimpleMatch already treats -Pattern as a literal string, not a regex -- escaping it first (e.g. via
+        # [regex]::Escape) would be wrong here, since the literal backslashes that adds are then searched for
+        # as-is and never match.
+        $AlreadyPresent = (Test-Path $PROFILE) -and (Select-String -Path $PROFILE -Pattern $Line -SimpleMatch -Quiet)
+
+        if ($AddToProfile) {
+            if ($AlreadyPresent) {
+                return "'$Line' is already present in '$PROFILE'. No changes made."
+            }
+
+            if ($PSCmdlet.ShouldProcess($PROFILE, "Add '$Line'")) {
+                $ProfileDirectory = Split-Path $PROFILE -Parent
+                if (-not (Test-Path $ProfileDirectory)) {
+                    New-Item -ItemType Directory -Path $ProfileDirectory -Force | Out-Null
+                }
+                if (-not (Test-Path $PROFILE)) {
+                    New-Item -ItemType File -Path $PROFILE -Force | Out-Null
+                }
+
+                Add-Content -Path $PROFILE -Value @('', $Comment, $Line)
+                "Added '$Line' to '$PROFILE'."
+            }
+            return
+        }
+
+        # $RemoveFromProfile
+        if (-not $AlreadyPresent) {
+            return "'$Line' was not found in '$PROFILE'. No changes made."
+        }
+
+        if ($PSCmdlet.ShouldProcess($PROFILE, "Remove '$Line'")) {
+            $Content = @(Get-Content -Path $PROFILE)
+
+            # Walk backwards, dropping each matching line and, if -AddToProfile's own comment (and the blank
+            # line before it) immediately precede it, those too -- so removal cleanly undoes what -AddToProfile
+            # added, but a matching line added some other way just has itself removed.
+            $LinesToRemove = [System.Collections.Generic.HashSet[int]]::new()
+            for ($i = $Content.Count - 1; $i -ge 0; $i--) {
+                if ($Content[$i].Trim() -ne $Line) { continue }
+                [void]$LinesToRemove.Add($i)
+
+                if ($i -gt 0 -and $Content[$i - 1].Trim() -eq $Comment) {
+                    [void]$LinesToRemove.Add($i - 1)
+
+                    if ($i -gt 1 -and $Content[$i - 2].Trim() -eq '') {
+                        [void]$LinesToRemove.Add($i - 2)
+                    }
+                }
+            }
+
+            $NewContent = @( for ($i = 0; $i -lt $Content.Count; $i++) { if (-not $LinesToRemove.Contains($i)) { $Content[$i] } } )
+            Set-Content -Path $PROFILE -Value $NewContent
+            "Removed '$Line' from '$PROFILE'."
+        }
+        return
+    }
 
     if ($PSCmdlet.ParameterSetName -eq 'Num') {
         try {

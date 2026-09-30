@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <ViewDefinitions>
+
+    <!-- Get-XKCD returns XKCD.Comic objects. Listed first so it's the default view: a single comic
+         reads better as a list than as a one-row table. -->
+    <View>
+      <Name>XKCD.Comic</Name>
+      <ViewSelectedBy>
+        <TypeName>XKCD.Comic</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Num</Label>
+                <PropertyName>num</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Title</Label>
+                <PropertyName>title</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Safe Title</Label>
+                <PropertyName>safe_title</PropertyName>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.safe_title -ne $_.title</ScriptBlock>
+                </ItemSelectionCondition>
+              </ListItem>
+              <ListItem>
+                <Label>Date</Label>
+                <ScriptBlock>$_.date.ToString('yyyy-MM-dd')</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Alt</Label>
+                <PropertyName>alt</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Img</Label>
+                <PropertyName>img</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>News</Label>
+                <PropertyName>news</PropertyName>
+                <ItemSelectionCondition>
+                  <ScriptBlock>-not [string]::IsNullOrWhiteSpace($_.news)</ScriptBlock>
+                </ItemSelectionCondition>
+              </ListItem>
+              <ListItem>
+                <Label>Transcript</Label>
+                <PropertyName>transcript</PropertyName>
+                <ItemSelectionCondition>
+                  <ScriptBlock>-not [string]::IsNullOrWhiteSpace($_.transcript)</ScriptBlock>
+                </ItemSelectionCondition>
+              </ListItem>
+              <ListItem>
+                <Label>Html Img</Label>
+                <PropertyName>html_img</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Html</Label>
+                <PropertyName>html</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+    <!-- Same comic, as a table: used when Get-XKCD returns several comics (-Newest, -Num with an
+         array, etc) and via an explicit Format-Table. -->
+    <View>
+      <Name>XKCD.Comic</Name>
+      <ViewSelectedBy>
+        <TypeName>XKCD.Comic</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Num</Label>
+            <Width>6</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Date</Label>
+            <Width>10</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Title</Label>
+            <Width>45</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Img</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>num</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.date.ToString('yyyy-MM-dd')</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>title</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>img</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+    <!-- Find-XKCD returns XKCD.Comic.Search objects. Listed first so it's the default view: search
+         results are usually a set to scan, so a table reads better than a list here. -->
+    <View>
+      <Name>XKCD.Comic.Search</Name>
+      <ViewSelectedBy>
+        <TypeName>XKCD.Comic.Search</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Num</Label>
+            <Width>6</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Date</Label>
+            <Width>10</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Title</Label>
+            <Width>45</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Img</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>num</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.date.ToString('yyyy-MM-dd')</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>title</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>img</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+    <!-- Same search result, as a list: used via an explicit Format-List, e.g. to inspect one result
+         in full after narrowing down a search. -->
+    <View>
+      <Name>XKCD.Comic.Search</Name>
+      <ViewSelectedBy>
+        <TypeName>XKCD.Comic.Search</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Query</Label>
+                <PropertyName>query</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Num</Label>
+                <PropertyName>num</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Title</Label>
+                <PropertyName>title</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Safe Title</Label>
+                <PropertyName>safe_title</PropertyName>
+                <ItemSelectionCondition>
+                  <ScriptBlock>$_.safe_title -ne $_.title</ScriptBlock>
+                </ItemSelectionCondition>
+              </ListItem>
+              <ListItem>
+                <Label>Date</Label>
+                <ScriptBlock>$_.date.ToString('yyyy-MM-dd')</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Alt</Label>
+                <PropertyName>alt</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Img</Label>
+                <PropertyName>img</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>News</Label>
+                <PropertyName>news</PropertyName>
+                <ItemSelectionCondition>
+                  <ScriptBlock>-not [string]::IsNullOrWhiteSpace($_.news)</ScriptBlock>
+                </ItemSelectionCondition>
+              </ListItem>
+              <ListItem>
+                <Label>Transcript</Label>
+                <PropertyName>transcript</PropertyName>
+                <ItemSelectionCondition>
+                  <ScriptBlock>-not [string]::IsNullOrWhiteSpace($_.transcript)</ScriptBlock>
+                </ItemSelectionCondition>
+              </ListItem>
+              <ListItem>
+                <Label>Html Img</Label>
+                <PropertyName>html_img</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Html</Label>
+                <PropertyName>html</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+  </ViewDefinitions>
+</Configuration>
