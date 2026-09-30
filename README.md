@@ -6,6 +6,8 @@ A PowerShell function for accessing the XKCD API to get the details of and (opti
 
 Additionally, community XKCD comic explanations can be accessed from the https://www.explainxkcd.com/ wiki. Modern Terminals can also display these directly in the terminal, with limited formatting.
 
+![An example of an XKCD comic being displayed in Windows Terminal via Show-XKCD](/Media/xkcd-windows-terminal-example.png.png)
+
 ## XKCD
 
 XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: https://xkcd.com/license.html.
