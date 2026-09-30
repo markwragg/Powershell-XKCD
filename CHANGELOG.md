@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.10.0] - 2026-09-30
 
 * Adds a format file (`xkcd.Format.ps1xml`) that improves the default output of `Get-XKCD` and `Find-XKCD`. `Get-XKCD` now defaults to a curated list view (`Num`, `Title`, `Date`, `Alt`, `Img`, `News`/`Transcript` when present, `Html Img`, `Html`), better suited to its usual single-comic result. `Find-XKCD` defaults to a table (`Num`, `Date`, `Title`, `Img`), better suited to scanning a set of search results; the matched `query` property is still there, just not shown by default -- see it via `Format-List`, or `Select-Object`/`Group-Object query` as before. Both also expose the other layout via an explicit `Format-Table`/`Format-List`. Comic objects are now tagged with the `XKCD.Comic` type name (and `XKCD.Comic.Search` for `Find-XKCD` results) to drive this.
 * Adds a `date` property (a real `[datetime]`, not just a display column) to comic objects returned by `Get-XKCD` and `Find-XKCD`, computed from `day`/`month`/`year`, so results can actually be sorted/filtered by date -- e.g. `Get-XKCD -Newest 20 | Where-Object date -gt (Get-Date).AddDays(-30)`.

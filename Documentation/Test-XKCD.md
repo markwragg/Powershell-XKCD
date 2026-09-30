@@ -7,12 +7,23 @@ Checks whether any new comics have been published since the last time Test-XKCD 
 
 ### Default (Default)
 ```
-Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ### Num
 ```
-Test-XKCD [-Num] <Int32> [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Test-XKCD [-Num] <Int32> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### AddToProfile
+```
+Test-XKCD [-AddToProfile] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### RemoveFromProfile
+```
+Test-XKCD [-RemoveFromProfile] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -29,6 +40,13 @@ Use -Detailed to return a PSCustomObject describing how many new comics
 are available, alongside the last viewed and latest comic numbers.
 
 Use -Num to instead test whether a specific numbered comic exists, returning $true or $false.
+
+Use -AddToProfile to add \`if (Test-XKCD -Quiet) { Test-XKCD }\` to your PowerShell profile (creating it,
+and its containing directory, if either doesn't already exist), so new comics are reported automatically
+whenever you open a new session.
+Does nothing if that line is already present.
+Use -RemoveFromProfile to
+remove it again -- does nothing if the profile doesn't exist or doesn't contain that line.
 
 ## EXAMPLES
 
@@ -73,6 +91,24 @@ If new comics are available, this will write a friendly message to the console s
 Add this to your PowerShell profile.ps1 to have it run automatically when you open a new session and prompt you only when new
 comics are available.
 
+### EXAMPLE 6
+```
+Test-XKCD -AddToProfile
+```
+
+Adds \`if (Test-XKCD -Quiet) { Test-XKCD }\` to your PowerShell profile, creating the profile file (and its
+containing directory) if it doesn't already exist.
+Does nothing if that line is already present.
+
+### EXAMPLE 7
+```
+Test-XKCD -RemoveFromProfile
+```
+
+Removes \`if (Test-XKCD -Quiet) { Test-XKCD }\` from your PowerShell profile, if it's there.
+Does nothing
+if the profile doesn't exist or doesn't contain that line.
+
 ## PARAMETERS
 
 ### -Num
@@ -88,6 +124,42 @@ Aliases:
 Required: True
 Position: 1
 Default value: 0
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AddToProfile
+Adds \`if (Test-XKCD -Quiet) { Test-XKCD }\` to your PowerShell profile (creating it, and its containing
+directory, if either doesn't already exist), so new comics are reported automatically whenever you
+open a new session.
+Does nothing if that line is already present.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: AddToProfile
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -RemoveFromProfile
+Removes \`if (Test-XKCD -Quiet) { Test-XKCD }\` (and, if present immediately above it, the comment
+-AddToProfile adds) from your PowerShell profile.
+Does nothing if the profile doesn't exist or doesn't
+contain that line.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: RemoveFromProfile
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -136,6 +208,37 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

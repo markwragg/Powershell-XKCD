@@ -9,44 +9,46 @@ Optionally can download the comic images.
 ### Specific (Default)
 ```
 Get-XKCD [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [[-Num] <Int32[]>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [[-Num] <Int32[]>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
  [<CommonParameters>]
 ```
 
 ### Random
 ```
 Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>]
- [-HighQuality] [-StatePath <String>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+ [-HighQuality] [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>]
+ [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
 ```
 Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### Next
 ```
 Get-XKCD [-Next] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ### Previous
 ```
 Get-XKCD [-Previous] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 The Get-XKCD cmdlet gets the details of one or more comics from the XKCD API: https://xkcd.com/json.html.
 This includes title, number, image URL, alt text, day, month, year, news, safe_title and transcript.
 Each
-returned comic also has 'html_img' and 'html' properties, computed from those properties, for embedding
-the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'html' wraps that same tag in a link to
-the comic's page on xkcd.com.
+returned comic also has a 'date' property (a \[datetime\] combining day/month/year, so results can be
+sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
+embedding the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'html' wraps that same tag in
+a link to the comic's page on xkcd.com.
 
 By default, Get-XKCD returns the details of the latest available comic.
 When you use the -num parameter
@@ -168,12 +170,20 @@ Unlike other parameter combinations, -Explain does not return the comic object.
 
 ### EXAMPLE 13
 ```
+Get-XKCD -Raw
+```
+
+This command returns the latest comic exactly as received from the xkcd API, without the 'date',
+'html_img' or 'html' properties Get-XKCD normally adds.
+
+### EXAMPLE 14
+```
 1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 ```
 
 This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
 
-### EXAMPLE 14
+### EXAMPLE 15
 ```
 (Get-XKCD).html
 ```
@@ -181,7 +191,7 @@ This command returns the details of 10 random comics from the set of all comics 
 This command returns an HTML \<img\> tag (linking to the comic's page on xkcd.com) for the latest comic,
 suitable for embedding in an HTML page or email.
 
-### EXAMPLE 15
+### EXAMPLE 16
 ```
 (Get-XKCD).html_img
 ```
@@ -439,6 +449,23 @@ Used internally by other
 cmdlets (e.g.
 Show-XKCDExplanation, Export-XKCDTerminalImage) that fetch comic data as a means to
 another end, so that fetch doesn't itself count as a comic having been read/viewed.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Raw
+Returns the comic object exactly as received from the xkcd API, without the 'date', 'html_img' or
+'html' properties Get-XKCD normally adds, and without the 'XKCD.Comic' type name that drives its
+table/list formatting.
 
 ```yaml
 Type: SwitchParameter
