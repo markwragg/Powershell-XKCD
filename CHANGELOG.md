@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.9.0] - 2026-09-30
 
 * Fixes `Get-XKCD` not updating the state file's `LastRead`/`LastViewed` markers unless `-Show` was also specified. Previously only `Show-XKCD`/`Get-XKCD -Show` tracked this, so e.g. `Get-XKCD -Previous` on its own always returned the same comic, and `Get-XKCD -Next` returned a comic two ahead of whatever `-Previous` had just returned, since neither call ever recorded having moved. Now, any `Get-XKCD` call that returns a comic -- the default latest comic, `-Num`, `-Random`, `-Newest`, `-Next`, or `-Previous` -- updates the state the same way `Show-XKCD` already does, so `-Next`/`-Previous` page one comic further each time they're called, and a plain `Get-XKCD` sets the marker to the latest comic (or, for a multi-comic request like `-Newest`, the last one returned).
 * Adds a `-NoStateUpdate` switch to `Get-XKCD`, to look up a comic without moving the `-Next`/`-Previous` marker -- useful for checking a specific comic without losing your place. `Show-XKCDExplanation` and `Export-XKCDTerminalImage` now use this internally for the same reason, since fetching a comic to explain or export it was never meant to count as reading it via `Get-XKCD`.

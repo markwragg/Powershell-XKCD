@@ -9,32 +9,35 @@ Optionally can download the comic images.
 ### Specific (Default)
 ```
 Get-XKCD [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [[-Num] <Int32[]>] [-Force] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-Num] <Int32[]>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ### Random
 ```
 Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>]
- [-HighQuality] [-StatePath <String>] [-Force] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [-HighQuality] [-StatePath <String>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
 ```
 Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-StatePath <String>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ### Next
 ```
 Get-XKCD [-Next] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [-Force] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Previous
 ```
 Get-XKCD [-Previous] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-StatePath <String>] [-Force] [-NoStateUpdate] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -49,12 +52,19 @@ By default, Get-XKCD returns the details of the latest available comic.
 When you use the -num parameter
 you can specify one or more specific comics to return.
 
-When used with -Show, each displayed comic updates a local state file with two records: the highest-
-numbered comic you've ever viewed, used by Test-XKCD to report how many new comics have been published
-since you last checked; and the comic you most recently displayed in either direction, used by -Next and
--Previous so you can page back and forth through comics sequentially.
--Next returns nothing once you've
-reached the latest comic, and -Previous returns nothing once you've reached comic #1.
+Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Num, -Random, and
+-Newest, not just -Next/-Previous -- it updates a local state file with two records: the highest-numbered
+comic you've ever viewed, used by Test-XKCD to report how many new comics have been published since you
+last checked; and the comic most recently displayed or retrieved in either direction, used by -Next and
+-Previous so you can page back and forth through comics sequentially -- calling -Next or -Previous
+repeatedly moves one comic further each time.
+If a call returns multiple comics (e.g.
+-Newest 5), the
+state reflects the last one returned.
+-Next returns nothing once you've reached the latest comic, and
+-Previous returns nothing once you've reached comic #1.
+-Show updates the state itself via Show-XKCD,
+since it doesn't return a comic object here; -Explain does not update the state.
 
 ## EXAMPLES
 
@@ -98,8 +108,9 @@ This command returns the details of the latest 5 comics.
 Get-XKCD -Next
 ```
 
-This command returns the details of the comic after the one you most recently displayed with Show-XKCD or
-Get-XKCD -Show, as recorded in the state file.
+This command returns the details of the comic after the one you most recently displayed or retrieved with
+-Next/-Previous, as recorded in the state file.
+Calling -Next repeatedly steps forward further each time.
 Returns nothing if you're already at the latest comic.
 
 ### EXAMPLE 7
@@ -107,8 +118,9 @@ Returns nothing if you're already at the latest comic.
 Get-XKCD -Previous
 ```
 
-This command returns the details of the comic before the one you most recently displayed with Show-XKCD or
-Get-XKCD -Show, as recorded in the state file.
+This command returns the details of the comic before the one you most recently displayed or retrieved with
+-Next/-Previous, as recorded in the state file.
+Calling -Previous repeatedly steps back further each time.
 Returns nothing if you're already at comic #1.
 
 ### EXAMPLE 8
@@ -240,7 +252,7 @@ Accept wildcard characters: False
 ```
 
 ### -Next
-Gets the comic after the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded in
+Gets the comic after the one most recently displayed or retrieved with -Next/-Previous, as recorded in
 the state file.
 Returns nothing if you're already at the latest comic.
 
@@ -257,7 +269,7 @@ Accept wildcard characters: False
 ```
 
 ### -Previous
-Gets the comic before the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded in
+Gets the comic before the one most recently displayed or retrieved with -Next/-Previous, as recorded in
 the state file.
 Returns nothing if you're already at comic #1.
 
@@ -408,6 +420,25 @@ Accept wildcard characters: False
 
 ### -Force
 Bypass the confirmation check if you try to open more than 9 comics in your browser.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoStateUpdate
+Skips updating the state file's LastRead/LastViewed records for this call.
+Used internally by other
+cmdlets (e.g.
+Show-XKCDExplanation, Export-XKCDTerminalImage) that fetch comic data as a means to
+another end, so that fetch doesn't itself count as a comic having been read/viewed.
 
 ```yaml
 Type: SwitchParameter
