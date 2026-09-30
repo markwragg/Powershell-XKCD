@@ -7,9 +7,7 @@ PowerShell cmdlets that wrap the XKCD API (https://xkcd.com/json.html) to return
 ![An example of an XKCD comic being displayed in Windows Terminal via Show-XKCD](Media/xkcd-windows-terminal-example.png)
 
 
-Additionally, community XKCD comic explanations can be accessed from the https://www.explainxkcd.com/ wiki. Modern Terminals can also display these directly in the terminal, with limited formatting:
-
-![An example of an XKCD explanation displayed in Windows Terminal via Show-XKCDExplanation](Media/xkcd-explanation-windows-terminal-example.png)
+Additionally, community XKCD comic explanations can be accessed from the https://www.explainxkcd.com/ wiki. Modern Terminals can also display these directly in the terminal, with limited formatting.
 
 ## XKCD
 
