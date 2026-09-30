@@ -134,7 +134,7 @@ By default the latest comic is displayed.
 ```yaml
 Type: Int32[]
 Parameter Sets: Specific
-Aliases:
+Aliases: Number
 
 Required: False
 Position: 1

@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.10.1] - 2026-09-30
 
 * Adds `-Number` as an alias for the `-Num` parameter on `Get-XKCD`, `Get-XKCDCache`, `Test-XKCD`, `Get-XKCDExplanation`, `Show-XKCD`, `Show-XKCDExplanation` and `Export-XKCDTerminalImage`.
 * `Get-XKCD`'s default list view no longer shows `Html Img`/`Html` (still available as properties, e.g. `(Get-XKCD).html`, just not displayed by default).

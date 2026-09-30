@@ -83,7 +83,7 @@ By default the latest comic is exported.
 ```yaml
 Type: Int32[]
 Parameter Sets: (All)
-Aliases:
+Aliases: Number
 
 Required: False
 Position: 1

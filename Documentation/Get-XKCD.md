@@ -51,8 +51,8 @@ embedding the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'h
 a link to the comic's page on xkcd.com.
 
 By default, Get-XKCD returns the details of the latest available comic.
-When you use the -num parameter
-you can specify one or more specific comics to return.
+When you use the -Num parameter
+(aliased as -Number) you can specify one or more specific comics to return.
 
 Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Num, -Random, and
 -Newest, not just -Next/-Previous -- it updates a local state file with two records: the highest-numbered
@@ -419,7 +419,7 @@ Accepts array input.
 ```yaml
 Type: Int32[]
 Parameter Sets: Specific
-Aliases:
+Aliases: Number
 
 Required: False
 Position: 1

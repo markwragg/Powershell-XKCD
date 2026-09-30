@@ -119,7 +119,7 @@ parameters are considered.
 ```yaml
 Type: Int32
 Parameter Sets: Num
-Aliases:
+Aliases: Number
 
 Required: True
 Position: 1
