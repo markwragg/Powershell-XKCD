@@ -151,6 +151,7 @@ function Get-XKCDExplanation {
 
         # Gets the explanation of the specified comics. Accepts array input. By default the latest comic is used.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('Number')]
         [int[]]
         $Num = $Max,
 

@@ -96,6 +96,10 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         It 'Show-XKCD accepts a comic object from Get-XKCD via the pipeline' {
             { Get-XKCDCapturedOutput { Get-XKCD -Num 5 | Show-XKCD } } | Should -Not -Throw
         }
+
+        It 'Show-XKCD -Number is an alias for -Num' {
+            { Get-XKCDCapturedOutput { Show-XKCD -Number 2000 } } | Should -Not -Throw
+        }
     }
 
     Context 'High Quality Tests' {

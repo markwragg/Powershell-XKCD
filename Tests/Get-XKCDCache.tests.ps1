@@ -133,6 +133,10 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             @($Single).Count | Should -Be 1
             $Single.num | Should -Be 4
         }
+
+        It 'Get-XKCDCache -Number is an alias for -Num' {
+            (Get-XKCDCache -Number 4).num | Should -Be 4
+        }
     }
 
     Context 'Pipeline Input Tests' {

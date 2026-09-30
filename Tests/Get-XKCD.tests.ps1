@@ -124,6 +124,16 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Number Alias Tests' {
+
+        It 'Get-XKCD -Number is an alias for -Num' {
+            $ViaNum = Get-XKCD -Num 1 -NoStateUpdate
+            $ViaNumber = Get-XKCD -Number 1 -NoStateUpdate
+
+            $ViaNumber.num | Should -Be $ViaNum.num
+        }
+    }
+
     Context 'Download Extension Tests' {
 
         BeforeAll {

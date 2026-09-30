@@ -79,6 +79,12 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Saved.img | Should -Be $Comic.img
             $Saved.year | Should -Be $Comic.year
         }
+
+        It 'Export-XKCDTerminalImage -Number is an alias for -Num' {
+            $ViaNumber = Export-XKCDTerminalImage -Number 353 -Path $TestDrive -PassThru -Force
+
+            $ViaNumber.FullName | Should -Be (Join-Path $TestDrive '353.xkcdterm.json')
+        }
     }
 
     Context 'PassThru Tests' {

@@ -72,6 +72,7 @@ function Show-XKCDExplanation {
     Param(
         # Displays the explanation of the specified comics. Accepts array input. By default the latest comic is displayed.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('Number')]
         [int[]]
         $Num,
 

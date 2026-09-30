@@ -54,14 +54,6 @@
                   <ScriptBlock>-not [string]::IsNullOrWhiteSpace($_.transcript)</ScriptBlock>
                 </ItemSelectionCondition>
               </ListItem>
-              <ListItem>
-                <Label>Html Img</Label>
-                <PropertyName>html_img</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Html</Label>
-                <PropertyName>html</PropertyName>
-              </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>

@@ -56,6 +56,7 @@ function Export-XKCDTerminalImage {
     Param(
         # Exports the specified comics. Accepts array input. By default the latest comic is exported.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('Number')]
         [int[]]
         $Num,
 

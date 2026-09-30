@@ -45,6 +45,7 @@ function Get-XKCDCache {
         # Returns only the specified comic numbers from the cache. Accepts array and pipeline input. By default every
         # cached comic is returned.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('Number')]
         [int[]]
         $Num,
 

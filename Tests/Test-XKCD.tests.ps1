@@ -164,6 +164,12 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Does not allow -Num to be used with -Detailed' {
             { Test-XKCD -Num 1 -Detailed } | Should -Throw
         }
+
+        It 'Test-XKCD -Number is an alias for -Num' {
+            Mock -ModuleName $Module Invoke-RestMethod { [pscustomobject]@{ num = 42 } }
+
+            Test-XKCD -Number 42 | Should -Be $true
+        }
     }
 
     Context 'Read-Only Tests' {

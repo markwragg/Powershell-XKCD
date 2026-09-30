@@ -2,7 +2,7 @@
 
 [![Build Status](https://dev.azure.com/markwragg/GitHub/_apis/build/status/markwragg.Powershell-XKCD?branchName=master)](https://dev.azure.com/markwragg/GitHub/_build/latest?definitionId=9&branchName=master) ![coverage](https://img.shields.io/badge/coverage-91%25-brightgreen.svg)
 
-A PowerShell function for accessing the XKCD API to get the details of and (optionally) download the excellent webcomics @ https://xkcd.com. Modern Terminals can now also view the comic directly in the terminal:
+PowerShell cmdlets that wrap the XKCD API (https://xkcd.com/json.html) to return details for the excellent webcomics @ https://xkcd.com. Modern Terminals can view the comic directly in the terminal (on Windows, Linux and MacOS where supported), or you can download the comic image or open the URL via your default browser.
 
 ![An example of an XKCD comic being displayed in Windows Terminal via Show-XKCD](Media/xkcd-windows-terminal-example.png)
 
@@ -11,22 +11,20 @@ Additionally, community XKCD comic explanations can be accessed from the https:/
 
 ![An example of an XKCD explanation displayed in Windows Terminal via Show-XKCDExplanation](Media/xkcd-explanation-windows-terminal-example.png)
 
-![alt text](Media/xkcd-explanation-windows-terminal-example.png)
-
 ## XKCD
 
 XKCD is a webcomic by Randall Munroe. Please respect the license of his work as described here: https://xkcd.com/license.html.
 
 ## Requirements
 
-- The API provided by xkcd.com must be functional: https://xkcd.com/json.html
-- The API provided by explainxkcd.com must be functional: https://www.explainxkcd.com/wiki/api.php
+- The API provided by xkcd.com must be functional (for comics): https://xkcd.com/json.html
+- The API provided by explainxkcd.com must be functional (for explanations): https://www.explainxkcd.com/wiki/api.php
 - PowerShell 3.0 or newer.
-- A modern terminal, is required to view comics directly from the command-line. Supported terminals include Windows Terminal, VSCode, iTerm2 and Kitty.
+- A modern terminal, is required to view comics directly from the command-line. Supported terminals include Windows Terminal, VSCode, iTerm2 and Kitty, or any terminal that can render Sixel.
 
 ## Installation
 
-This module is published in the PowerShell Gallery as [XKCD](https://www.powershellgallery.com/packages/XKCD/1.4.36.0) so if you have PowerShell 5+ or the Package Management modules, it can be installed by entering the following in a PowerShell window:
+This module is published in the PowerShell Gallery as [XKCD](https://www.powershellgallery.com/packages/XKCD) so if you have PowerShell 5+ or the Package Management modules, it can be installed by entering the following in a PowerShell window:
 
 ```powershell
 Install-Module -Name XKCD
@@ -61,7 +59,7 @@ Html     : <a href="https://xkcd.com/3304"><img src="https://imgs.xkcd.com/comic
            moons.&quot;"></a>
 ```
 
-Note that by default this does not return all of the available properties. To see all of the object properties returned, use `Get-XKCD | FL *`.
+Note that by default this does not display all of the available properties. To see all of the object properties returned, use `Get-XKCD | FL *`.
 
 2) `Get-XKCD 1` or `Get-XKCD -num 1`
 

@@ -71,6 +71,7 @@ function Test-XKCD {
         # Tests whether the specified comic number exists, returning $true or $false. When used, no other
         # parameters are considered.
         [Parameter(ParameterSetName = 'Num', Mandatory, Position = 0)]
+        [Alias('Number')]
         [int]
         $Num,
 

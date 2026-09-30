@@ -79,6 +79,7 @@ function Show-XKCD {
     Param(
         # Displays the specified comics. Accepts array input. By default the latest comic is displayed.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
+        [Alias('Number')]
         [int[]]
         $Num,
 
