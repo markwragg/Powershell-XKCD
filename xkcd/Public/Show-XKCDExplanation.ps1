@@ -135,7 +135,7 @@ function Show-XKCDExplanation {
             $ImageBytes = $null
 
             if ($ShowComic) {
-                $Comic = Get-XKCD -Num $_
+                $Comic = Get-XKCD -Num $_ -NoStateUpdate
                 $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
             }
 

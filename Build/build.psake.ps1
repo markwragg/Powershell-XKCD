@@ -188,7 +188,7 @@ Task 'Test' -Depends 'ImportStagingModule' {
 
     # Fail build if any tests fail
     if ($TestResults.FailedCount -gt 0) {
-        Write-Error "Failed '$($TestResults.FailedCount)' tests, build failed"
+        throw "Failed '$($TestResults.FailedCount)' tests, build failed"
     }
 
     # Surface the coverage result as a pipeline output variable so a later stage (which runs in a
@@ -379,9 +379,9 @@ Task 'Deploy' -Depends 'Init' {
     try {
         $Version = Get-NextPSGalleryVersion -Name $env:BHProjectName -ErrorAction 'Stop'
 
-        # Ensure the next deploy is at least 1.8.0. Once the Gallery has a 1.8.0+ release published, Get-NextPSGalleryVersion will always be >= this floor
+        # Ensure the next deploy is at least 1.9.0. Once the Gallery has a 1.9.0+ release published, Get-NextPSGalleryVersion will always be >= this floor
         # on its own, so this check becomes a no-op and doesn't need to be removed later.
-        $MinimumVersion = [Version]'1.8.0'
+        $MinimumVersion = [Version]'1.9.0'
         if ($Version -lt $MinimumVersion) { $Version = $MinimumVersion }
 
         Update-Metadata -Path $env:BHPSModuleManifest -PropertyName 'ModuleVersion' -Value $Version -ErrorAction 'Stop'

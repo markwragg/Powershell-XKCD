@@ -84,7 +84,9 @@ Displays the comic's title, publish date, a hyperlink to it on xkcd.com, image, 
 
 9) `Show-XKCD -Next` or `Get-XKCD -Previous`
 
-Once you've viewed a comic (via Show-XKCD or Get-XKCD -Show), use -Next and -Previous to page through comics one at a time from wherever you left off, in either direction, without needing to know the comic number -- e.g. `Show-XKCD -Next` repeatedly steps forward one comic at a time, and -Previous steps back. This is tracked separately from the record Test-XKCD uses to report new comics, so paging backwards with -Previous doesn't affect that count. -Next returns/displays nothing once you reach the latest comic, and -Previous returns/displays nothing once you reach comic #1.
+Any comic returned or displayed by Get-XKCD or Show-XKCD -- the default latest comic, -Num, -Random, -Newest, or a previous -Next/-Previous -- is recorded as the one to page from next. Use -Next and -Previous to page through comics one at a time from wherever you left off, in either direction, without needing to know the comic number -- e.g. `Show-XKCD -Next` repeatedly steps forward one comic at a time, and -Previous steps back. This is tracked separately from the record Test-XKCD uses to report new comics, so paging backwards with -Previous doesn't affect that count. -Next returns/displays nothing once you reach the latest comic, and -Previous returns/displays nothing once you reach comic #1.
+
+If you want to look up a comic with Get-XKCD without moving this marker -- e.g. checking a specific comic out of curiosity, without losing your place -- add the `-NoStateUpdate` parameter.
 
 10) `Show-XKCD 2000` or `Get-XKCD -Random | Show-XKCD`
 

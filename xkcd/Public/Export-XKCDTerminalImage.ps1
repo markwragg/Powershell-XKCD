@@ -90,7 +90,7 @@ function Export-XKCDTerminalImage {
 
     Process {
         $Num | ForEach-Object {
-            $Comic = Get-XKCD -Num $_
+            $Comic = Get-XKCD -Num $_ -NoStateUpdate
             $OutFile = Join-Path $Path "$($Comic.num).xkcdterm.json"
 
             if ((Test-Path $OutFile) -and -not $Force) {

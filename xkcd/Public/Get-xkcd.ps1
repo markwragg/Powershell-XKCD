@@ -13,11 +13,15 @@
         By default, Get-XKCD returns the details of the latest available comic. When you use the -num parameter
         you can specify one or more specific comics to return.
 
-        When used with -Show, each displayed comic updates a local state file with two records: the highest-
-        numbered comic you've ever viewed, used by Test-XKCD to report how many new comics have been published
-        since you last checked; and the comic you most recently displayed in either direction, used by -Next and
-        -Previous so you can page back and forth through comics sequentially. -Next returns nothing once you've
-        reached the latest comic, and -Previous returns nothing once you've reached comic #1.
+        Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Num, -Random, and
+        -Newest, not just -Next/-Previous -- it updates a local state file with two records: the highest-numbered
+        comic you've ever viewed, used by Test-XKCD to report how many new comics have been published since you
+        last checked; and the comic most recently displayed or retrieved in either direction, used by -Next and
+        -Previous so you can page back and forth through comics sequentially -- calling -Next or -Previous
+        repeatedly moves one comic further each time. If a call returns multiple comics (e.g. -Newest 5), the
+        state reflects the last one returned. -Next returns nothing once you've reached the latest comic, and
+        -Previous returns nothing once you've reached comic #1. -Show updates the state itself via Show-XKCD,
+        since it doesn't return a comic object here; -Explain does not update the state.
 
     .EXAMPLE
         Get-XKCD
@@ -47,14 +51,16 @@
     .EXAMPLE
         Get-XKCD -Next
 
-        This command returns the details of the comic after the one you most recently displayed with Show-XKCD or
-        Get-XKCD -Show, as recorded in the state file. Returns nothing if you're already at the latest comic.
+        This command returns the details of the comic after the one you most recently displayed or retrieved with
+        -Next/-Previous, as recorded in the state file. Calling -Next repeatedly steps forward further each time.
+        Returns nothing if you're already at the latest comic.
 
     .EXAMPLE
         Get-XKCD -Previous
 
-        This command returns the details of the comic before the one you most recently displayed with Show-XKCD or
-        Get-XKCD -Show, as recorded in the state file. Returns nothing if you're already at comic #1.
+        This command returns the details of the comic before the one you most recently displayed or retrieved with
+        -Next/-Previous, as recorded in the state file. Calling -Previous repeatedly steps back further each time.
+        Returns nothing if you're already at comic #1.
 
     .EXAMPLE
         Get-XKCD -Download
@@ -127,13 +133,13 @@
         [int]
         $Newest,
 
-        # Gets the comic after the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded in
+        # Gets the comic after the one most recently displayed or retrieved with -Next/-Previous, as recorded in
         # the state file. Returns nothing if you're already at the latest comic.
         [Parameter(ParameterSetName = 'Next', Mandatory)]
         [switch]
         $Next,
 
-        # Gets the comic before the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded in
+        # Gets the comic before the one most recently displayed or retrieved with -Next/-Previous, as recorded in
         # the state file. Returns nothing if you're already at comic #1.
         [Parameter(ParameterSetName = 'Previous', Mandatory)]
         [switch]
@@ -181,7 +187,13 @@
 
         # Bypass the confirmation check if you try to open more than 9 comics in your browser.
         [switch]
-        $Force
+        $Force,
+
+        # Skips updating the state file's LastRead/LastViewed records for this call. Used internally by other
+        # cmdlets (e.g. Show-XKCDExplanation, Export-XKCDTerminalImage) that fetch comic data as a means to
+        # another end, so that fetch doesn't itself count as a comic having been read/viewed.
+        [switch]
+        $NoStateUpdate
     )
     Begin {
         if (-not $Max) { $Max = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
@@ -249,6 +261,9 @@
             }
 
             if (-not $Show -and -not $Explain) {
+                if (-not $NoStateUpdate) {
+                    Update-XKCDLastReadState -Num $ID -StatePath $StatePath -Cmdlet $PSCmdlet
+                }
                 return (Add-XKCDHtmlProperty -Comic $Comic)
             }
         }

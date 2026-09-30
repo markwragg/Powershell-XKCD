@@ -116,19 +116,6 @@ function Show-XKCD {
     )
 
     Begin {
-        $UpdateLastReadState = {
-            Param([int]$Num)
-
-            $LastViewedComic = Get-XKCDLastViewedComic -StatePath $StatePath
-            $LastReadComic = Get-XKCDLastReadComic -StatePath $StatePath
-            $NewLastViewed = [math]::Max($LastViewedComic, $Num)
-
-            if (($Num -ne $LastReadComic -or $NewLastViewed -ne $LastViewedComic) -and
-                $PSCmdlet.ShouldProcess($StatePath, "Update last read comic to #$Num")) {
-                [pscustomobject]@{ LastViewed = $NewLastViewed; LastRead = $Num } | ConvertTo-Json | Out-File $StatePath -Force
-            }
-        }
-
         if ($PSCmdlet.ParameterSetName -eq 'File') { return }
 
         if ($Next) {
@@ -154,18 +141,18 @@ function Show-XKCD {
                 $Comic = $Saved | Select-Object * -ExcludeProperty Protocol, Image
                 Show-XKCDComic -Comic $Comic -TerminalImage $Saved.Image
 
-                & $UpdateLastReadState -Num $Comic.num
+                Update-XKCDLastReadState -Num $Comic.num -StatePath $StatePath -Cmdlet $PSCmdlet
             }
             return
         }
 
         $Num | ForEach-Object {
-            $Comic = Get-XKCD -Num $_
+            $Comic = Get-XKCD -Num $_ -NoStateUpdate
             $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
 
             Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality
 
-            & $UpdateLastReadState -Num $Comic.num
+            Update-XKCDLastReadState -Num $Comic.num -StatePath $StatePath -Cmdlet $PSCmdlet
         }
     }
 }

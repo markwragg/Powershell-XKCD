@@ -222,6 +222,55 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             Get-XKCDCapturedOutput { $script:Result = Get-XKCD -Num 1 -Explain } | Out-Null
             $script:Result | Should -BeNullOrEmpty
         }
+
+        It 'Get-XKCD -Explain does not update the state file' {
+            $StatePath = Join-Path $TestDrive 'get-explain-state.json'
+
+            Get-XKCDCapturedOutput { Get-XKCD -Num 200 -Explain -StatePath $StatePath } | Out-Null
+
+            $StatePath | Should -Not -Exist
+        }
+    }
+
+    Context 'State Tracking Tests' {
+
+        It 'Get-XKCD records a plain retrieval as the most recently read/viewed comic' {
+            $StatePath = Join-Path $TestDrive 'get-plain-state.json'
+
+            Get-XKCD -Num 42 -StatePath $StatePath | Out-Null
+
+            $StatePath | Should -Exist
+            $State = Get-Content $StatePath | ConvertFrom-Json
+            $State.LastRead | Should -Be 42
+            $State.LastViewed | Should -Be 42
+        }
+
+        It 'Get-XKCD records the last comic returned when multiple are requested' {
+            $StatePath = Join-Path $TestDrive 'get-multi-state.json'
+
+            Get-XKCD -Num (10, 20, 30) -StatePath $StatePath | Out-Null
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastRead | Should -Be 30
+        }
+
+        It 'Get-XKCD does not lower LastViewed when retrieving an earlier comic' {
+            $StatePath = Join-Path $TestDrive 'get-plain-noregress-state.json'
+            [pscustomobject]@{ LastViewed = 500; LastRead = 500 } | ConvertTo-Json | Out-File $StatePath
+
+            Get-XKCD -Num 42 -StatePath $StatePath | Out-Null
+
+            $State = Get-Content $StatePath | ConvertFrom-Json
+            $State.LastRead | Should -Be 42
+            $State.LastViewed | Should -Be 500
+        }
+
+        It 'Get-XKCD -NoStateUpdate does not update the state file' {
+            $StatePath = Join-Path $TestDrive 'get-nostateupdate-state.json'
+
+            Get-XKCD -Num 42 -StatePath $StatePath -NoStateUpdate | Out-Null
+
+            $StatePath | Should -Not -Exist
+        }
     }
 
     Context 'Next and Previous Comic Tests' {
@@ -262,6 +311,30 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
             { Get-XKCD -Next -StatePath $StatePath } | Should -Not -Throw
             Get-XKCD -Next -StatePath $StatePath | Should -BeNullOrEmpty
+        }
+
+        It 'Get-XKCD -Next records the returned comic so a subsequent -Next moves on further' {
+            $StatePath = Join-Path $TestDrive 'next-state-progress.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            (Get-XKCD -Next -StatePath $StatePath).num | Should -Be 101
+            (Get-XKCD -Next -StatePath $StatePath).num | Should -Be 102
+        }
+
+        It 'Get-XKCD -Previous records the returned comic so a subsequent -Previous steps back further' {
+            $StatePath = Join-Path $TestDrive 'previous-state-progress.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            (Get-XKCD -Previous -StatePath $StatePath).num | Should -Be 99
+            (Get-XKCD -Previous -StatePath $StatePath).num | Should -Be 98
+        }
+
+        It 'Get-XKCD -Previous then -Next returns to the comic last displayed before paging back' {
+            $StatePath = Join-Path $TestDrive 'previous-then-next-state.json'
+            [pscustomobject]@{ LastViewed = 100 } | ConvertTo-Json | Out-File $StatePath
+
+            (Get-XKCD -Previous -StatePath $StatePath).num | Should -Be 99
+            (Get-XKCD -Next -StatePath $StatePath).num | Should -Be 100
         }
     }
 
