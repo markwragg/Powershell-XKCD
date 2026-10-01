@@ -193,7 +193,11 @@ Returns comics straight from the local cache instead of querying the API for eac
 
 Because Get-XKCDCache returns the whole local cache as objects, you can use Where-Object, Sort-Object, Group-Object etc. to query across every comic at once, e.g. to find every comic published in a given year.
 
-19) `Test-XKCD`, `Test-XKCD -Quiet` or `Test-XKCD -Detailed`
+19) `Get-XKCDCache -Year 2010` or `Find-XKCD -Query 'Spider' -Month 10 -Day 31`
+
+Both Get-XKCDCache and Find-XKCD also accept -Year, -Month and/or -Day directly, to restrict results to comics published in the given year(s), month(s) (1-12) and/or day(s) of the month, without needing a separate Where-Object. They can be combined, and used alongside each cmdlet's other filters (-Num on Get-XKCDCache; the text search and -Or/-And/-Not on Find-XKCD).
+
+20) `Test-XKCD`, `Test-XKCD -Quiet` or `Test-XKCD -Detailed`
 
 Checks whether any new comics have been published since you last viewed one with Show-XKCD or Get-XKCD -Show. By default it writes a friendly message to the console, e.g. `3 new XKCD comics available! The latest is #3290, published 26 August 2026.`. Add -Quiet to instead return `$true` or `$false`, or -Detailed to get a PSCustomObject reporting how many new comics are available and the last viewed vs latest comic numbers. Test-XKCD only reads the local record of the most recently viewed comic -- it never updates it. Use -Num to instead test whether a specific numbered comic exists, e.g. `Test-XKCD -Num 999999` returns `$false`.
 
@@ -205,45 +209,45 @@ If new comics are available, this will write a friendly message to the console s
 
 Add this to your PowerShell `profile.ps1` to have it run automatically when you open a new session and prompt you only when new comics are available -- or just run `Test-XKCD -AddToProfile` to add it for you, which creates the profile file (and its containing directory) if either doesn't already exist, and does nothing if the line is already there. Run `Test-XKCD -RemoveFromProfile` to remove it again.
 
-20) `Get-XKCDExplanation` or `Get-XKCDExplanation 2000`
+21) `Get-XKCDExplanation` or `Get-XKCDExplanation 2000`
 
 Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as plain text (the site's wiki markup is stripped out for readability) -- by default that's the only section retrieved. Add -Transcript and/or -Discussion (reader comments, from its explain xkcd talk page) to also retrieve those, or -Full for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. By default it returns the explanation of the latest comic; use -Num to request specific comics, which -- like Get-XKCD -- also accepts array and pipeline input. Get-XKCDExplanation also supports the same -Random (-Min/-Max), -Newest, and -Open/-Force parameters as Get-XKCD, e.g. `Get-XKCDExplanation -Random -Min 1 -Max 100` or `Get-XKCDExplanation -Newest 5`.
 
-21) `Get-XKCDExplanation -Show` or `Show-XKCDExplanation`
+22) `Get-XKCDExplanation -Show` or `Show-XKCDExplanation`
 
 Displays the comic's title, a hyperlink to its explain xkcd page, publish date, a hyperlink to it on xkcd.com, image, alt text, and explanation directly in the console instead of returning the explanation object. The image is only rendered if your terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol; otherwise you'll still see the rest. Bold and italic text is rendered as such, any code formatting in the explanation (e.g. `` `print("hi")` `` -- including plain indented code samples, which explain xkcd also renders as code) is highlighted, and both external links and links to other explain xkcd pages are rendered as working hyperlinks on the linked words themselves, without printing the url.
 
-22) `Show-XKCDExplanation 2000` or `Get-XKCD -Random | Show-XKCDExplanation`
+23) `Show-XKCDExplanation 2000` or `Get-XKCD -Random | Show-XKCDExplanation`
 
 Show-XKCDExplanation accepts the same -Num parameter as Get-XKCDExplanation (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
 
 ![Show-XKCDExplanation example usage](Media/show-xkcdexplanation-example.png)
 
-23) `Get-XKCDExplanation -Show -Explanation`, `-Transcript`, `-Discussion`, or `-Full`
+24) `Get-XKCDExplanation -Show -Explanation`, `-Transcript`, `-Discussion`, or `-Full`
 
 Use -Explanation, -Transcript, and/or -Discussion to display exactly the section(s) you want -- e.g. `-Transcript` on its own displays just the transcript, not the explanation -- each under its own heading. Combine them to display more than one, or use -Full to always display all three. By default (no switches) just the explanation is shown. -Explanation, -Transcript, and -Discussion display text only, without fetching or showing the comic image -- the title and a link to the explanation are still shown; -Full always shows the comic image alongside every section. These switches (and the same ones on Show-XKCDExplanation, e.g. `Show-XKCDExplanation 2000 -Full`) also control which sections Get-XKCDExplanation fetches in the first place, so displaying (or returning) just one section skips the API calls for the others.
 
-24) `Get-XKCD -Explain` or `Get-XKCD 2000 -Explain`
+25) `Get-XKCD -Explain` or `Get-XKCD 2000 -Explain`
 
 Use the -Explain switch to display a comic's explanation via Show-XKCDExplanation instead of returning the comic object, without needing to call Show-XKCDExplanation separately.
 
-25) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
+26) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
 
 Saves default preferences that other cmdlets in this module then use automatically, so you don't need to repeat the same parameters every time. Supported preferences: `-HighQuality` (Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation, Export-XKCDTerminalImage), `-Path` (Get-XKCD -Download, Export-XKCDTerminalImage), `-FullSearch` (Find-XKCD), `-CachePath` (Update-XKCDCache, Get-XKCDCache, Find-XKCD), `-StatePath` (Show-XKCD, Get-XKCD -Show/-Next/-Previous, Test-XKCD), and `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (Get-XKCDExplanation, Show-XKCDExplanation). Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences.
 
-26) `Get-XKCDDefault`
+27) `Get-XKCDDefault`
 
 Returns the default preferences currently saved by Set-XKCDDefault.
 
-27) `Export-XKCDTerminalImage` or `Export-XKCDTerminalImage 353 -Path C:\XKCD`
+28) `Export-XKCDTerminalImage` or `Export-XKCDTerminalImage 353 -Path C:\XKCD`
 
 Renders a comic using whichever inline graphics protocol your terminal supports and saves it to a file (as `<num>.xkcdterm.json`), alongside every field Get-XKCD returns for that comic, so it can be redisplayed instantly later -- via Import-XKCDTerminalImage or Show-XKCD -Path -- without needing network access or having to regenerate the image again (which for Sixel in particular can take a while for large images). Throws if the destination file already exists; use -Force to overwrite it.
 
-28) `Import-XKCDTerminalImage -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Import-XKCDTerminalImage`
+29) `Import-XKCDTerminalImage -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Import-XKCDTerminalImage`
 
 Writes just the saved image from a file created by Export-XKCDTerminalImage straight to the console, without fetching or re-rendering anything. Warns (but still displays it) if the saved image's graphics protocol doesn't match the one detected for your terminal.
 
-29) `Show-XKCD -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Show-XKCD`
+30) `Show-XKCD -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Show-XKCD`
 
 Displays the full comic -- title, image, and alt text -- from a file created by Export-XKCDTerminalImage instead of fetching it from the xkcd API, e.g. to view a comic offline. As with Import-XKCDTerminalImage, a warning is shown if the saved protocol doesn't match your terminal's.
 

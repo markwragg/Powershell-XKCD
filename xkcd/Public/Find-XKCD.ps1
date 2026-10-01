@@ -23,6 +23,11 @@ function Find-XKCD {
         always part of the reason it matched too). -Not terms are never included, since they describe what must
         be absent, not why a comic matched.
 
+        -Year, -Month and -Day further restrict matches to comics published in the given year(s), month(s)
+        (1-12) and/or day(s) of the month -- a comic must match one of each that's specified, alongside the
+        text search above, e.g. `Find-XKCD -Query 'Spider' -Year 2010,2011` returns comics with 'Spider' in
+        the title published in 2010 or 2011.
+
         Each returned comic also has a 'date' property (a [datetime] combining day/month/year, so results can be
         sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
         embedding the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in
@@ -81,6 +86,16 @@ function Find-XKCD {
         Returns each matching comic exactly as cached, without the 'date', 'html_img' or 'html' properties
         Find-XKCD normally adds (the 'query' property is still added).
 
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' -Year 2010
+
+        Returns comics with 'Spider' in the title that were published in 2010.
+
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' -Month 10 -Day 31
+
+        Returns comics with 'Spider' in the title that were published on October 31st of any year.
+
     .LINK
         https://xkcd.com/json.html
     #>
@@ -103,6 +118,20 @@ function Find-XKCD {
         # Search string(s) that must NONE be present for a comic to match, alongside -Query/-Or/-And.
         [string[]]
         $Not,
+
+        # Restricts matches to comics published in the specified year(s), alongside the text search.
+        [int[]]
+        $Year,
+
+        # Restricts matches to comics published in the specified month(s) (1-12), alongside the text search.
+        [ValidateRange(1, 12)]
+        [int[]]
+        $Month,
+
+        # Restricts matches to comics published on the specified day(s) of the month, alongside the text search.
+        [ValidateRange(1, 31)]
+        [int[]]
+        $Day,
 
         # Search the full text of the comic data, not just the title. Defaults to the value saved with
         # Set-XKCDDefault -FullSearch, if any.
@@ -143,8 +172,11 @@ function Find-XKCD {
             $MatchesAny = $MatchedTerms.Count -gt 0
             $MatchesAll = @($AndTerms | Where-Object { $Text -notlike "*$_*" }).Count -eq 0
             $MatchesNone = @($NotTerms | Where-Object { $Text -like "*$_*" }).Count -eq 0
+            $MatchesYear = -not $Year -or ([int]$_.year -in $Year)
+            $MatchesMonth = -not $Month -or ([int]$_.month -in $Month)
+            $MatchesDay = -not $Day -or ([int]$_.day -in $Day)
 
-            if ($MatchesAny -and $MatchesAll -and $MatchesNone) {
+            if ($MatchesAny -and $MatchesAll -and $MatchesNone -and $MatchesYear -and $MatchesMonth -and $MatchesDay) {
                 # 'query' is every term that was actually part of why this comic matched -- the -Query/-Or
                 # term(s) above, plus $AndTerms (all guaranteed present here, since $MatchesAll is true).
                 $Tag = (@($MatchedTerms) + @($AndTerms)) -join ', '

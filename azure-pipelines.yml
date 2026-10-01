@@ -198,6 +198,7 @@ stages:
 
           - pwsh: |
               .\Build\build.ps1 -TaskList 'Deploy'
+            name: Deploy
             displayName: "Deploy"
             condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
             env:
@@ -217,6 +218,13 @@ stages:
           - pwsh: |
               .\Build\build.ps1 -TaskList 'CreateBuildArtifact'
             displayName: "Create Build Artifact"
+
+          - pwsh: |
+              .\Build\build.ps1 -TaskList 'GitHubRelease'
+            displayName: "Create GitHub Release"
+            condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'), eq(variables['Deploy.DidDeploy'], 'true'))
+            env:
+              GITHUBPAT: $(GitHubPAT)
 
           - task: PublishBuildArtifacts@1
             displayName: "Publish Artifact: PowerShell Module Zipped for offline use"

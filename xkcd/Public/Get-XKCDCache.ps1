@@ -40,6 +40,17 @@ function Get-XKCDCache {
         Returns every comic published in 2010, by filtering the full local cache.
 
     .EXAMPLE
+        Get-XKCDCache -Year 2010
+
+        Returns every comic published in 2010, equivalent to the previous example but filtered within the cache
+        instead of by Where-Object.
+
+    .EXAMPLE
+        Get-XKCDCache -Month 10 -Day 31
+
+        Returns every comic published on October 31st, of any year.
+
+    .EXAMPLE
         Get-XKCDCache | Sort-Object -Property { $_.title.Length } -Descending | Select-Object -First 1 title
 
         Returns the comic with the longest title.
@@ -61,6 +72,22 @@ function Get-XKCDCache {
         [Alias('Number')]
         [int[]]
         $Num,
+
+        # Returns only comics published in the specified year(s). By default comics from every year are returned.
+        [int[]]
+        $Year,
+
+        # Returns only comics published in the specified month(s) (1-12). By default comics from every month are
+        # returned.
+        [ValidateRange(1, 12)]
+        [int[]]
+        $Month,
+
+        # Returns only comics published on the specified day(s) of the month. By default comics from every day
+        # are returned.
+        [ValidateRange(1, 31)]
+        [int[]]
+        $Day,
 
         # Path to where comic data is cached. By default this is within the module path, unless a default has
         # been saved with Set-XKCDDefault -CachePath.
@@ -89,11 +116,19 @@ function Get-XKCDCache {
         }
     }
     process {
-        $Comics = if ($Num) {
-            $AllComics | Where-Object { $_.num -in $Num }
+        $Comics = $AllComics
+
+        if ($Num) {
+            $Comics = $Comics | Where-Object { $_.num -in $Num }
         }
-        else {
-            $AllComics
+        if ($Year) {
+            $Comics = $Comics | Where-Object { [int]$_.year -in $Year }
+        }
+        if ($Month) {
+            $Comics = $Comics | Where-Object { [int]$_.month -in $Month }
+        }
+        if ($Day) {
+            $Comics = $Comics | Where-Object { [int]$_.day -in $Day }
         }
 
         if ($Raw) {

@@ -343,7 +343,7 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
 }
 
 
-# Create a versioned zip file of all staged files
+# Create a versioned zip of just the built module (xkcd.psd1/psm1 and friends)
 # NOTE: Admin Rights are needed if you run this locally
 Task 'CreateBuildArtifact' -Depends 'Init' {
     $lines
@@ -366,13 +366,93 @@ Task 'CreateBuildArtifact' -Depends 'Init' {
         $releaseFilename = "$($env:BHProjectName)-v$($manifestVersion.ToString()).zip"
         $releasePath = Join-Path -Path $ArtifactFolder -ChildPath $releaseFilename
         Write-Host "Creating release artifact [$releasePath] using manifest version [$manifestVersion]" -ForegroundColor 'Yellow'
-        Compress-Archive -Path "$StagingFolder/*" -DestinationPath $releasePath -Force -Verbose -ErrorAction 'Stop'
+        Compress-Archive -Path "$StagingModulePath/*" -DestinationPath $releasePath -Force -Verbose -ErrorAction 'Stop'
     }
     catch {
         throw "Could not create release artifact [$releasePath] using manifest version [$manifestVersion]"
     }
 
     Write-Output "`nFINISHED: Release artifact creation."
+}
+
+# Create a GitHub Release for the version just published, with the matching CHANGELOG.md section as
+# its notes and the zip built by CreateBuildArtifact attached as a release asset.
+Task 'GitHubRelease' -Depends 'Init' {
+    $lines
+
+    if (-not $env:GITHUBPAT) {
+        Write-Warning 'GITHUBPAT environment variable not set. Skipping GitHub release.'
+        return
+    }
+
+    # Derive owner/repo from the main repo's origin remote, the same way UpdateWiki derives the wiki URL.
+    $OriginUrl = (git config --get remote.origin.url) -replace '\.git$', ''
+    if ($OriginUrl -notmatch 'github\.com[:/](?<owner>[^/]+)/(?<repo>[^/]+)$') {
+        throw "Could not derive a GitHub owner/repo from origin remote [$OriginUrl]. Refusing to continue."
+    }
+    $Owner = $Matches.owner
+    $Repo = $Matches.repo
+
+    # Read back the version the Deploy task just bumped (it updates the manifest in place, so this
+    # step doesn't need Deploy's local $Version - each pipeline step is a separate pwsh process).
+    try {
+        $manifest = Test-ModuleManifest -Path $StagingModuleManifestPath -ErrorAction 'Stop'
+        $Version = $manifest.Version.ToString()
+    }
+    catch {
+        throw "Could not get manifest version from [$StagingModuleManifestPath]"
+    }
+
+    $Tag = "v$Version"
+
+    # This task only runs (per the pipeline step's condition) when the Deploy task's DidDeploy output
+    # variable was set, i.e. a real PSGallery publish just happened - the manifest version read above is
+    # otherwise bumped on every build regardless, so that alone can't be trusted as the "did we deploy"
+    # signal. Given that, the CHANGELOG.md section for $Version is expected to exist (Deploy writes it in
+    # the same branch that sets DidDeploy); its absence means something is inconsistent, so fail loudly
+    # rather than silently skipping the release.
+    $ChangeLogPath = Join-Path -Path $ProjectRoot -ChildPath 'CHANGELOG.md'
+    if (-not (Test-Path $ChangeLogPath)) {
+        throw "$ChangeLogPath not found, but the Deploy task reported a release was just published. Refusing to create a GitHub release without notes."
+    }
+
+    $ChangeLogContent = Get-Content $ChangeLogPath -Raw
+    if ($ChangeLogContent -notmatch "(?ms)^## \[$([regex]::Escape($Version))\].*?(?=^## \[|\z)") {
+        throw "No CHANGELOG.md entry for version [$Version], but the Deploy task reported a release was just published. Refusing to create a GitHub release without notes."
+    }
+    $ReleaseNotes = $Matches[0].Trim()
+
+    $Headers = @{
+        Authorization = "Bearer $env:GITHUBPAT"
+        Accept        = 'application/vnd.github+json'
+        'User-Agent'  = 'AzureDevOps-Build'
+    }
+
+    $ReleaseBody = @{
+        tag_name         = $Tag
+        target_commitish = $env:BUILD_SOURCEVERSION
+        name             = $Tag
+        body             = $ReleaseNotes
+    } | ConvertTo-Json
+
+    Write-Output "Creating GitHub release [$Tag] for [$Owner/$Repo]`n"
+
+    try {
+        $Release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Owner/$Repo/releases" -Method 'Post' -Headers $Headers -Body $ReleaseBody -ContentType 'application/json' -ErrorAction 'Stop'
+    }
+    catch {
+        throw "Failed to create GitHub release [$Tag] for [$Owner/$Repo]: $_"
+    }
+
+    # Attach the zipped module built by CreateBuildArtifact as a release asset
+    $ReleaseAsset = Get-ChildItem -Path $ArtifactFolder -Filter "$($env:BHProjectName)-$Tag.zip" -ErrorAction 'SilentlyContinue'
+    if ($ReleaseAsset) {
+        $UploadUrl = $Release.upload_url -replace '\{.*\}$', ''
+        Invoke-RestMethod -Uri "$UploadUrl`?name=$($ReleaseAsset.Name)" -Method 'Post' -Headers $Headers -InFile $ReleaseAsset.FullName -ContentType 'application/zip' | Out-Null
+    }
+    else {
+        Write-Warning "Could not find release artifact zip in [$ArtifactFolder] to attach to release [$Tag]. Run the 'CreateBuildArtifact' task first."
+    }
 }
 
 Task 'Deploy' -Depends 'Init' {
@@ -429,6 +509,11 @@ Task 'Deploy' -Depends 'Init' {
             # Update ChangeLog with deployment version and date
             $ChangeLog = $ChangeLog -replace '## !Deploy', "## [$Version] - $(Get-Date -Format 'yyyy-MM-dd')"
             Set-Content -Path "$ProjectRoot/CHANGELOG.md" -Value $ChangeLog
+
+            # Signal to the pipeline that a real deploy happened, so the GitHubRelease step (which runs as
+            # a later, separate step in the same job) knows to run - it can't infer this safely on its own,
+            # since $Version above is (re)computed on every build regardless of whether this branch runs.
+            Write-Host "##vso[task.setvariable variable=DidDeploy;isOutput=true]true"
         }
         else {
             Write-Host 'CHANGELOG.md did not contain ## !Deploy. Skipping deployment.'

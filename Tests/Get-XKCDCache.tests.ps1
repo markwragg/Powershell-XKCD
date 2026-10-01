@@ -139,6 +139,48 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Year/Month/Day Filter Tests' {
+
+        It 'Get-XKCDCache -Year returns only comics published in that year' {
+            $Result = Get-XKCDCache -Year 2010
+            @($Result).Count | Should -BeGreaterThan 0
+            $Result | ForEach-Object { $_.year | Should -Be '2010' }
+        }
+
+        It 'Get-XKCDCache -Year accepts an array of years' {
+            $Result = Get-XKCDCache -Year 2006, 2007
+            $Result | ForEach-Object { $_.year | Should -BeIn @('2006', '2007') }
+        }
+
+        It 'Get-XKCDCache -Month returns only comics published in that month' {
+            $Result = Get-XKCDCache -Year 2010 -Month 10
+            @($Result).Count | Should -BeGreaterThan 0
+            $Result | ForEach-Object { $_.month | Should -Be '10' }
+        }
+
+        It 'Get-XKCDCache -Day returns only comics published on that day' {
+            $Result = Get-XKCDCache -Year 2010 -Month 10 -Day 4
+            @($Result).Count | Should -Be 1
+            $Result.num | Should -Be 801
+        }
+
+        It 'Get-XKCDCache -Month rejects a value outside 1-12' {
+            { Get-XKCDCache -Month 13 } | Should -Throw
+        }
+
+        It 'Get-XKCDCache -Day rejects a value outside 1-31' {
+            { Get-XKCDCache -Day 32 } | Should -Throw
+        }
+
+        It 'Get-XKCDCache -Year/-Month/-Day can be combined with -Num' {
+            $Result = Get-XKCDCache -Num 801 -Year 2010
+            $Result.num | Should -Be 801
+
+            $Result = Get-XKCDCache -Num 801 -Year 2011
+            $Result | Should -BeNullOrEmpty
+        }
+    }
+
     Context 'Pipeline Input Tests' {
 
         It 'Get-XKCDCache accepts comic numbers via the pipeline' {

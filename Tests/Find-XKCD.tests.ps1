@@ -201,6 +201,33 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Year/Month/Day Parameter Tests' {
+
+        It 'Find-XKCD -Year restricts matches to that year' {
+            $Result = Find-XKCD -Query 'Spider' -Year 2016
+            @($Result).Count | Should -Be 1
+            $Result.num | Should -Be 1747
+        }
+
+        It 'Find-XKCD -Year excludes matches from other years' {
+            $Result = Find-XKCD -Query 'Spider' -Year 2099
+            $Result | Should -BeNullOrEmpty
+        }
+
+        It 'Find-XKCD -Month and -Day further restrict matches, alongside -Year' {
+            $Result = Find-XKCD -Query 'Spider' -Year 2016 -Month 10 -Day 17
+            $Result.num | Should -Be 1747
+        }
+
+        It 'Find-XKCD -Month rejects a value outside 1-12' {
+            { Find-XKCD -Query 'Spider' -Month 13 } | Should -Throw
+        }
+
+        It 'Find-XKCD -Day rejects a value outside 1-31' {
+            { Find-XKCD -Query 'Spider' -Day 32 } | Should -Throw
+        }
+    }
+
     Context 'Raw Parameter Tests' {
 
         It 'Find-XKCD -Raw does not add the date, html_img or html properties' {

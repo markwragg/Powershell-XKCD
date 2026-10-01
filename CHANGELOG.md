@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* Adds `-Year`, `-Month` and `-Day` parameters to `Find-XKCD` and `Get-XKCDCache`, to restrict results to comics published in the given year(s), month(s) (1-12) and/or day(s) of the month -- e.g. `Get-XKCDCache -Year 2010` or `Find-XKCD -Query 'Spider' -Year 2010,2011`. Each can be combined with the cmdlet's existing filters (`-Num` on `Get-XKCDCache`; the text search and `-Or`/`-And`/`-Not` on `Find-XKCD`).
+
 ## [1.10.2] - 2026-10-01
 
 * `Get-XKCDCache` now adds the same `date`/`html_img`/`html` properties and `XKCD.Comic` type name as `Get-XKCD`, so its output picks up the same curated list/table formatting instead of PowerShell's default property dump. Adds a `-Raw` switch to return each comic exactly as cached, as before.
@@ -46,7 +50,7 @@
 
 * Fixes the deploy pipeline so it actually publishes the combined single-file module built by the `CombineFunctionsAndStage` build task, rather than always silently falling back to the uncombined source. A psake `Properties` variable referenced in `deploy.psdeploy.ps1` was never visible there, since `Invoke-PSDeploy` dot-sources that file from inside PSDeploy's own module function scope, which module boundaries keep separate from psake's -- so every previous release was published from source regardless of whether `CombineFunctionsAndStage` had run.
 
-## [1.8.0] - 2026-08-30
+## [1.7.0] - 2026-08-30
 
 * Adds new `Export-XKCDTerminalImage` and `Import-XKCDTerminalImage` cmdlets. `Export-XKCDTerminalImage` renders a comic using whichever inline graphics protocol your terminal supports (Sixel, Kitty, or iTerm2) and saves it to a file -- alongside every field `Get-XKCD` returns for that comic -- so it can be redisplayed instantly later without needing network access or having to regenerate the image again (which for Sixel in particular can take a while for large images). Throws if the destination file already exists; use `-Force` to overwrite it. `Import-XKCDTerminalImage` writes the saved image from an exported file straight to the console, warning (but still displaying it) if the saved graphics protocol doesn't match the one detected for the current terminal.
 * Adds a `-Path` parameter to `Show-XKCD` to display the full comic -- title, image, and alt text -- from a file previously saved with `Export-XKCDTerminalImage`, instead of fetching it from the xkcd API. Accepts pipeline input, including directly from `Export-XKCDTerminalImage -PassThru` or `Get-ChildItem`.
