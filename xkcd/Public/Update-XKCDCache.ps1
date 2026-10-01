@@ -47,7 +47,7 @@ function Update-XKCDCache {
     if ($Max -gt $LastComic) {
         Write-Verbose 'Refreshing cache with latest comics'
 
-        ForEach ($Comic in $LastComic..$Max) {
+        ForEach ($Comic in ($LastComic + 1)..$Max) {
             Write-Progress -Activity "Refreshing cache" -Status "Reading comic #$Comic" -PercentComplete (($Comic / $Max) * 100)
             $AllComics += (Invoke-RestMethod "https://xkcd.com/$Comic/info.0.json")
         }

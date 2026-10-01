@@ -27723,19 +27723,6 @@
   },
   {
     "month": "3",
-    "num": 2126,
-    "link": "",
-    "year": "2019",
-    "news": "",
-    "safe_title": "Google Trends Maps",
-    "transcript": "",
-    "alt": "It's early 2020. The entire country is gripped with Marco Rubio fever except for Alaska, which is freaking out. You're frantically studying up on etiquette and/or sexting.",
-    "img": "https://imgs.xkcd.com/comics/google_trends_maps.png",
-    "title": "Google Trends Maps",
-    "day": "20"
-  },
-  {
-    "month": "3",
     "num": 2127,
     "link": "",
     "year": "2019",
@@ -27746,19 +27733,6 @@
     "img": "https://imgs.xkcd.com/comics/panama_canal.png",
     "title": "Panama Canal",
     "day": "22"
-  },
-  {
-    "month": "3",
-    "num": 2128,
-    "link": "",
-    "year": "2019",
-    "news": "",
-    "safe_title": "New Robot",
-    "transcript": "",
-    "alt": "\"Some worry that we'll soon have a surplus of search and rescue robots, compared to the number of actual people in situations requiring search and rescue. That's where our other robot project comes in...\"",
-    "img": "https://imgs.xkcd.com/comics/new_robot.png",
-    "title": "New Robot",
-    "day": "25"
   },
   {
     "month": "3",
@@ -38424,19 +38398,6 @@
   },
   {
     "month": "6",
-    "num": 2944,
-    "link": "",
-    "year": "2024",
-    "news": "",
-    "safe_title": "Magnet Fishing",
-    "transcript": "",
-    "alt": "The ten-way tie was judged a ten-way tie, so no one won the grand prize, a rare fishing monopole.",
-    "img": "https://imgs.xkcd.com/comics/magnet_fishing.png",
-    "title": "Magnet Fishing",
-    "day": "10"
-  },
-  {
-    "month": "6",
     "num": 2945,
     "link": "",
     "year": "2024",
@@ -42947,32 +42908,6 @@
   },
   {
     "month": "8",
-    "num": 3290,
-    "link": "",
-    "year": "2026",
-    "news": "",
-    "safe_title": "Trade",
-    "transcript": "",
-    "alt": "\"You legs may have a comparative advantage at running, but we arms have a competitive advantage at swinging hammers, so unless you accept that we're the dominant limbs and stop hogging the oxygen, that running advantage won't be around for long.\"",
-    "img": "https://imgs.xkcd.com/comics/trade.png",
-    "title": "Trade",
-    "day": "26"
-  },
-  {
-    "month": "8",
-    "num": 3291,
-    "link": "",
-    "year": "2026",
-    "news": "",
-    "safe_title": "Launchpad",
-    "transcript": "",
-    "alt": "It does come at the cost of some launchpad expansions and increased fuel requirements, but that all comes out of the facility's budget.",
-    "img": "https://imgs.xkcd.com/comics/launchpad.png",
-    "title": "Launchpad",
-    "day": "28"
-  },
-  {
-    "month": "8",
     "num": 3291,
     "link": "",
     "year": "2026",
@@ -43116,19 +43051,6 @@
   },
   {
     "month": "9",
-    "num": 3301,
-    "link": "",
-    "year": "2026",
-    "news": "<br />Previously: <a href=\"https://xkcd.com/1644/\">Stargazing</a> • <a href=\"https://xkcd.com/2017/\">Stargazing 2</a> • <a href=\"https://xkcd.com/2274/\">Stargazing 3</a> • <a href=\"https://xkcd.com/3072/\">Stargazing 4</a>",
-    "safe_title": "Stargazing 5",
-    "transcript": "",
-    "alt": "The sun and the moon appear the same size in the sky, even though in real life the sun is more than twice as big. Some call this lucky alignment coincidence; others say it's proof that sometimes things can be the same size.",
-    "img": "https://imgs.xkcd.com/comics/stargazing_5.png",
-    "title": "Stargazing 5",
-    "day": "21"
-  },
-  {
-    "month": "9",
     "num": 3302,
     "link": "",
     "year": "2026",
@@ -43165,5 +43087,18 @@
     "img": "https://imgs.xkcd.com/comics/jupiter_icy_moons_explorer.png",
     "title": "Jupiter Icy Moons Explorer",
     "day": "28"
+  },
+  {
+    "month": "9",
+    "num": 3305,
+    "link": "",
+    "year": "2026",
+    "news": "",
+    "safe_title": "Ground Effect",
+    "transcript": "",
+    "alt": "Runners looking for aerodynamic advantage typically wear sneakers because some fancy dress shoes can create wingtip vortices.",
+    "img": "https://imgs.xkcd.com/comics/ground_effect.png",
+    "title": "Ground Effect",
+    "day": "30"
   }
 ]

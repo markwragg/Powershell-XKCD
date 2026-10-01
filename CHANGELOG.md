@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* `Get-XKCDCache` now adds the same `date`/`html_img`/`html` properties and `XKCD.Comic` type name as `Get-XKCD`, so its output picks up the same curated list/table formatting instead of PowerShell's default property dump. Adds a `-Raw` switch to return each comic exactly as cached, as before.
+* Fixes `Update-XKCDCache` duplicating the newest already-cached comic every time it refreshed the cache with newer comics -- the refresh loop started at the existing last-cached comic number instead of the one after it, so that comic was re-fetched and appended a second time. This had already left 7 duplicate entries in the shipped cache (comics 2126, 2128, 2944, 3290, 3291, 3301, 3304), which have been removed.
+
 ## [1.10.1] - 2026-09-30
 
 * Adds `-Number` as an alias for the `-Num` parameter on `Get-XKCD`, `Get-XKCDCache`, `Test-XKCD`, `Get-XKCDExplanation`, `Show-XKCD`, `Show-XKCDExplanation` and `Export-XKCDTerminalImage`.

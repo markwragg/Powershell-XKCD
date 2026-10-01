@@ -92,13 +92,14 @@ Describe "Unit Tests PS$PSVersion" {
             ) | ConvertTo-Json | Out-File $CachePath
         }
 
-        It 'Refreshes the cache with newer comics when the server has newer comics than the cache' {
+        It 'Refreshes the cache with newer comics when the server has newer comics than the cache, without re-fetching or duplicating the comic that was already the newest cached one' {
             { Update-XKCDCache -CachePath $CachePath -Verbose 4>$null } | Should -Not -Throw
 
             $Cache = Get-Content $CachePath | ConvertFrom-Json
             ($Cache | Where-Object num -eq 5) | Should -Not -BeNullOrEmpty
             ($Cache | Where-Object num -eq 4) | Should -Not -BeNullOrEmpty
-            ($Cache | Measure-Object).Count | Should -BeGreaterThan 3
+            @($Cache).Count | Should -Be 5
+            @($Cache | Where-Object num -eq 3).Count | Should -Be 1
         }
     }
 }

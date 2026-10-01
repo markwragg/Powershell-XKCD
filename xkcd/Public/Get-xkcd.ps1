@@ -281,7 +281,7 @@
                 if ($Raw) {
                     return $Comic
                 }
-                return (Add-XKCDHtmlProperty -Comic $Comic)
+                return (Add-XKCDExtendedProperty -Comic $Comic)
             }
         }
     }

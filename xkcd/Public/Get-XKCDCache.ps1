@@ -12,6 +12,13 @@ function Get-XKCDCache {
         Unlike Find-XKCD, this cmdlet does not create or refresh the cache itself. It only checks whether the
         cache exists and is up to date, and warns you to run Update-XKCDCache if it isn't.
 
+        Each returned comic also has a 'date' property (a [datetime] combining day/month/year, so results can be
+        sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
+        embedding the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in
+        a link to the comic's page on xkcd.com. Comics are tagged with the 'XKCD.Comic' type name, so they pick
+        up the same curated list/table views as Get-XKCD -- a single comic as a list, several as a table. Use
+        -Raw to omit these and get each comic exactly as cached.
+
     .EXAMPLE
         Get-XKCDCache
 
@@ -37,6 +44,12 @@ function Get-XKCDCache {
 
         Returns the comic with the longest title.
 
+    .EXAMPLE
+        Get-XKCDCache -Raw
+
+        Returns every cached comic exactly as cached, without the 'date', 'html_img' or 'html' properties
+        Get-XKCDCache normally adds, and without the 'XKCD.Comic' type name that drives its table/list formatting.
+
     .LINK
         https://xkcd.com/json.html
     #>
@@ -52,7 +65,13 @@ function Get-XKCDCache {
         # Path to where comic data is cached. By default this is within the module path, unless a default has
         # been saved with Set-XKCDDefault -CachePath.
         [string]
-        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json')),
+
+        # Returns each comic object exactly as cached, without the 'date', 'html_img' or 'html' properties
+        # Get-XKCDCache normally adds, and without the 'XKCD.Comic' type name that drives its table/list
+        # formatting.
+        [switch]
+        $Raw
     )
     begin {
         if (Test-Path $CachePath) {
@@ -70,11 +89,21 @@ function Get-XKCDCache {
         }
     }
     process {
-        if ($Num) {
+        $Comics = if ($Num) {
             $AllComics | Where-Object { $_.num -in $Num }
         }
         else {
             $AllComics
+        }
+
+        if ($Raw) {
+            $Comics
+        }
+        else {
+            # Select-Object * clones each comic instead of tagging the shared $AllComics object directly --
+            # without it, piping in duplicate/overlapping -Num values (e.g. `4,4 | Get-XKCDCache`) would throw
+            # on the second Add-Member, since the same cached object would already carry those properties.
+            $Comics | Select-Object * | Add-XKCDExtendedProperty
         }
     }
 }

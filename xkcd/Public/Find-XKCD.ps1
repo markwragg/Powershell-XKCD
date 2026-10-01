@@ -155,7 +155,7 @@ function Find-XKCD {
                 # the second Add-Member, since it'd already carry a 'query' member from the first.
                 $Result = $_ | Select-Object * | Add-Member NoteProperty -Name 'query' -Value $Tag -PassThru
 
-                if ($Raw) { $Result } else { $Result | Add-XKCDHtmlProperty -TypeName 'XKCD.Comic.Search' }
+                if ($Raw) { $Result } else { $Result | Add-XKCDExtendedProperty -TypeName 'XKCD.Comic.Search' }
             }
         }
     }

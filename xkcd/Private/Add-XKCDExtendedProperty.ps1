@@ -1,4 +1,4 @@
-function Add-XKCDHtmlProperty {
+function Add-XKCDExtendedProperty {
     <#
     .SYNOPSIS
         Adds 'date', 'html_img' and 'html' script properties to a comic object, used by both Get-XKCD and Find-XKCD.
