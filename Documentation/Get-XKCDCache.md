@@ -6,7 +6,7 @@ Returns the details of comics @ https://xkcd.com/ from the local cache.
 ## SYNTAX
 
 ```
-Get-XKCDCache [[-Num] <Int32[]>] [-CachePath <String>] [-ProgressAction <ActionPreference>]
+Get-XKCDCache [[-Num] <Int32[]>] [-CachePath <String>] [-Raw] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
 
@@ -21,6 +21,15 @@ of comics at once.
 Unlike Find-XKCD, this cmdlet does not create or refresh the cache itself.
 It only checks whether the
 cache exists and is up to date, and warns you to run Update-XKCDCache if it isn't.
+
+Each returned comic also has a 'date' property (a \[datetime\] combining day/month/year, so results can be
+sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
+embedding the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'html' wraps that same tag in
+a link to the comic's page on xkcd.com.
+Comics are tagged with the 'XKCD.Comic' type name, so they pick
+up the same curated list/table views as Get-XKCD -- a single comic as a list, several as a table.
+Use
+-Raw to omit these and get each comic exactly as cached.
 
 ## EXAMPLES
 
@@ -59,6 +68,14 @@ Get-XKCDCache | Sort-Object -Property { $_.title.Length } -Descending | Select-O
 
 Returns the comic with the longest title.
 
+### EXAMPLE 6
+```
+Get-XKCDCache -Raw
+```
+
+Returns every cached comic exactly as cached, without the 'date', 'html_img' or 'html' properties
+Get-XKCDCache normally adds, and without the 'XKCD.Comic' type name that drives its table/list formatting.
+
 ## PARAMETERS
 
 ### -Num
@@ -92,6 +109,23 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Raw
+Returns each comic object exactly as cached, without the 'date', 'html_img' or 'html' properties
+Get-XKCDCache normally adds, and without the 'XKCD.Comic' type name that drives its table/list
+formatting.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
