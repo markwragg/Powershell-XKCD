@@ -6,8 +6,8 @@ Returns the details of comics @ https://xkcd.com/ from the local cache.
 ## SYNTAX
 
 ```
-Get-XKCDCache [[-Num] <Int32[]>] [-CachePath <String>] [-Raw] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+Get-XKCDCache [[-Num] <Int32[]>] [-Year <Int32[]>] [-Month <Int32[]>] [-Day <Int32[]>] [-CachePath <String>]
+ [-Raw] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -63,12 +63,27 @@ Returns every comic published in 2010, by filtering the full local cache.
 
 ### EXAMPLE 5
 ```
+Get-XKCDCache -Year 2010
+```
+
+Returns every comic published in 2010, equivalent to the previous example but filtered within the cache
+instead of by Where-Object.
+
+### EXAMPLE 6
+```
+Get-XKCDCache -Month 10 -Day 31
+```
+
+Returns every comic published on October 31st, of any year.
+
+### EXAMPLE 7
+```
 Get-XKCDCache | Sort-Object -Property { $_.title.Length } -Descending | Select-Object -First 1 title
 ```
 
 Returns the comic with the longest title.
 
-### EXAMPLE 6
+### EXAMPLE 8
 ```
 Get-XKCDCache -Raw
 ```
@@ -93,6 +108,56 @@ Required: False
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Year
+Returns only comics published in the specified year(s).
+By default comics from every year are returned.
+
+```yaml
+Type: Int32[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Month
+Returns only comics published in the specified month(s) (1-12).
+By default comics from every month are
+returned.
+
+```yaml
+Type: Int32[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Day
+Returns only comics published on the specified day(s) of the month.
+By default comics from every day
+are returned.
+
+```yaml
+Type: Int32[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

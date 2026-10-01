@@ -9,8 +9,9 @@ use the -FullSearch switch.
 ## SYNTAX
 
 ```
-Find-XKCD [-Query] <String[]> [-Or <String[]>] [-And <String[]>] [-Not <String[]>] [-FullSearch] [-Raw]
- [-CachePath <String>] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Find-XKCD [-Query] <String[]> [-Or <String[]>] [-And <String[]>] [-Not <String[]>] [-Year <Int32[]>]
+ [-Month <Int32[]>] [-Day <Int32[]>] [-FullSearch] [-Raw] [-CachePath <String>]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -37,6 +38,12 @@ that was actually part of why that comic matched: whichever -Query/-Or term(s) i
 always part of the reason it matched too).
 -Not terms are never included, since they describe what must
 be absent, not why a comic matched.
+
+-Year, -Month and -Day further restrict matches to comics published in the given year(s), month(s)
+(1-12) and/or day(s) of the month -- a comic must match one of each that's specified, alongside the
+text search above, e.g.
+\`Find-XKCD -Query 'Spider' -Year 2010,2011\` returns comics with 'Spider' in
+the title published in 2010 or 2011.
 
 Each returned comic also has a 'date' property (a \[datetime\] combining day/month/year, so results can be
 sorted or filtered by date), and 'html_img'/'html' properties, computed from those properties, for
@@ -118,6 +125,20 @@ Find-XKCD -Query 'Spider' -Raw
 Returns each matching comic exactly as cached, without the 'date', 'html_img' or 'html' properties
 Find-XKCD normally adds (the 'query' property is still added).
 
+### EXAMPLE 10
+```
+Find-XKCD -Query 'Spider' -Year 2010
+```
+
+Returns comics with 'Spider' in the title that were published in 2010.
+
+### EXAMPLE 11
+```
+Find-XKCD -Query 'Spider' -Month 10 -Day 31
+```
+
+Returns comics with 'Spider' in the title that were published on October 31st of any year.
+
 ## PARAMETERS
 
 ### -Query
@@ -172,6 +193,51 @@ Search string(s) that must NONE be present for a comic to match, alongside -Quer
 
 ```yaml
 Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Year
+Restricts matches to comics published in the specified year(s), alongside the text search.
+
+```yaml
+Type: Int32[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Month
+Restricts matches to comics published in the specified month(s) (1-12), alongside the text search.
+
+```yaml
+Type: Int32[]
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Day
+Restricts matches to comics published on the specified day(s) of the month, alongside the text search.
+
+```yaml
+Type: Int32[]
 Parameter Sets: (All)
 Aliases:
 
