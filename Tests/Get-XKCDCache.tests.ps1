@@ -134,8 +134,8 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Single.num | Should -Be 4
         }
 
-        It 'Get-XKCDCache -Number is an alias for -Num' {
-            (Get-XKCDCache -Number 4).num | Should -Be 4
+        It 'Get-XKCDCache -Num is an alias for -Number' {
+            (Get-XKCDCache -Num 4).num | Should -Be 4
         }
     }
 

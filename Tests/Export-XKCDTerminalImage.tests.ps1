@@ -80,10 +80,10 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Saved.year | Should -Be $Comic.year
         }
 
-        It 'Export-XKCDTerminalImage -Number is an alias for -Num' {
-            $ViaNumber = Export-XKCDTerminalImage -Number 353 -Path $TestDrive -PassThru -Force
+        It 'Export-XKCDTerminalImage -Num is an alias for -Number' {
+            $ViaNum = Export-XKCDTerminalImage -Num 353 -Path $TestDrive -PassThru -Force
 
-            $ViaNumber.FullName | Should -Be (Join-Path $TestDrive '353.xkcdterm.json')
+            $ViaNum.FullName | Should -Be (Join-Path $TestDrive '353.xkcdterm.json')
         }
     }
 

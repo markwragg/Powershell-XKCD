@@ -7,8 +7,8 @@ function Show-XKCD {
         The Show-XKCD cmdlet gets and displays a comic in the console: the title above, the image (if your
         terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol), and the alt text below.
 
-        By default, Show-XKCD displays the latest available comic. When you use the -Num parameter you can
-        specify one or more specific comics to display.
+        By default, Show-XKCD displays the latest available comic. When you use the -Number parameter (aliased as
+        -Num) you can specify one or more specific comics to display.
 
         Each displayed comic updates a local state file with two records: the highest-numbered comic you've ever
         viewed, used by Test-XKCD to report how many new comics have been published since you last checked; and
@@ -68,7 +68,7 @@ function Show-XKCD {
         anything from the xkcd API.
 
     .EXAMPLE
-        Export-XKCDTerminalImage -Num 353 -PassThru | Show-XKCD
+        Export-XKCDTerminalImage -Number 353 -PassThru | Show-XKCD
 
         Exports comic number 353 and immediately displays it from the saved file.
 
@@ -79,9 +79,9 @@ function Show-XKCD {
     Param(
         # Displays the specified comics. Accepts array input. By default the latest comic is displayed.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('Number')]
+        [Alias('Num')]
         [int[]]
-        $Num,
+        $Number,
 
         # Displays the comic after the one most recently displayed with Show-XKCD or Get-XKCD -Show, as recorded
         # in the state file. Displays nothing if you're already at the latest comic.
@@ -122,14 +122,14 @@ function Show-XKCD {
         if ($Next) {
             $Latest = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
             $NextNum = (Get-XKCDLastReadComic -StatePath $StatePath) + 1
-            if ($NextNum -le $Latest) { $Num = $NextNum } else { $Num = @() }
+            if ($NextNum -le $Latest) { $Number = $NextNum } else { $Number = @() }
         }
         elseif ($Previous) {
             $LastRead = Get-XKCDLastReadComic -StatePath $StatePath
-            if ($LastRead -gt 1) { $Num = $LastRead - 1 } else { $Num = @() }
+            if ($LastRead -gt 1) { $Number = $LastRead - 1 } else { $Number = @() }
         }
-        elseif (-not $Num) {
-            $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+        elseif (-not $Number) {
+            $Number = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
         }
     }
 
@@ -147,7 +147,7 @@ function Show-XKCD {
             return
         }
 
-        $Num | ForEach-Object {
+        $Number | ForEach-Object {
             $Comic = Get-XKCD -Num $_ -NoStateUpdate
             $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
 

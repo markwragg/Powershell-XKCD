@@ -143,7 +143,7 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
-    Context 'Num Tests' {
+    Context 'Number Tests' {
 
         It 'Returns $true when the specified comic exists' {
             Mock -ModuleName $Module Invoke-RestMethod { [pscustomobject]@{ num = 42 } }
@@ -165,10 +165,10 @@ Describe "Unit Tests PS$PSVersion" {
             { Test-XKCD -Num 1 -Detailed } | Should -Throw
         }
 
-        It 'Test-XKCD -Number is an alias for -Num' {
+        It 'Test-XKCD -Num is an alias for -Number' {
             Mock -ModuleName $Module Invoke-RestMethod { [pscustomobject]@{ num = 42 } }
 
-            Test-XKCD -Number 42 | Should -Be $true
+            Test-XKCD -Num 42 | Should -Be $true
         }
     }
 

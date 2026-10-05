@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* The `-Num` parameter on `Get-XKCD`, `Get-XKCDCache`, `Show-XKCD`, `Export-XKCDTerminalImage`, `Test-XKCD`, `Get-XKCDExplanation` and `Show-XKCDExplanation` is now named `-Number`, with `-Num` kept as an alias -- needed so piping a comic object (e.g. from `Find-XKCD`) still binds its `num` property by name. `Get-XKCD`'s and `Get-XKCDExplanation`'s `-Min`/`-Max` are similarly now named `-Minimum`/`-Maximum`, without an alias, since PowerShell already resolves `-Min`/`-Max` as unambiguous abbreviations of the new names.
+
 ## [1.10.3] - 2026-10-01
 
 * Adds `-Year`, `-Month` and `-Day` parameters to `Find-XKCD` and `Get-XKCDCache`, to restrict results to comics published in the given year(s), month(s) (1-12) and/or day(s) of the month -- e.g. `Get-XKCDCache -Year 2010` or `Find-XKCD -Query 'Spider' -Year 2010,2011`. Each can be combined with the cmdlet's existing filters (`-Num` on `Get-XKCDCache`; the text search and `-Or`/`-And`/`-Not` on `Find-XKCD`).

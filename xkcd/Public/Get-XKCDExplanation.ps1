@@ -25,8 +25,9 @@ function Get-XKCDExplanation {
         Use -Full with -Show to always display the comic image alongside every section.
 
         By default, Get-XKCDExplanation returns the explanation of the latest available comic. Use -Random to
-        get a random comic instead (optionally within a -Min/-Max range), or -Newest to get the specified
-        number of most recent comics. Use the -Num parameter to specify one or more specific comics to return.
+        get a random comic instead (optionally within a -Minimum/-Maximum range), or -Newest to get the specified
+        number of most recent comics. Use the -Number parameter (aliased as -Num) to specify one or more specific
+        comics to return.
 
     .EXAMPLE
         Get-XKCDExplanation
@@ -44,7 +45,7 @@ function Get-XKCDExplanation {
         This command gets a random comic and then returns its explanation.
 
     .EXAMPLE
-        Get-XKCDExplanation -Random -Min 100 -Max 150
+        Get-XKCDExplanation -Random -Minimum 100 -Maximum 150
 
         This command returns the explanation of a random comic numbered between 100 and 150.
 
@@ -60,7 +61,7 @@ function Get-XKCDExplanation {
         by default only the Explanation is fetched and returned.
 
     .EXAMPLE
-        Get-XKCDExplanation -Num 1 -Full -Show
+        Get-XKCDExplanation -Number 1 -Full -Show
 
         This command displays the title, image, explanation, transcript, and discussion of comic number 1
         directly in the console, each under its own heading (image display requires your terminal to support
@@ -68,7 +69,7 @@ function Get-XKCDExplanation {
         return the explanation object.
 
     .EXAMPLE
-        Get-XKCDExplanation -Num 1 -Explanation -Show
+        Get-XKCDExplanation -Number 1 -Explanation -Show
 
         This command displays just the explanation of comic number 1 as text, along with its title and a link,
         without fetching or displaying the comic image.
@@ -91,12 +92,12 @@ function Get-XKCDExplanation {
         # Use with -Random to define a lower bound range within which to return a comic.
         [Parameter(ParameterSetName = 'Random')]
         [int]
-        $Min = 1,
+        $Minimum = 1,
 
-        # Use with -Random to define an upper bound range within which to return a comic. -Max is the latest comic number by default.
+        # Use with -Random to define an upper bound range within which to return a comic. -Maximum is the latest comic number by default.
         [Parameter(ParameterSetName = 'Random')]
         [int]
-        $Max,
+        $Maximum,
 
         # Gets the explanation of the specified number of the most recent comics.
         [Parameter(ParameterSetName = 'Newest')]
@@ -151,9 +152,9 @@ function Get-XKCDExplanation {
 
         # Gets the explanation of the specified comics. Accepts array input. By default the latest comic is used.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('Number')]
+        [Alias('Num')]
         [int[]]
-        $Num = $Max,
+        $Number = $Maximum,
 
         # Bypass the confirmation check if you try to open more than 9 comics in your browser.
         [switch]
@@ -161,14 +162,14 @@ function Get-XKCDExplanation {
     )
 
     Begin {
-        if (-not $Max) { $Max = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
-        if ($Random)   { $Num = Get-Random -min $Min -max $Max }
-        if ($Newest)   { $Num = (($Max - $Newest) + 1)..$Max }
-        if (-not $Num) { $Num = $Max }
+        if (-not $Maximum) { $Maximum = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
+        if ($Random)   { $Number = Get-Random -min $Minimum -max $Maximum }
+        if ($Newest)   { $Number = (($Maximum - $Newest) + 1)..$Maximum }
+        if (-not $Number) { $Number = $Maximum }
     }
 
     Process {
-        $Num | ForEach-Object {
+        $Number | ForEach-Object {
             $ID = $_
 
             if ($Show) {
@@ -217,10 +218,10 @@ function Get-XKCDExplanation {
             }
 
             if ($Open) {
-                if ($Num.count -ge 10 -and -not $Force) {
-                    if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
+                if ($Number.count -ge 10 -and -not $Force) {
+                    if (-not $confirmation) { $confirmation = Read-Host "This will open $($Number.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
                 }
-                if ($confirmation -eq 'y' -or $Num.count -lt 10 -or $Force) {
+                if ($confirmation -eq 'y' -or $Number.count -lt 10 -or $Force) {
                     Start-Process "https://xkcd.com/$ID"
                 }
             }

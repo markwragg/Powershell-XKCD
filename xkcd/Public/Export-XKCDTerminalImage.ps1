@@ -20,8 +20,8 @@ function Export-XKCDTerminalImage {
         file records which protocol that was, and Import-XKCDTerminalImage and Show-XKCD -Path warn you if it
         doesn't match the protocol detected for the terminal you're importing it into.
 
-        By default, Export-XKCDTerminalImage exports the latest available comic. When you use the -Num
-        parameter you can specify one or more specific comics to export.
+        By default, Export-XKCDTerminalImage exports the latest available comic. When you use the -Number
+        parameter (aliased as -Num) you can specify one or more specific comics to export.
 
     .EXAMPLE
         Export-XKCDTerminalImage
@@ -29,7 +29,7 @@ function Export-XKCDTerminalImage {
         Exports the latest comic to the current working directory, e.g. as '.\2000.xkcdterm.json'.
 
     .EXAMPLE
-        Export-XKCDTerminalImage -Num 353 -Path C:\XKCD
+        Export-XKCDTerminalImage -Number 353 -Path C:\XKCD
 
         Exports comic number 353 to C:\XKCD, as 'C:\XKCD\353.xkcdterm.json'.
 
@@ -39,12 +39,12 @@ function Export-XKCDTerminalImage {
         Exports the 5 most recent comics to C:\XKCD.
 
     .EXAMPLE
-        Export-XKCDTerminalImage -Num 353 -PassThru | Import-XKCDTerminalImage
+        Export-XKCDTerminalImage -Number 353 -PassThru | Import-XKCDTerminalImage
 
         Exports comic number 353 and immediately redisplays it from the saved file.
 
     .EXAMPLE
-        Export-XKCDTerminalImage -Num 353 -Force
+        Export-XKCDTerminalImage -Number 353 -Force
 
         Re-exports comic number 353, overwriting '.\353.xkcdterm.json' if it already exists. Without -Force,
         Export-XKCDTerminalImage throws rather than overwrite an existing file.
@@ -56,9 +56,9 @@ function Export-XKCDTerminalImage {
     Param(
         # Exports the specified comics. Accepts array input. By default the latest comic is exported.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('Number')]
+        [Alias('Num')]
         [int[]]
-        $Num,
+        $Number,
 
         # Renders the higher resolution (_2x) version of the image, where available. Comics that do not have a
         # higher resolution version are rendered at the standard quality instead. Defaults to the value saved
@@ -84,13 +84,13 @@ function Export-XKCDTerminalImage {
     )
 
     Begin {
-        if (-not $Num) {
-            $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+        if (-not $Number) {
+            $Number = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
         }
     }
 
     Process {
-        $Num | ForEach-Object {
+        $Number | ForEach-Object {
             $Comic = Get-XKCD -Num $_ -NoStateUpdate
             $OutFile = Join-Path $Path "$($Comic.num).xkcdterm.json"
 

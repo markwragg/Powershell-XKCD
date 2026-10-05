@@ -136,8 +136,8 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $Comic.Explanation | Should -Not -Match '\{\{|\}\}|\[\['
         }
 
-        It 'Get-XKCDExplanation -Number is an alias for -Num' {
-            (Get-XKCDExplanation -Number 2000).Num | Should -Be 2000
+        It 'Get-XKCDExplanation -Num is an alias for -Number' {
+            (Get-XKCDExplanation -Num 2000).Num | Should -Be 2000
         }
     }
 

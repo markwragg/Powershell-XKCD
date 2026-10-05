@@ -11,10 +11,10 @@
         embedding the comic in HTML output -- 'html_img' is just the <img> tag, and 'html' wraps that same tag in
         a link to the comic's page on xkcd.com.
 
-        By default, Get-XKCD returns the details of the latest available comic. When you use the -Num parameter
-        (aliased as -Number) you can specify one or more specific comics to return.
+        By default, Get-XKCD returns the details of the latest available comic. When you use the -Number parameter
+        (aliased as -Num) you can specify one or more specific comics to return.
 
-        Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Num, -Random, and
+        Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Number, -Random, and
         -Newest, not just -Next/-Previous -- it updates a local state file with two records: the highest-numbered
         comic you've ever viewed, used by Test-XKCD to report how many new comics have been published since you
         last checked; and the comic most recently displayed or retrieved in either direction, used by -Next and
@@ -40,7 +40,7 @@
         This command returns the details of a random XKCD comic from the set of all available comics.
 
     .EXAMPLE
-        Get-XKCD -Random -Min 100 -Max 150
+        Get-XKCD -Random -Minimum 100 -Maximum 150
 
         This command returns a random comic that is numbered between 100 and 150.
 
@@ -128,12 +128,12 @@
         # Use with -Random to define a lower bound range within which to return a comic.
         [Parameter(ParameterSetName = 'Random')]
         [int]
-        $Min = 1,
+        $Minimum = 1,
 
-        # Use with -Random to define an upper bound range within which to return a comic. -Max is the latest comic number by default.
+        # Use with -Random to define an upper bound range within which to return a comic. -Maximum is the latest comic number by default.
         [Parameter(ParameterSetName = 'Random')
         ][int]
-        $Max,
+        $Maximum,
 
         # Gets the specified number of the most recent comics.
         [Parameter(ParameterSetName = 'Newest')]
@@ -189,9 +189,9 @@
 
         # Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('Number')]
+        [Alias('Num')]
         [int[]]
-        $Num = $Max,
+        $Number = $Maximum,
 
         # Bypass the confirmation check if you try to open more than 9 comics in your browser.
         [switch]
@@ -210,28 +210,28 @@
         $Raw
     )
     Begin {
-        if (-not $Max) { $Max = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
+        if (-not $Maximum) { $Maximum = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
 
         if ($Random) {
-            $Num = Get-Random -min $Min -max $Max
+            $Number = Get-Random -min $Minimum -max $Maximum
         }
         elseif ($Newest) {
-            $Num = (($Max - $Newest) + 1)..$Max
+            $Number = (($Maximum - $Newest) + 1)..$Maximum
         }
         elseif ($Next) {
             $NextNum = (Get-XKCDLastReadComic -StatePath $StatePath) + 1
-            if ($NextNum -le $Max) { $Num = $NextNum } else { $Num = @() }
+            if ($NextNum -le $Maximum) { $Number = $NextNum } else { $Number = @() }
         }
         elseif ($Previous) {
             $LastRead = Get-XKCDLastReadComic -StatePath $StatePath
-            if ($LastRead -gt 1) { $Num = $LastRead - 1 } else { $Num = @() }
+            if ($LastRead -gt 1) { $Number = $LastRead - 1 } else { $Number = @() }
         }
-        elseif (-not $Num) {
-            $Num = $Max
+        elseif (-not $Number) {
+            $Number = $Maximum
         }
     }
     Process {
-        $Num | ForEach-Object {
+        $Number | ForEach-Object {
             $ID = $_
             $Comic = Invoke-RestMethod "https://xkcd.com/$ID/info.0.json"
             $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)
@@ -266,10 +266,10 @@
             }
 
             if ($Open) {
-                if ($Num.count -ge 10 -and -not $Force) {
-                    if (-not $confirmation) { $confirmation = Read-Host "This will open $($Num.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
+                if ($Number.count -ge 10 -and -not $Force) {
+                    if (-not $confirmation) { $confirmation = Read-Host "This will open $($Number.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
                 }
-                if ($confirmation -eq 'y' -or $Num.count -lt 10 -or $Force) {
+                if ($confirmation -eq 'y' -or $Number.count -lt 10 -or $Force) {
                     Start-Process "https://xkcd.com/$ID"
                 }
             }

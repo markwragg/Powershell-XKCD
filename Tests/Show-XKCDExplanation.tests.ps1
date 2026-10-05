@@ -255,8 +255,8 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             { Get-XKCDCapturedOutput { Get-XKCD -Num 1 | Show-XKCDExplanation } } | Should -Not -Throw
         }
 
-        It 'Show-XKCDExplanation -Number is an alias for -Num' {
-            { Get-XKCDCapturedOutput { Show-XKCDExplanation -Number 2000 } } | Should -Not -Throw
+        It 'Show-XKCDExplanation -Num is an alias for -Number' {
+            { Get-XKCDCapturedOutput { Show-XKCDExplanation -Num 2000 } } | Should -Not -Throw
         }
     }
 

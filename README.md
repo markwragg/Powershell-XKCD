@@ -59,13 +59,13 @@ Html     : <a href="https://xkcd.com/3304"><img src="https://imgs.xkcd.com/comic
 
 Note that by default this does not display all of the available properties. To see all of the object properties returned, use `Get-XKCD | FL *`.
 
-2) `Get-XKCD 1` or `Get-XKCD -num 1`
+2) `Get-XKCD 1` or `Get-XKCD -Number 1`
 
-Specify the number of specific comic/s you want to access via the -num parameter (this is a positional parameter so it doesn't need to be explicitly used).
+Specify the number of specific comic/s you want to access via the -Number parameter (aliased as -Num; this is also a positional parameter so it doesn't need to be explicitly used).
 
-3) `Get-XKCD -Random` or `Get-XKCD -Random -Min 1 -Max 10`
+3) `Get-XKCD -Random` or `Get-XKCD -Random -Minimum 1 -Maximum 10`
 
-Use the -Random switch to get a Random comic. Optionally specify Min and Max if you want to restrict the randomisation to a specific range of comic numbers.
+Use the -Random switch to get a Random comic. Optionally specify Minimum and Maximum if you want to restrict the randomisation to a specific range of comic numbers.
 
 4) `Get-XKCD -Newest 5`
 
@@ -79,7 +79,7 @@ The number parameter accepts array input and pipeline input, so you can use eith
 
 Use the -Download switch to download the image/s of the returned comics. Optionally specify a path to download to, by default it uses the current directory. Note you can use -Download and -Path with any of the other parameters.
 
-7) `1..10 | % { Get-XKCD -Random -min 1 -max 100 | select num,img } | FT -AutoSize`
+7) `1..10 | % { Get-XKCD -Random -Minimum 1 -Maximum 100 | select num,img } | FT -AutoSize`
 
 This calls Get-XKCD 10 times in a foreach loop, returning the number and image URL of 10 random comics from the first 100 comics and presenting them as an autosized table.
 
@@ -95,13 +95,13 @@ Displays the comic's title, publish date, a hyperlink to it on xkcd.com, image, 
 
 10) `Show-XKCD -Next` or `Get-XKCD -Previous`
 
-Any comic returned or displayed by Get-XKCD or Show-XKCD -- the default latest comic, -Num, -Random, -Newest, or a previous -Next/-Previous -- is recorded as the one to page from next. Use -Next and -Previous to page through comics one at a time from wherever you left off, in either direction, without needing to know the comic number -- e.g. `Show-XKCD -Next` repeatedly steps forward one comic at a time, and -Previous steps back. This is tracked separately from the record Test-XKCD uses to report new comics, so paging backwards with -Previous doesn't affect that count. -Next returns/displays nothing once you reach the latest comic, and -Previous returns/displays nothing once you reach comic #1.
+Any comic returned or displayed by Get-XKCD or Show-XKCD -- the default latest comic, -Number, -Random, -Newest, or a previous -Next/-Previous -- is recorded as the one to page from next. Use -Next and -Previous to page through comics one at a time from wherever you left off, in either direction, without needing to know the comic number -- e.g. `Show-XKCD -Next` repeatedly steps forward one comic at a time, and -Previous steps back. This is tracked separately from the record Test-XKCD uses to report new comics, so paging backwards with -Previous doesn't affect that count. -Next returns/displays nothing once you reach the latest comic, and -Previous returns/displays nothing once you reach comic #1.
 
 If you want to look up a comic with Get-XKCD without moving this marker -- e.g. checking a specific comic out of curiosity, without losing your place -- add the `-NoStateUpdate` parameter.
 
 11) `Show-XKCD 2000` or `Get-XKCD -Random | Show-XKCD`
 
-Show-XKCD accepts the same -Num parameter as Get-XKCD (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
+Show-XKCD accepts the same -Number parameter (aliased as -Num) as Get-XKCD (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
 
 12) `Find-XKCD -Query 'Spider'`
 
@@ -185,9 +185,9 @@ Find-XKCD's results can be piped straight into Get-XKCD, e.g. to open matching c
 
 Creates the local comic cache used by Find-XKCD and Get-XKCDCache if it doesn't already exist, or refreshes it with any comics published since it was last updated. Find-XKCD refreshes this cache automatically, so you don't usually need to run this yourself -- unless you're using Get-XKCDCache, which only warns if the cache is out of date rather than refreshing it for you.
 
-17) `Get-XKCDCache` or `Get-XKCDCache -Num 4,5,6`
+17) `Get-XKCDCache` or `Get-XKCDCache -Number 4,5,6`
 
-Returns comics straight from the local cache instead of querying the API for each one, so it's a much faster way to work with comics you've already cached. With no parameters it returns every cached comic; use -Num (or pipe comic numbers in) to return specific ones.
+Returns comics straight from the local cache instead of querying the API for each one, so it's a much faster way to work with comics you've already cached. With no parameters it returns every cached comic; use -Number (or pipe comic numbers in) to return specific ones.
 
 18) `Get-XKCDCache | Where-Object year -eq 2010`
 
@@ -195,11 +195,11 @@ Because Get-XKCDCache returns the whole local cache as objects, you can use Wher
 
 19) `Get-XKCDCache -Year 2010` or `Find-XKCD -Query 'Spider' -Month 10 -Day 31`
 
-Both Get-XKCDCache and Find-XKCD also accept -Year, -Month and/or -Day directly, to restrict results to comics published in the given year(s), month(s) (1-12) and/or day(s) of the month, without needing a separate Where-Object. They can be combined, and used alongside each cmdlet's other filters (-Num on Get-XKCDCache; the text search and -Or/-And/-Not on Find-XKCD).
+Both Get-XKCDCache and Find-XKCD also accept -Year, -Month and/or -Day directly, to restrict results to comics published in the given year(s), month(s) (1-12) and/or day(s) of the month, without needing a separate Where-Object. They can be combined, and used alongside each cmdlet's other filters (-Number on Get-XKCDCache; the text search and -Or/-And/-Not on Find-XKCD).
 
 20) `Test-XKCD`, `Test-XKCD -Quiet` or `Test-XKCD -Detailed`
 
-Checks whether any new comics have been published since you last viewed one with Show-XKCD or Get-XKCD -Show. By default it writes a friendly message to the console, e.g. `3 new XKCD comics available! The latest is #3290, published 26 August 2026.`. Add -Quiet to instead return `$true` or `$false`, or -Detailed to get a PSCustomObject reporting how many new comics are available and the last viewed vs latest comic numbers. Test-XKCD only reads the local record of the most recently viewed comic -- it never updates it. Use -Num to instead test whether a specific numbered comic exists, e.g. `Test-XKCD -Num 999999` returns `$false`.
+Checks whether any new comics have been published since you last viewed one with Show-XKCD or Get-XKCD -Show. By default it writes a friendly message to the console, e.g. `3 new XKCD comics available! The latest is #3290, published 26 August 2026.`. Add -Quiet to instead return `$true` or `$false`, or -Detailed to get a PSCustomObject reporting how many new comics are available and the last viewed vs latest comic numbers. Test-XKCD only reads the local record of the most recently viewed comic -- it never updates it. Use -Number to instead test whether a specific numbered comic exists, e.g. `Test-XKCD -Number 999999` returns `$false`.
 
 ```powershell
  if (Test-XKCD -Quiet) { Test-XKCD }
@@ -211,7 +211,7 @@ Add this to your PowerShell `profile.ps1` to have it run automatically when you 
 
 21) `Get-XKCDExplanation` or `Get-XKCDExplanation 2000`
 
-Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as plain text (the site's wiki markup is stripped out for readability) -- by default that's the only section retrieved. Add -Transcript and/or -Discussion (reader comments, from its explain xkcd talk page) to also retrieve those, or -Full for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. By default it returns the explanation of the latest comic; use -Num to request specific comics, which -- like Get-XKCD -- also accepts array and pipeline input. Get-XKCDExplanation also supports the same -Random (-Min/-Max), -Newest, and -Open/-Force parameters as Get-XKCD, e.g. `Get-XKCDExplanation -Random -Min 1 -Max 100` or `Get-XKCDExplanation -Newest 5`.
+Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as plain text (the site's wiki markup is stripped out for readability) -- by default that's the only section retrieved. Add -Transcript and/or -Discussion (reader comments, from its explain xkcd talk page) to also retrieve those, or -Full for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. By default it returns the explanation of the latest comic; use -Number to request specific comics, which -- like Get-XKCD -- also accepts array and pipeline input. Get-XKCDExplanation also supports the same -Random (-Minimum/-Maximum), -Newest, and -Open/-Force parameters as Get-XKCD, e.g. `Get-XKCDExplanation -Random -Minimum 1 -Maximum 100` or `Get-XKCDExplanation -Newest 5`.
 
 22) `Get-XKCDExplanation -Show` or `Show-XKCDExplanation`
 
@@ -219,7 +219,7 @@ Displays the comic's title, a hyperlink to its explain xkcd page, publish date, 
 
 23) `Show-XKCDExplanation 2000` or `Get-XKCD -Random | Show-XKCDExplanation`
 
-Show-XKCDExplanation accepts the same -Num parameter as Get-XKCDExplanation (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
+Show-XKCDExplanation accepts the same -Number parameter (aliased as -Num) as Get-XKCDExplanation (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from Get-XKCD or Find-XKCD.
 
 ![Show-XKCDExplanation example usage](Media/show-xkcdexplanation-example.png)
 

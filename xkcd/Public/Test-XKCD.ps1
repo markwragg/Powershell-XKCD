@@ -13,7 +13,7 @@ function Test-XKCD {
         and instead return a boolean. Use -Detailed to return a PSCustomObject describing how many new comics
         are available, alongside the last viewed and latest comic numbers.
 
-        Use -Num to instead test whether a specific numbered comic exists, returning $true or $false.
+        Use -Number to instead test whether a specific numbered comic exists, returning $true or $false.
 
         Use -AddToProfile to add `if (Test-XKCD -Quiet) { Test-XKCD }` to your PowerShell profile (creating it,
         and its containing directory, if either doesn't already exist), so new comics are reported automatically
@@ -38,7 +38,7 @@ function Test-XKCD {
         Returns a PSCustomObject detailing whether new comics are available, how many, and the last viewed vs latest comic numbers.
 
     .EXAMPLE
-        Test-XKCD -Num 999999
+        Test-XKCD -Number 999999
 
         Returns $true if comic #999999 exists, otherwise $false.
 
@@ -70,10 +70,10 @@ function Test-XKCD {
     Param(
         # Tests whether the specified comic number exists, returning $true or $false. When used, no other
         # parameters are considered.
-        [Parameter(ParameterSetName = 'Num', Mandatory, Position = 0)]
-        [Alias('Number')]
+        [Parameter(ParameterSetName = 'Number', Mandatory, Position = 0)]
+        [Alias('Num')]
         [int]
-        $Num,
+        $Number,
 
         # Adds `if (Test-XKCD -Quiet) { Test-XKCD }` to your PowerShell profile (creating it, and its containing
         # directory, if either doesn't already exist), so new comics are reported automatically whenever you
@@ -168,9 +168,9 @@ function Test-XKCD {
         return
     }
 
-    if ($PSCmdlet.ParameterSetName -eq 'Num') {
+    if ($PSCmdlet.ParameterSetName -eq 'Number') {
         try {
-            Invoke-RestMethod "https://xkcd.com/$Num/info.0.json" -ErrorAction Stop | Out-Null
+            Invoke-RestMethod "https://xkcd.com/$Number/info.0.json" -ErrorAction Stop | Out-Null
             return $true
         }
         catch {

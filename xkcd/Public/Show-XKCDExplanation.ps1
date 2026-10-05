@@ -19,7 +19,7 @@ function Show-XKCDExplanation {
         are still shown. Use -Full to always display the comic image alongside every section.
 
         By default, Show-XKCDExplanation displays the explanation of the latest available comic. When you use
-        the -Num parameter you can specify one or more specific comics to display.
+        the -Number parameter (aliased as -Num) you can specify one or more specific comics to display.
 
     .EXAMPLE
         Show-XKCDExplanation
@@ -72,9 +72,9 @@ function Show-XKCDExplanation {
     Param(
         # Displays the explanation of the specified comics. Accepts array input. By default the latest comic is displayed.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('Number')]
+        [Alias('Num')]
         [int[]]
-        $Num,
+        $Number,
 
         # Displays the comic's "Explanation" section. Combine with -Transcript and/or -Discussion to display more
         # than one section; on its own (without -Full), no comic image is fetched or displayed -- the title and
@@ -108,11 +108,11 @@ function Show-XKCDExplanation {
     )
 
     Begin {
-        if (-not $Num) { $Num = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
+        if (-not $Number) { $Number = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num }
     }
 
     Process {
-        $Num | ForEach-Object {
+        $Number | ForEach-Object {
             # Forwarded so Get-XKCDExplanation only fetches the sections that are actually about to be displayed.
             $ExplanationResult = Get-XKCDExplanation -Num $_ -Explanation:$Explanation -Transcript:$Transcript -Discussion:$Discussion -Full:$Full
             if (-not $ExplanationResult) { return }

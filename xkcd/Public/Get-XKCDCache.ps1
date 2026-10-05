@@ -25,7 +25,7 @@ function Get-XKCDCache {
         Returns every comic in the local cache.
 
     .EXAMPLE
-        Get-XKCDCache -Num 4,5,6
+        Get-XKCDCache -Number 4,5,6
 
         Returns comics 4, 5 and 6 from the local cache.
 
@@ -69,9 +69,9 @@ function Get-XKCDCache {
         # Returns only the specified comic numbers from the cache. Accepts array and pipeline input. By default every
         # cached comic is returned.
         [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
-        [Alias('Number')]
+        [Alias('Num')]
         [int[]]
-        $Num,
+        $Number,
 
         # Returns only comics published in the specified year(s). By default comics from every year are returned.
         [int[]]
@@ -118,8 +118,8 @@ function Get-XKCDCache {
     process {
         $Comics = $AllComics
 
-        if ($Num) {
-            $Comics = $Comics | Where-Object { $_.num -in $Num }
+        if ($Number) {
+            $Comics = $Comics | Where-Object { $_.num -in $Number }
         }
         if ($Year) {
             $Comics = $Comics | Where-Object { [int]$_.year -in $Year }
@@ -136,7 +136,7 @@ function Get-XKCDCache {
         }
         else {
             # Select-Object * clones each comic instead of tagging the shared $AllComics object directly --
-            # without it, piping in duplicate/overlapping -Num values (e.g. `4,4 | Get-XKCDCache`) would throw
+            # without it, piping in duplicate/overlapping -Number values (e.g. `4,4 | Get-XKCDCache`) would throw
             # on the second Add-Member, since the same cached object would already carry those properties.
             $Comics | Select-Object * | Add-XKCDExtendedProperty
         }

@@ -97,8 +97,8 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             { Get-XKCDCapturedOutput { Get-XKCD -Num 5 | Show-XKCD } } | Should -Not -Throw
         }
 
-        It 'Show-XKCD -Number is an alias for -Num' {
-            { Get-XKCDCapturedOutput { Show-XKCD -Number 2000 } } | Should -Not -Throw
+        It 'Show-XKCD -Num is an alias for -Number' {
+            { Get-XKCDCapturedOutput { Show-XKCD -Num 2000 } } | Should -Not -Throw
         }
     }
 
