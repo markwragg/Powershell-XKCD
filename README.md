@@ -4,7 +4,7 @@
 
 This PowerShell module contains cmdlets that interact with and enrich the results of the [XKCD API](https://xkcd.com/json.html) to return the details of the excellent webcomics @ https://xkcd.com as PowerShell objects.
 
-Modern Terminals can display the comics directly in the terminal (on Windows, Linux and MacOS where supported) via the `Show-XKCD` cmdlet, or you can download comic images or open URLs via your default browser. Terminal based images can also be exported to a file, so you can redisplay them at any time from a local file. The module also includes a `Find-XKCD` for filtering/searching for comics, that works from a local cache of the comic API results for speed, and updates this cache with the latest comics every time it is used.
+Modern Terminals can display the comics directly in the terminal (on Windows, Linux and MacOS where supported) via the `Show-XKCD` cmdlet, or you can download comic images or open URLs via your default browser. Terminal based images can also be exported to a file, so you can redisplay them at any time from a local file. The module also includes a `Find-XKCD` cmdlet for filtering/searching for comics, that works from a local cache of the comic API results for speed, and updates this cache with the latest comics every time it is used.
 
 ![An example of an XKCD comic being displayed in Windows Terminal via Show-XKCD](Media/xkcd-windows-terminal-example.png)
 
