@@ -66,6 +66,9 @@ function Show-XKCDExplanation {
         Shorthand equivalent of: Get-XKCDExplanation | Show-XKCDExplanation
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCDExplanation
+
+    .LINK
         https://www.explainxkcd.com/wiki/index.php/Main_Page
     #>
     [cmdletbinding()]

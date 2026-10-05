@@ -28,6 +28,9 @@ function Import-XKCDTerminalImage {
         Exports comic number 353 and immediately redisplays it from the saved file.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Import-XKCDTerminalImage
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding()]

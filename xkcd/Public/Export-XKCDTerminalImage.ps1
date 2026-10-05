@@ -50,6 +50,9 @@ function Export-XKCDTerminalImage {
         Export-XKCDTerminalImage throws rather than overwrite an existing file.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Export-XKCDTerminalImage
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding(SupportsShouldProcess)]

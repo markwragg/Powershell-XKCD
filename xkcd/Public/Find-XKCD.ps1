@@ -97,6 +97,9 @@ function Find-XKCD {
         Returns comics with 'Spider' in the title that were published on October 31st of any year.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Find-XKCD
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding()]

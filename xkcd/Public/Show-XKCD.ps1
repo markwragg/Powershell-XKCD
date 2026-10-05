@@ -73,6 +73,9 @@ function Show-XKCD {
         Exports comic number 353 and immediately displays it from the saved file.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCD
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding(SupportsShouldProcess, DefaultParameterSetName = 'Specific')]

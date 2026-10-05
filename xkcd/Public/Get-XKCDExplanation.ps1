@@ -80,6 +80,9 @@ function Get-XKCDExplanation {
         This command returns the explanation of the latest comic and opens it in your default web browser.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDExplanation
+
+    .LINK
         https://www.explainxkcd.com/wiki/index.php/Main_Page
     #>
     [cmdletbinding(DefaultParameterSetName = 'Specific')]

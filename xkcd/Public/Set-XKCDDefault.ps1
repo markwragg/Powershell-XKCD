@@ -50,6 +50,9 @@ function Set-XKCDDefault {
         Removes all saved default preferences.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Set-XKCDDefault
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding(SupportsShouldProcess)]

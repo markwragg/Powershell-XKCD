@@ -64,6 +64,9 @@ function Test-XKCD {
         if the profile doesn't exist or doesn't contain that line.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Test-XKCD
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding(DefaultParameterSetName = 'Default', SupportsShouldProcess)]

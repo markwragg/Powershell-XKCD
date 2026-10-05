@@ -62,6 +62,9 @@ function Get-XKCDCache {
         Get-XKCDCache normally adds, and without the 'XKCD.Comic' type name that drives its table/list formatting.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDCache
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding()]

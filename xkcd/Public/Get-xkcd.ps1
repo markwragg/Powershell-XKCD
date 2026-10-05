@@ -116,6 +116,9 @@
         This command returns a plain HTML <img> tag (with no surrounding link) for the latest comic.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCD
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding(DefaultParameterSetName = 'Specific', SupportsShouldProcess = $true)]

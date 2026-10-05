@@ -14,6 +14,9 @@ function Get-XKCDDefault {
         Returns the currently saved default preferences.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDDefault
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding()]

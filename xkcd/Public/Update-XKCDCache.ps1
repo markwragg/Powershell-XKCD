@@ -16,6 +16,9 @@ function Update-XKCDCache {
         Updates the local XKCD.json file with full data from the XKCD API.
 
     .LINK
+        https://github.com/markwragg/Powershell-XKCD/wiki/Update-XKCDCache
+
+    .LINK
         https://xkcd.com/json.html
     #>
     [cmdletbinding(SupportsShouldProcess)]
