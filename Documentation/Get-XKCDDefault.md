@@ -70,5 +70,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## RELATED LINKS
 
+[https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDDefault](https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDDefault)
+
 [https://xkcd.com/json.html](https://xkcd.com/json.html)
 

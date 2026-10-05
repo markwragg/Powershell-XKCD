@@ -236,5 +236,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## RELATED LINKS
 
+[https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCDExplanation](https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCDExplanation)
+
 [https://www.explainxkcd.com/wiki/index.php/Main_Page](https://www.explainxkcd.com/wiki/index.php/Main_Page)
 

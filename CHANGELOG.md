@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.10.5] - 2026-10-05
 
 * Added `.Link` entries for each cmdlet so that `Get-Help <cmdlet> -Online` opens the GitHub Wiki based help page.
 

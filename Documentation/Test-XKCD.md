@@ -270,5 +270,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## RELATED LINKS
 
+[https://github.com/markwragg/Powershell-XKCD/wiki/Test-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Test-XKCD)
+
 [https://xkcd.com/json.html](https://xkcd.com/json.html)
 
