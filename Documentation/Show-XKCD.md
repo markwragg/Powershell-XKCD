@@ -7,7 +7,7 @@ Displays a comic's title, image, and alt text in the console.
 
 ### Specific (Default)
 ```
-Show-XKCD [[-Num] <Int32[]>] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>]
+Show-XKCD [[-Number] <Int32[]>] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>]
  [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -34,8 +34,8 @@ The Show-XKCD cmdlet gets and displays a comic in the console: the title above, 
 terminal supports the Sixel, Kitty, or iTerm2 inline image graphics protocol), and the alt text below.
 
 By default, Show-XKCD displays the latest available comic.
-When you use the -Num parameter you can
-specify one or more specific comics to display.
+When you use the -Number parameter (aliased as
+-Num) you can specify one or more specific comics to display.
 
 Each displayed comic updates a local state file with two records: the highest-numbered comic you've ever
 viewed, used by Test-XKCD to report how many new comics have been published since you last checked; and
@@ -119,14 +119,14 @@ anything from the xkcd API.
 
 ### EXAMPLE 9
 ```
-Export-XKCDTerminalImage -Num 353 -PassThru | Show-XKCD
+Export-XKCDTerminalImage -Number 353 -PassThru | Show-XKCD
 ```
 
 Exports comic number 353 and immediately displays it from the saved file.
 
 ## PARAMETERS
 
-### -Num
+### -Number
 Displays the specified comics.
 Accepts array input.
 By default the latest comic is displayed.
@@ -134,7 +134,7 @@ By default the latest comic is displayed.
 ```yaml
 Type: Int32[]
 Parameter Sets: Specific
-Aliases: Number
+Aliases: Num
 
 Required: False
 Position: 1

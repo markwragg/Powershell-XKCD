@@ -6,7 +6,7 @@ Returns the details of comics @ https://xkcd.com/ from the local cache.
 ## SYNTAX
 
 ```
-Get-XKCDCache [[-Num] <Int32[]>] [-Year <Int32[]>] [-Month <Int32[]>] [-Day <Int32[]>] [-CachePath <String>]
+Get-XKCDCache [[-Number] <Int32[]>] [-Year <Int32[]>] [-Month <Int32[]>] [-Day <Int32[]>] [-CachePath <String>]
  [-Raw] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -42,7 +42,7 @@ Returns every comic in the local cache.
 
 ### EXAMPLE 2
 ```
-Get-XKCDCache -Num 4,5,6
+Get-XKCDCache -Number 4,5,6
 ```
 
 Returns comics 4, 5 and 6 from the local cache.
@@ -93,7 +93,7 @@ Get-XKCDCache normally adds, and without the 'XKCD.Comic' type name that drives 
 
 ## PARAMETERS
 
-### -Num
+### -Number
 Returns only the specified comic numbers from the cache.
 Accepts array and pipeline input.
 By default every
@@ -102,7 +102,7 @@ cached comic is returned.
 ```yaml
 Type: Int32[]
 Parameter Sets: (All)
-Aliases: Number
+Aliases: Num
 
 Required: False
 Position: 1

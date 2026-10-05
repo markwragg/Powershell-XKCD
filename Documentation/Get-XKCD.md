@@ -9,15 +9,15 @@ Optionally can download the comic images.
 ### Specific (Default)
 ```
 Get-XKCD [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [[-Num] <Int32[]>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+ [[-Number] <Int32[]>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### Random
 ```
-Get-XKCD [-Random] [-Min <Int32>] [-Max <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>]
- [-HighQuality] [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Get-XKCD [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-Download] [-Open] [-Show] [-Explain]
+ [-Path <String>] [-HighQuality] [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
@@ -51,10 +51,10 @@ embedding the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'h
 a link to the comic's page on xkcd.com.
 
 By default, Get-XKCD returns the details of the latest available comic.
-When you use the -Num parameter
-(aliased as -Number) you can specify one or more specific comics to return.
+When you use the -Number parameter
+(aliased as -Num) you can specify one or more specific comics to return.
 
-Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Num, -Random, and
+Whenever Get-XKCD returns one or more comics -- including the default latest comic, -Number, -Random, and
 -Newest, not just -Next/-Previous -- it updates a local state file with two records: the highest-numbered
 comic you've ever viewed, used by Test-XKCD to report how many new comics have been published since you
 last checked; and the comic most recently displayed or retrieved in either direction, used by -Next and
@@ -93,7 +93,7 @@ This command returns the details of a random XKCD comic from the set of all avai
 
 ### EXAMPLE 4
 ```
-Get-XKCD -Random -Min 100 -Max 150
+Get-XKCD -Random -Minimum 100 -Maximum 150
 ```
 
 This command returns a random comic that is numbered between 100 and 150.
@@ -215,7 +215,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Min
+### -Minimum
 Use with -Random to define a lower bound range within which to return a comic.
 
 ```yaml
@@ -230,9 +230,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Max
+### -Maximum
 Use with -Random to define an upper bound range within which to return a comic.
--Max is the latest comic number by default.
+-Maximum is the latest comic number by default.
 
 ```yaml
 Type: Int32
@@ -412,18 +412,18 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Num
+### -Number
 Gets the specified comics.
 Accepts array input.
 
 ```yaml
 Type: Int32[]
 Parameter Sets: Specific
-Aliases: Number
+Aliases: Num
 
 Required: False
 Position: 1
-Default value: $Max
+Default value: $Maximum
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```

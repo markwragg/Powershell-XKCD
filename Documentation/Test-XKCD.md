@@ -11,9 +11,9 @@ Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [-ProgressAction <ActionPre
  [<CommonParameters>]
 ```
 
-### Num
+### Number
 ```
-Test-XKCD [-Num] <Int32> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Test-XKCD [-Number] <Int32> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### AddToProfile
@@ -39,7 +39,7 @@ and instead return a boolean.
 Use -Detailed to return a PSCustomObject describing how many new comics
 are available, alongside the last viewed and latest comic numbers.
 
-Use -Num to instead test whether a specific numbered comic exists, returning $true or $false.
+Use -Number to instead test whether a specific numbered comic exists, returning $true or $false.
 
 Use -AddToProfile to add \`if (Test-XKCD -Quiet) { Test-XKCD }\` to your PowerShell profile (creating it,
 and its containing directory, if either doesn't already exist), so new comics are reported automatically
@@ -75,7 +75,7 @@ Returns a PSCustomObject detailing whether new comics are available, how many, a
 
 ### EXAMPLE 4
 ```
-Test-XKCD -Num 999999
+Test-XKCD -Number 999999
 ```
 
 Returns $true if comic #999999 exists, otherwise $false.
@@ -111,15 +111,15 @@ if the profile doesn't exist or doesn't contain that line.
 
 ## PARAMETERS
 
-### -Num
+### -Number
 Tests whether the specified comic number exists, returning $true or $false.
 When used, no other
 parameters are considered.
 
 ```yaml
 Type: Int32
-Parameter Sets: Num
-Aliases: Number
+Parameter Sets: Number
+Aliases: Num
 
 Required: True
 Position: 1

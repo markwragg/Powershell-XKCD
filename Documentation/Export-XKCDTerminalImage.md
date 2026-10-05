@@ -7,7 +7,7 @@ and saves the result to a file, so it can be redisplayed later with Import-XKCDT
 ## SYNTAX
 
 ```
-Export-XKCDTerminalImage [[-Num] <Int32[]>] [-HighQuality] [-Path <String>] [-PassThru] [-Force]
+Export-XKCDTerminalImage [[-Number] <Int32[]>] [-HighQuality] [-Path <String>] [-PassThru] [-Force]
  [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -30,8 +30,8 @@ file records which protocol that was, and Import-XKCDTerminalImage and Show-XKCD
 doesn't match the protocol detected for the terminal you're importing it into.
 
 By default, Export-XKCDTerminalImage exports the latest available comic.
-When you use the -Num
-parameter you can specify one or more specific comics to export.
+When you use the -Number
+parameter (aliased as -Num) you can specify one or more specific comics to export.
 
 ## EXAMPLES
 
@@ -45,7 +45,7 @@ as '.\2000.xkcdterm.json'.
 
 ### EXAMPLE 2
 ```
-Export-XKCDTerminalImage -Num 353 -Path C:\XKCD
+Export-XKCDTerminalImage -Number 353 -Path C:\XKCD
 ```
 
 Exports comic number 353 to C:\XKCD, as 'C:\XKCD\353.xkcdterm.json'.
@@ -59,14 +59,14 @@ Exports the 5 most recent comics to C:\XKCD.
 
 ### EXAMPLE 4
 ```
-Export-XKCDTerminalImage -Num 353 -PassThru | Import-XKCDTerminalImage
+Export-XKCDTerminalImage -Number 353 -PassThru | Import-XKCDTerminalImage
 ```
 
 Exports comic number 353 and immediately redisplays it from the saved file.
 
 ### EXAMPLE 5
 ```
-Export-XKCDTerminalImage -Num 353 -Force
+Export-XKCDTerminalImage -Number 353 -Force
 ```
 
 Re-exports comic number 353, overwriting '.\353.xkcdterm.json' if it already exists.
@@ -75,7 +75,7 @@ Export-XKCDTerminalImage throws rather than overwrite an existing file.
 
 ## PARAMETERS
 
-### -Num
+### -Number
 Exports the specified comics.
 Accepts array input.
 By default the latest comic is exported.
@@ -83,7 +83,7 @@ By default the latest comic is exported.
 ```yaml
 Type: Int32[]
 Parameter Sets: (All)
-Aliases: Number
+Aliases: Num
 
 Required: False
 Position: 1

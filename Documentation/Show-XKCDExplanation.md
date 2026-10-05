@@ -6,7 +6,7 @@ Displays a comic's title, image, and explanation in the console.
 ## SYNTAX
 
 ```
-Show-XKCDExplanation [[-Num] <Int32[]>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-HighQuality]
+Show-XKCDExplanation [[-Number] <Int32[]>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-HighQuality]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -32,7 +32,7 @@ Use -Full to always display the comic image alongside every section.
 
 By default, Show-XKCDExplanation displays the explanation of the latest available comic.
 When you use
-the -Num parameter you can specify one or more specific comics to display.
+the -Number parameter (aliased as -Num) you can specify one or more specific comics to display.
 
 ## EXAMPLES
 
@@ -98,7 +98,7 @@ Shorthand equivalent of: Get-XKCDExplanation | Show-XKCDExplanation
 
 ## PARAMETERS
 
-### -Num
+### -Number
 Displays the explanation of the specified comics.
 Accepts array input.
 By default the latest comic is displayed.
@@ -106,7 +106,7 @@ By default the latest comic is displayed.
 ```yaml
 Type: Int32[]
 Parameter Sets: (All)
-Aliases: Number
+Aliases: Num
 
 Required: False
 Position: 1

@@ -8,13 +8,13 @@ Gets the explanation of a comic from the explain xkcd wiki: https://www.explainx
 ### Specific (Default)
 ```
 Get-XKCDExplanation [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Show] [-HighQuality]
- [-ApiUrl <String>] [[-Num] <Int32[]>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+ [-ApiUrl <String>] [[-Number] <Int32[]>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Random
 ```
-Get-XKCDExplanation [-Random] [-Min <Int32>] [-Max <Int32>] [-Open] [-Explanation] [-Transcript] [-Discussion]
- [-Full] [-Show] [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>]
+Get-XKCDExplanation [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-Open] [-Explanation] [-Transcript]
+ [-Discussion] [-Full] [-Show] [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>]
  [<CommonParameters>]
 ```
 
@@ -52,9 +52,10 @@ Use -Full with -Show to always display the comic image alongside every section.
 
 By default, Get-XKCDExplanation returns the explanation of the latest available comic.
 Use -Random to
-get a random comic instead (optionally within a -Min/-Max range), or -Newest to get the specified
+get a random comic instead (optionally within a -Minimum/-Maximum range), or -Newest to get the specified
 number of most recent comics.
-Use the -Num parameter to specify one or more specific comics to return.
+Use the -Number parameter (aliased as -Num) to specify one or more specific
+comics to return.
 
 ## EXAMPLES
 
@@ -81,7 +82,7 @@ This command gets a random comic and then returns its explanation.
 
 ### EXAMPLE 4
 ```
-Get-XKCDExplanation -Random -Min 100 -Max 150
+Get-XKCDExplanation -Random -Minimum 100 -Maximum 150
 ```
 
 This command returns the explanation of a random comic numbered between 100 and 150.
@@ -104,7 +105,7 @@ by default only the Explanation is fetched and returned.
 
 ### EXAMPLE 7
 ```
-Get-XKCDExplanation -Num 1 -Full -Show
+Get-XKCDExplanation -Number 1 -Full -Show
 ```
 
 This command displays the title, image, explanation, transcript, and discussion of comic number 1
@@ -115,7 +116,7 @@ return the explanation object.
 
 ### EXAMPLE 8
 ```
-Get-XKCDExplanation -Num 1 -Explanation -Show
+Get-XKCDExplanation -Number 1 -Explanation -Show
 ```
 
 This command displays just the explanation of comic number 1 as text, along with its title and a link,
@@ -145,7 +146,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Min
+### -Minimum
 Use with -Random to define a lower bound range within which to return a comic.
 
 ```yaml
@@ -160,9 +161,9 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Max
+### -Maximum
 Use with -Random to define an upper bound range within which to return a comic.
--Max is the latest comic number by default.
+-Maximum is the latest comic number by default.
 
 ```yaml
 Type: Int32
@@ -335,7 +336,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Num
+### -Number
 Gets the explanation of the specified comics.
 Accepts array input.
 By default the latest comic is used.
@@ -343,11 +344,11 @@ By default the latest comic is used.
 ```yaml
 Type: Int32[]
 Parameter Sets: Specific
-Aliases: Number
+Aliases: Num
 
 Required: False
 Position: 1
-Default value: $Max
+Default value: $Maximum
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```

@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.10.4] - 2026-10-05
 
 * The `-Num` parameter on `Get-XKCD`, `Get-XKCDCache`, `Show-XKCD`, `Export-XKCDTerminalImage`, `Test-XKCD`, `Get-XKCDExplanation` and `Show-XKCDExplanation` is now named `-Number`, with `-Num` kept as an alias -- needed so piping a comic object (e.g. from `Find-XKCD`) still binds its `num` property by name. `Get-XKCD`'s and `Get-XKCDExplanation`'s `-Min`/`-Max` are similarly now named `-Minimum`/`-Maximum`, without an alias, since PowerShell already resolves `-Min`/`-Max` as unambiguous abbreviations of the new names.
 
