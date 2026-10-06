@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.10.6] - 2026-10-06
 
 * Added `-SkipCacheRefresh` to `Find-XKCD` to allow a user to skip the refresh of the Comic cache, in case they want `Find-XKCD` to work entirely offline.
 * Updated `Set-XKCDDefault` to allow the configuration of a default preference for the new `-SkipCacheRefresh` switch.

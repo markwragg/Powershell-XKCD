@@ -10,7 +10,7 @@ use the -FullSearch switch.
 
 ```
 Find-XKCD [-Query] <String[]> [-Or <String[]>] [-And <String[]>] [-Not <String[]>] [-Year <Int32[]>]
- [-Month <Int32[]>] [-Day <Int32[]>] [-FullSearch] [-Raw] [-CachePath <String>]
+ [-Month <Int32[]>] [-Day <Int32[]>] [-FullSearch] [-Raw] [-CachePath <String>] [-SkipCacheRefresh]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -296,6 +296,25 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCacheRefresh
+Skips the Update-XKCDCache step, searching the cache as it currently exists on disk.
+Useful to avoid
+the overhead of checking for new comics when you know the cache is already up to date.
+Defaults to
+the value saved with Set-XKCDDefault -SkipCacheRefresh, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'SkipCacheRefresh' -Value $false)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
