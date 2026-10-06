@@ -13,9 +13,7 @@ This PowerShell module contains cmdlets that interact with and enrich the result
 Modern Terminals can display the comics directly in the terminal (on Windows, Linux and MacOS where supported) via the `Show-XKCD` cmdlet, or you can download comic images or open URLs via your default browser. Terminal based images can also be exported to a file, so you can redisplay them at any time from a local file. The module also includes a `Find-XKCD` cmdlet for filtering/searching for comics, that works from a local cache of the comic API results for speed, and updates this cache with the latest comics every time it is used.
 
 <p align="center">
-
-![An example of an XKCD comic being displayed in Windows Terminal via Show-XKCD](Media/xkcd-windows-terminal-example.png)
-
+<img src="Media/xkcd-windows-terminal-example.png" alt="An example of an XKCD comic being displayed in Windows Terminal via Show-XKCD" />
 </p>
 
 Additionally, community XKCD comic explanations can be accessed from the https://www.explainxkcd.com/ wiki. Modern Terminals can also display these directly in the terminal, with limited formatting.
