@@ -34,6 +34,10 @@ function Find-XKCD {
         a link to the comic's page on xkcd.com. Use -Raw to omit these and get each comic exactly as cached
         (still tagged with 'query').
 
+        Use -Offline as an alternative to -SkipCacheRefresh -- it has the same effect of skipping the
+        Update-XKCDCache step and searching the cache as it currently exists on disk, without contacting the
+        xkcd API, but defaults to the value saved with Set-XKCDDefault -Offline rather than -SkipCacheRefresh.
+
     .EXAMPLE
         Find-XKCD -Query 'Spider' | Format-Table
 
@@ -96,6 +100,12 @@ function Find-XKCD {
 
         Returns comics with 'Spider' in the title that were published on October 31st of any year.
 
+    .EXAMPLE
+        Find-XKCD -Query 'Spider' -Offline
+
+        Returns comics with 'Spider' in the title, searching the local cache as it currently exists on disk
+        without contacting the xkcd API to refresh it first.
+
     .LINK
         https://github.com/markwragg/Powershell-XKCD/wiki/Find-XKCD
 
@@ -156,11 +166,17 @@ function Find-XKCD {
         # the overhead of checking for new comics when you know the cache is already up to date. Defaults to
         # the value saved with Set-XKCDDefault -SkipCacheRefresh, if any.
         [switch]
-        $SkipCacheRefresh = (Get-XKCDDefaultValue -Name 'SkipCacheRefresh' -Value $false)
+        $SkipCacheRefresh = (Get-XKCDDefaultValue -Name 'SkipCacheRefresh' -Value $false),
+
+        # Has the same effect as -SkipCacheRefresh -- skips the Update-XKCDCache step and searches the cache as
+        # it currently exists on disk, without contacting the xkcd API. Defaults to the value saved with
+        # Set-XKCDDefault -Offline, if any.
+        [switch]
+        $Offline = (Get-XKCDDefaultValue -Name 'Offline' -Value $false)
     )
     begin {
         # Ensure the cache is up to date
-        if (-not $SkipCacheRefresh) {
+        if (-not $SkipCacheRefresh -and -not $Offline) {
             Update-XKCDCache -CachePath $CachePath
         }
         $AllComics = Get-Content $CachePath | ConvertFrom-Json

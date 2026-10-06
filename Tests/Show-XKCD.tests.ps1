@@ -241,4 +241,71 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 353
         }
     }
+
+    Context 'Offline Tests' {
+
+        BeforeAll {
+            $CachePath = Join-Path $TestDrive 'offline-show-cache.json'
+            @(
+                [pscustomobject]@{ num = 1; title = 'Comic 1'; img = 'https://imgs.xkcd.com/comics/comic1.jpg'; alt = 'Alt 1'; year = '2006'; month = '1'; day = '1' }
+                [pscustomobject]@{ num = 2; title = 'Comic 2'; img = 'https://imgs.xkcd.com/comics/comic2.png'; alt = 'Alt 2'; year = '2006'; month = '1'; day = '2' }
+                [pscustomobject]@{ num = 3; title = 'Comic 3'; img = 'https://imgs.xkcd.com/comics/comic3.jpg'; alt = 'Alt 3'; year = '2006'; month = '1'; day = '3' }
+            ) | ConvertTo-Json | Out-File $CachePath
+
+            # Comic 2's image is deliberately not downloaded, to exercise the missing-image warning path below.
+            $DownloadPath = Join-Path $TestDrive 'offline-downloads'
+            New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+            [System.IO.File]::WriteAllBytes((Join-Path $DownloadPath '1.jpg'), [byte[]](1, 2, 3, 4))
+            [System.IO.File]::WriteAllBytes((Join-Path $DownloadPath '3.jpg'), [byte[]](1, 2, 3, 4))
+        }
+
+        It 'Show-XKCD -Offline displays a cached comic using its previously downloaded image, without contacting the API' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+            Mock -ModuleName $Module Invoke-WebRequest { throw 'Invoke-WebRequest should not be called in -Offline mode' }
+
+            $Output = Get-XKCDCapturedOutput { Show-XKCD -Num 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath }
+
+            $Output | Should -Match 'Comic 1'
+        }
+
+        It 'Show-XKCD -Offline without -Number displays the highest-numbered cached comic' {
+            $Output = Get-XKCDCapturedOutput { Show-XKCD -Offline -CachePath $CachePath -DownloadPath $DownloadPath }
+
+            $Output | Should -Match 'Comic 3'
+        }
+
+        It 'Show-XKCD -Offline warns and does not throw when the comic image has not been downloaded' {
+            { Get-XKCDCapturedOutput { Show-XKCD -Num 2 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue } } | Should -Not -Throw
+        }
+
+        It 'Show-XKCD -Offline warning for a missing image suggests using -Download' {
+            # WarningVariable is scoped to the scriptblock Get-XKCDCapturedOutput invokes, not this It block --
+            # the script: prefix targets this test script's scope directly so the variable is visible here too.
+            Get-XKCDCapturedOutput { Show-XKCD -Num 2 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningVariable 'script:OfflineWarning' -WarningAction SilentlyContinue } | Out-Null
+
+            $script:OfflineWarning | Should -Match '-Download'
+        }
+
+        It 'Show-XKCD -Offline does not display a comic whose image has not been downloaded' {
+            $Output = Get-XKCDCapturedOutput { Show-XKCD -Num 2 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue }
+
+            $Output | Should -Not -Match 'Comic 2'
+        }
+
+        It 'Show-XKCD -Offline does not record state for a comic skipped due to a missing image' {
+            $StatePath = Join-Path $TestDrive 'offline-show-missing-state.json'
+
+            Get-XKCDCapturedOutput { Show-XKCD -Num 2 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -StatePath $StatePath -WarningAction SilentlyContinue } | Out-Null
+
+            $StatePath | Should -Not -Exist
+        }
+
+        It 'Show-XKCD -Offline records state for a comic that was successfully displayed' {
+            $StatePath = Join-Path $TestDrive 'offline-show-success-state.json'
+
+            Get-XKCDCapturedOutput { Show-XKCD -Num 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -StatePath $StatePath } | Out-Null
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 1
+        }
+    }
 }

@@ -1,5 +1,16 @@
 # Change Log
 
+## !Deploy
+
+* Adds an `-Offline` switch to `Get-XKCD`, `Show-XKCD`, `Find-XKCD`, `Export-XKCDTerminalImage` and `Test-XKCD`, so each can work entirely from the local cache/previously downloaded images, without contacting the xkcd API:
+  * `Get-XKCD -Offline` returns comic data from the local cache (also used to determine the "latest" comic for `-Random`/`-Newest`/`-Next`/`-Previous`) instead of querying the API. Warns and skips any requested comic that isn't in the cache.
+  * `Show-XKCD -Offline` does the same, and renders the comic's image from a copy previously saved with `-Download` (looked up via a new `-DownloadPath` parameter) instead of downloading it. If that image hasn't been downloaded yet, it warns suggesting `-Download` and skips displaying that comic, rather than throwing -- so the rest of a multi-comic request still displays.
+  * `Find-XKCD -Offline` has the same effect as the existing `-SkipCacheRefresh` switch, searching the cache as it currently exists on disk without refreshing it first.
+  * `Export-XKCDTerminalImage -Offline` gets comic data from the cache and renders its image from a copy previously saved with `Get-XKCD -Download` (via the same new `-DownloadPath` parameter), instead of fetching either from the API.
+  * `Test-XKCD -Offline` checks the local cache for the latest comic, or (with `-Number`) whether a specific comic exists in it, instead of querying the API.
+  * `Get-XKCD`, `Show-XKCD`, `Export-XKCDTerminalImage` and `Test-XKCD` also gain a `-CachePath` parameter (matching `Find-XKCD`'s existing one) to specify where `-Offline` looks for cached comic data.
+* Adds an `-Offline` preference to `Set-XKCDDefault`, to configure the above switch by default across all five cmdlets.
+
 ## [1.10.6] - 2026-10-06
 
 * Added `-SkipCacheRefresh` to `Find-XKCD` to allow a user to skip the refresh of the Comic cache, in case they want `Find-XKCD` to work entirely offline.

@@ -188,6 +188,47 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
+    Context 'Offline Tests' {
+
+        BeforeAll {
+            $CachePath = Join-Path $TestDrive 'offline-test-cache.json'
+            @(
+                [pscustomobject]@{ num = 1; title = 'Comic 1' }
+                [pscustomobject]@{ num = 2; title = 'Comic 2' }
+            ) | ConvertTo-Json | Out-File $CachePath
+        }
+
+        It 'Test-XKCD -Offline returns $true for a comic that exists in the local cache, without contacting the API' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            Test-XKCD -Num 1 -Offline -CachePath $CachePath | Should -Be $true
+        }
+
+        It 'Test-XKCD -Offline returns $false for a comic that does not exist in the local cache' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            Test-XKCD -Num 999 -Offline -CachePath $CachePath | Should -Be $false
+        }
+
+        It 'Test-XKCD -Offline -Quiet determines the latest comic from the local cache' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            $StatePath = Join-Path $TestDrive 'offline-test-state.json'
+            [pscustomobject]@{ LastViewed = 1 } | ConvertTo-Json | Out-File $StatePath
+
+            Test-XKCD -Offline -CachePath $CachePath -StatePath $StatePath -Quiet | Should -Be $true
+        }
+
+        It 'Test-XKCD -Offline -Detailed reports the latest cached comic number' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            $StatePath = Join-Path $TestDrive 'offline-test-detailed-state.json'
+            [pscustomobject]@{ LastViewed = 1 } | ConvertTo-Json | Out-File $StatePath
+
+            (Test-XKCD -Offline -CachePath $CachePath -StatePath $StatePath -Detailed).LatestComic | Should -Be 2
+        }
+    }
+
     Context 'AddToProfile Tests' {
 
         BeforeEach {

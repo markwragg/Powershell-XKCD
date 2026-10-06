@@ -24,6 +24,12 @@
         -Previous returns nothing once you've reached comic #1. -Show updates the state itself via Show-XKCD,
         since it doesn't return a comic object here; -Explain does not update the state.
 
+        Use -Offline to return comic data from the local cache (created/refreshed by Update-XKCDCache) instead
+        of querying the xkcd API -- this also governs where -Random/-Newest/-Next/-Previous consider the
+        "latest" comic to be. Combined with -Show, the comic's image is rendered from a copy previously saved
+        with -Download rather than downloaded fresh; if that copy doesn't exist yet, a warning is shown asking
+        you to use -Download first. Defaults to the value saved with Set-XKCDDefault -Offline, if any.
+
     .EXAMPLE
         Get-XKCD
 
@@ -100,6 +106,19 @@
         'html_img' or 'html' properties Get-XKCD normally adds.
 
     .EXAMPLE
+        Get-XKCD -Offline
+
+        This command returns the details of the latest cached comic from the local cache (created/refreshed by
+        Update-XKCDCache), without querying the xkcd API. Requires a local cache to already exist.
+
+    .EXAMPLE
+        Get-XKCD -Show -Offline
+
+        This command displays the latest cached comic's title and alt text in the console, rendering its image
+        from a copy previously saved with -Download, instead of fetching anything from the xkcd API. If the
+        image hasn't been downloaded yet, a warning is shown asking you to use -Download first.
+
+    .EXAMPLE
         1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 
         This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
@@ -159,6 +178,13 @@
         [switch]
         $Download,
 
+        # Returns comic data from the local cache instead of querying the xkcd API, and (with -Show) renders
+        # the comic's image from a copy previously saved with -Download instead of downloading it fresh --
+        # warning and skipping the comic's display if that copy doesn't exist yet. Defaults to the value saved
+        # with Set-XKCDDefault -Offline, if any.
+        [switch]
+        $Offline = (Get-XKCDDefaultValue -Name 'Offline' -Value $false),
+
         # Opens the comic/s in your default web browser
         [switch]
         $Open,
@@ -190,6 +216,11 @@
         [string]
         $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot)),
 
+        # Use with -Offline to specify where comic data is cached. By default this is within the module path,
+        # unless a default has been saved with Set-XKCDDefault -CachePath.
+        [string]
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json')),
+
         # Gets the specified comics. Accepts array input.
         [Parameter(ParameterSetName = 'Specific', ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)]
         [Alias('Num')]
@@ -213,7 +244,14 @@
         $Raw
     )
     Begin {
-        if (-not $Maximum) { $Maximum = (Invoke-RestMethod "https://xkcd.com/info.0.json").num }
+        if (-not $Maximum) {
+            $Maximum = if ($Offline) {
+                (Get-XKCDOfflineComic -CachePath $CachePath | Sort-Object num -Descending | Select-Object -First 1).num
+            }
+            else {
+                (Invoke-RestMethod "https://xkcd.com/info.0.json").num
+            }
+        }
 
         if ($Random) {
             $Number = Get-Random -min $Minimum -max $Maximum
@@ -236,7 +274,18 @@
     Process {
         $Number | ForEach-Object {
             $ID = $_
-            $Comic = Invoke-RestMethod "https://xkcd.com/$ID/info.0.json"
+
+            if ($Offline) {
+                $Comic = Get-XKCDOfflineComic -CachePath $CachePath -Number $ID
+                if (-not $Comic) {
+                    Write-Warning "Comic #$ID was not found in the local cache at '$CachePath'. Run Update-XKCDCache to refresh it, or omit -Offline."
+                    return
+                }
+            }
+            else {
+                $Comic = Invoke-RestMethod "https://xkcd.com/$ID/info.0.json"
+            }
+
             $Extension = [System.IO.Path]::GetExtension(([uri]$Comic.img).AbsolutePath)
             $ImageUrl = $Comic.img
 
@@ -261,7 +310,7 @@
             }
 
             if ($Show) {
-                Show-XKCD -Num $ID -HighQuality:$HighQuality -StatePath $StatePath
+                Show-XKCD -Num $ID -HighQuality:$HighQuality -StatePath $StatePath -Offline:$Offline -CachePath $CachePath -DownloadPath $Path
             }
 
             if ($Explain) {

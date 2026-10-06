@@ -63,6 +63,58 @@ Describe "Unit Tests PS$PSVersion" {
             { Get-XKCD -Previous -Num 1 } | Should -Throw
         }
     }
+
+    Context 'Offline Tests' {
+
+        BeforeAll {
+            $CachePath = Join-Path $TestDrive 'offline-get-cache.json'
+            @(
+                [pscustomobject]@{ num = 1; title = 'Comic 1'; img = 'https://imgs.xkcd.com/comics/comic1.jpg'; alt = 'Alt 1'; year = '2006'; month = '1'; day = '1' }
+                [pscustomobject]@{ num = 2; title = 'Comic 2'; img = 'https://imgs.xkcd.com/comics/comic2.png'; alt = 'Alt 2'; year = '2006'; month = '1'; day = '2' }
+            ) | ConvertTo-Json | Out-File $CachePath
+        }
+
+        It 'Get-XKCD -Offline returns comic data from the local cache without contacting the API' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            $Comic = Get-XKCD -Num 1 -Offline -CachePath $CachePath -NoStateUpdate
+
+            $Comic.num | Should -Be 1
+            $Comic.title | Should -Be 'Comic 1'
+        }
+
+        It 'Get-XKCD -Offline without -Number returns the highest-numbered cached comic' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            $Comic = Get-XKCD -Offline -CachePath $CachePath -NoStateUpdate
+
+            $Comic.num | Should -Be 2
+        }
+
+        It 'Get-XKCD -Offline throws when the local cache does not exist' {
+            $MissingCachePath = Join-Path $TestDrive 'offline-missing-cache.json'
+
+            { Get-XKCD -Offline -CachePath $MissingCachePath -NoStateUpdate } | Should -Throw '*Update-XKCDCache*'
+        }
+
+        It 'Get-XKCD -Offline warns and skips comics that are not in the local cache' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            $Result = Get-XKCD -Num 999 -Offline -CachePath $CachePath -NoStateUpdate -WarningVariable OfflineWarning -WarningAction SilentlyContinue
+
+            $Result | Should -BeNullOrEmpty
+            $OfflineWarning | Should -Match 'was not found in the local cache'
+        }
+
+        It 'Get-XKCD -Offline does not update the state file for a comic skipped as uncached' {
+            $StatePath = Join-Path $TestDrive 'offline-get-skip-state.json'
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+
+            Get-XKCD -Num 999 -Offline -CachePath $CachePath -StatePath $StatePath -WarningAction SilentlyContinue | Out-Null
+
+            $StatePath | Should -Not -Exist
+        }
+    }
 }
 
 

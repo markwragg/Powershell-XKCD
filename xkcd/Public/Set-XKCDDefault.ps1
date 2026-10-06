@@ -24,6 +24,7 @@ function Set-XKCDDefault {
         -Transcript        Default for -Transcript on Get-XKCDExplanation and Show-XKCDExplanation.
         -Discussion        Default for -Discussion on Get-XKCDExplanation and Show-XKCDExplanation.
         -Full              Default for -Full on Get-XKCDExplanation and Show-XKCDExplanation.
+        -Offline           Default for -Offline on Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD.
 
     .EXAMPLE
         Set-XKCDDefault -HighQuality
@@ -39,6 +40,13 @@ function Set-XKCDDefault {
         Set-XKCDDefault -Full
 
         Makes Get-XKCDExplanation and Show-XKCDExplanation retrieve the explanation, transcript, and discussion by default.
+
+    .EXAMPLE
+        Set-XKCDDefault -Offline
+
+        Makes Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD use their local cache (and,
+        for Get-XKCD/Show-XKCD/Export-XKCDTerminalImage, previously downloaded images) by default, instead of
+        querying the xkcd API.
 
     .EXAMPLE
         Set-XKCDDefault -HighQuality:$false
@@ -100,6 +108,11 @@ function Set-XKCDDefault {
         [switch]
         $Full,
 
+        # Sets the default for -Offline, used by Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and
+        # Test-XKCD.
+        [switch]
+        $Offline,
+
         # Removes all saved default preferences, restoring the module's built-in behavior.
         [switch]
         $Reset,
@@ -129,8 +142,9 @@ function Set-XKCDDefault {
     if ($PSBoundParameters.ContainsKey('Transcript')) { $Current | Add-Member -NotePropertyName Transcript -NotePropertyValue ([bool]$Transcript) -Force }
     if ($PSBoundParameters.ContainsKey('Discussion')) { $Current | Add-Member -NotePropertyName Discussion -NotePropertyValue ([bool]$Discussion) -Force }
     if ($PSBoundParameters.ContainsKey('Full')) { $Current | Add-Member -NotePropertyName Full -NotePropertyValue ([bool]$Full) -Force }
+    if ($PSBoundParameters.ContainsKey('Offline')) { $Current | Add-Member -NotePropertyName Offline -NotePropertyValue ([bool]$Offline) -Force }
 
-    $AnyPreferenceSpecified = 'HighQuality', 'Path', 'FullSearch', 'SkipCacheRefresh', 'CachePath', 'StatePath', 'Explanation', 'Transcript', 'Discussion', 'Full' | Where-Object { $PSBoundParameters.ContainsKey($_) }
+    $AnyPreferenceSpecified = 'HighQuality', 'Path', 'FullSearch', 'SkipCacheRefresh', 'CachePath', 'StatePath', 'Explanation', 'Transcript', 'Discussion', 'Full', 'Offline' | Where-Object { $PSBoundParameters.ContainsKey($_) }
 
     if ($AnyPreferenceSpecified -and $PSCmdlet.ShouldProcess($DefaultsPath, 'Save default preferences')) {
         $Current | ConvertTo-Json | Out-File $DefaultsPath -Force

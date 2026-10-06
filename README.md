@@ -242,7 +242,7 @@ Use the -Explain switch to display a comic's explanation via Show-XKCDExplanatio
 
 26) `Set-XKCDDefault -HighQuality` or `Set-XKCDDefault -Path C:\XKCD`
 
-Saves default preferences that other cmdlets in this module then use automatically, so you don't need to repeat the same parameters every time. Supported preferences: `-HighQuality` (Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation, Export-XKCDTerminalImage), `-Path` (Get-XKCD -Download, Export-XKCDTerminalImage), `-FullSearch` (Find-XKCD), `-CachePath` (Update-XKCDCache, Get-XKCDCache, Find-XKCD), `-StatePath` (Show-XKCD, Get-XKCD -Show/-Next/-Previous, Test-XKCD), and `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (Get-XKCDExplanation, Show-XKCDExplanation). Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences.
+Saves default preferences that other cmdlets in this module then use automatically, so you don't need to repeat the same parameters every time. Supported preferences: `-HighQuality` (Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation, Export-XKCDTerminalImage), `-Path` (Get-XKCD -Download, Export-XKCDTerminalImage), `-FullSearch` (Find-XKCD), `-CachePath` (Update-XKCDCache, Get-XKCDCache, Find-XKCD, and -Offline on Get-XKCD/Show-XKCD/Export-XKCDTerminalImage/Test-XKCD), `-StatePath` (Show-XKCD, Get-XKCD -Show/-Next/-Previous, Test-XKCD), `-Offline` (Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage, Test-XKCD), and `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (Get-XKCDExplanation, Show-XKCDExplanation). Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences.
 
 27) `Get-XKCDDefault`
 
@@ -259,6 +259,10 @@ Writes just the saved image from a file created by Export-XKCDTerminalImage stra
 30) `Show-XKCD -Path .\353.xkcdterm.json` or `Export-XKCDTerminalImage 353 -PassThru | Show-XKCD`
 
 Displays the full comic -- title, image, and alt text -- from a file created by Export-XKCDTerminalImage instead of fetching it from the xkcd API, e.g. to view a comic offline. As with Import-XKCDTerminalImage, a warning is shown if the saved protocol doesn't match your terminal's.
+
+31) `Get-XKCD -Offline` or `Show-XKCD -Offline`
+
+Use -Offline to work entirely from your local cache (built/refreshed by Update-XKCDCache) instead of contacting the xkcd API. On Get-XKCD, comic data -- including which comic counts as "latest" for -Random/-Newest/-Next/-Previous -- comes from the cache. On Show-XKCD, the comic's image is also rendered from a copy previously saved with -Download, looked up via a new -DownloadPath parameter (defaults to the same directory as -Download's -Path); if that image hasn't been downloaded yet, a warning suggests using -Download first and that comic is skipped rather than causing an error, so the rest of a multi-comic request still displays. Find-XKCD, Export-XKCDTerminalImage, and Test-XKCD also support -Offline: on Find-XKCD it has the same effect as the existing -SkipCacheRefresh switch; on Export-XKCDTerminalImage it renders from a previously downloaded image the same way Show-XKCD does; on Test-XKCD it checks the cache instead of the API for the latest comic, or (with -Number) whether a specific comic exists. Set a default for all five at once with `Set-XKCDDefault -Offline`.
 
 ## Contributions
 

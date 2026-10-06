@@ -23,6 +23,13 @@ function Export-XKCDTerminalImage {
         By default, Export-XKCDTerminalImage exports the latest available comic. When you use the -Number
         parameter (aliased as -Num) you can specify one or more specific comics to export.
 
+        Use -Offline to get comic data from the local cache (created/refreshed by Update-XKCDCache) and render
+        the comic's image from a copy previously saved with Get-XKCD -Download, instead of fetching either from
+        the xkcd API -- this also governs which comic -Offline considers "latest" when -Number isn't specified.
+        If the comic's image hasn't been downloaded to -DownloadPath yet, a warning is shown asking you to use
+        -Download first, and that comic is skipped. Defaults to the value saved with Set-XKCDDefault -Offline,
+        if any.
+
     .EXAMPLE
         Export-XKCDTerminalImage
 
@@ -48,6 +55,12 @@ function Export-XKCDTerminalImage {
 
         Re-exports comic number 353, overwriting '.\353.xkcdterm.json' if it already exists. Without -Force,
         Export-XKCDTerminalImage throws rather than overwrite an existing file.
+
+    .EXAMPLE
+        Export-XKCDTerminalImage -Number 353 -Offline -DownloadPath C:\XKCD
+
+        Exports comic number 353 using its data from the local cache and its image from a copy previously
+        saved to C:\XKCD with Get-XKCD -Download -Path C:\XKCD, without contacting the xkcd API.
 
     .LINK
         https://github.com/markwragg/Powershell-XKCD/wiki/Export-XKCDTerminalImage
@@ -83,25 +96,56 @@ function Export-XKCDTerminalImage {
         # Overwrites the destination file if it already exists. Without -Force, Export-XKCDTerminalImage throws
         # rather than overwrite an existing export.
         [switch]
-        $Force
+        $Force,
+
+        # Gets comic data from the local cache, and renders the comic's image from a copy previously saved
+        # with Get-XKCD -Download, instead of fetching either from the xkcd API. Warns and skips the comic if
+        # its image hasn't been downloaded to -DownloadPath yet. Defaults to the value saved with
+        # Set-XKCDDefault -Offline, if any.
+        [switch]
+        $Offline = (Get-XKCDDefaultValue -Name 'Offline' -Value $false),
+
+        # Use with -Offline to specify where comic data is cached. By default this is within the module path,
+        # unless a default has been saved with Set-XKCDDefault -CachePath.
+        [string]
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json')),
+
+        # Use with -Offline to specify the local directory to look for previously downloaded comic images in
+        # (as saved by Get-XKCD -Download). By default this is the current working directory, unless a default
+        # has been saved with Set-XKCDDefault -Path.
+        [string]
+        $DownloadPath = (Get-XKCDDefaultValue -Name 'Path' -Value $PWD)
     )
 
     Begin {
         if (-not $Number) {
-            $Number = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+            $Number = if ($Offline) {
+                (Get-XKCDOfflineComic -CachePath $CachePath | Sort-Object num -Descending | Select-Object -First 1).num
+            }
+            else {
+                (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+            }
         }
     }
 
     Process {
         $Number | ForEach-Object {
-            $Comic = Get-XKCD -Num $_ -NoStateUpdate
+            $Comic = Get-XKCD -Num $_ -NoStateUpdate -Offline:$Offline -CachePath $CachePath
+            if (-not $Comic) { return }
+
             $OutFile = Join-Path $Path "$($Comic.num).xkcdterm.json"
 
             if ((Test-Path $OutFile) -and -not $Force) {
                 throw "A terminal image for comic #$($Comic.num) already exists at '$OutFile'. Use -Force to overwrite it."
             }
 
-            $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
+            if ($Offline) {
+                $ImageBytes = Get-XKCDOfflineImageContent -Comic $Comic -Path $DownloadPath
+                if (-not $ImageBytes) { return }
+            }
+            else {
+                $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
+            }
 
             $Protocol = Get-XKCDTerminalGraphicsProtocol
 

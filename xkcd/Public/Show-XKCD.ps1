@@ -23,6 +23,13 @@ function Show-XKCD {
         the same graphics protocol it was exported with; a warning is shown if that doesn't match the protocol
         detected for the terminal you're displaying it in.
 
+        Use -Offline to display a comic using data from the local cache (created/refreshed by Update-XKCDCache)
+        and an image previously saved with Get-XKCD -Download, instead of fetching either from the xkcd API --
+        this also governs where -Next/-Previous and the default (no -Number) consider the "latest" comic to
+        be. If the comic's image hasn't been downloaded to -DownloadPath yet, a warning is shown asking you to
+        use -Download first, and that comic is skipped. Defaults to the value saved with Set-XKCDDefault
+        -Offline, if any.
+
     .EXAMPLE
         Show-XKCD
 
@@ -72,6 +79,19 @@ function Show-XKCD {
 
         Exports comic number 353 and immediately displays it from the saved file.
 
+    .EXAMPLE
+        Show-XKCD -Offline
+
+        Displays the latest cached comic, rendering its image from a copy previously saved with
+        Get-XKCD -Download, instead of fetching either from the xkcd API.
+
+    .EXAMPLE
+        Show-XKCD -Num 353 -Offline -DownloadPath C:\XKCD
+
+        Displays comic number 353 from the local cache, rendering its image from a copy previously saved to
+        C:\XKCD with Get-XKCD -Download -Path C:\XKCD. Warns and skips displaying the comic if no copy of its
+        image is found there.
+
     .LINK
         https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCD
 
@@ -116,14 +136,40 @@ function Show-XKCD {
         # default this is in the user's per-user data directory (~/.xkcd), unless a default has been saved with
         # Set-XKCDDefault -StatePath.
         [string]
-        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot)),
+
+        # Displays comic data from the local cache, and the comic's image from a copy previously saved with
+        # Get-XKCD -Download, instead of fetching either from the xkcd API. Warns and skips the comic if its
+        # image hasn't been downloaded to -DownloadPath yet. Defaults to the value saved with
+        # Set-XKCDDefault -Offline, if any.
+        [switch]
+        $Offline = (Get-XKCDDefaultValue -Name 'Offline' -Value $false),
+
+        # Use with -Offline to specify where comic data is cached. By default this is within the module path,
+        # unless a default has been saved with Set-XKCDDefault -CachePath.
+        [string]
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json')),
+
+        # Use with -Offline to specify the local directory to look for previously downloaded comic images in
+        # (as saved by Get-XKCD -Download). By default this is the current working directory, unless a default
+        # has been saved with Set-XKCDDefault -Path.
+        [string]
+        $DownloadPath = (Get-XKCDDefaultValue -Name 'Path' -Value $PWD)
     )
 
     Begin {
         if ($PSCmdlet.ParameterSetName -eq 'File') { return }
 
+        if ($Next -or (-not $Previous -and -not $Number)) {
+            $Latest = if ($Offline) {
+                (Get-XKCDOfflineComic -CachePath $CachePath | Sort-Object num -Descending | Select-Object -First 1).num
+            }
+            else {
+                (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+            }
+        }
+
         if ($Next) {
-            $Latest = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
             $NextNum = (Get-XKCDLastReadComic -StatePath $StatePath) + 1
             if ($NextNum -le $Latest) { $Number = $NextNum } else { $Number = @() }
         }
@@ -132,7 +178,7 @@ function Show-XKCD {
             if ($LastRead -gt 1) { $Number = $LastRead - 1 } else { $Number = @() }
         }
         elseif (-not $Number) {
-            $Number = (Invoke-RestMethod 'https://xkcd.com/info.0.json').num
+            $Number = $Latest
         }
     }
 
@@ -151,8 +197,16 @@ function Show-XKCD {
         }
 
         $Number | ForEach-Object {
-            $Comic = Get-XKCD -Num $_ -NoStateUpdate
-            $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
+            $Comic = Get-XKCD -Num $_ -NoStateUpdate -Offline:$Offline -CachePath $CachePath
+            if (-not $Comic) { return }
+
+            if ($Offline) {
+                $ImageBytes = Get-XKCDOfflineImageContent -Comic $Comic -Path $DownloadPath
+                if (-not $ImageBytes) { return }
+            }
+            else {
+                $ImageBytes = Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
+            }
 
             Show-XKCDComic -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality
 

@@ -253,6 +253,23 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Offline Parameter Tests' {
+
+        It 'Find-XKCD -Offline does not call Update-XKCDCache' {
+            Mock Update-XKCDCache {} -ModuleName $Module
+
+            Find-XKCD -Query 'Spiders' -Offline | Out-Null
+
+            Should -Invoke Update-XKCDCache -ModuleName $Module -Times 0 -Exactly
+        }
+
+        It 'Find-XKCD -Offline still returns results from the existing cache' {
+            $Result = Find-XKCD -Query 'Spiders' -Offline
+
+            @($Result).Count | Should -Be 4
+        }
+    }
+
     Context 'Raw Parameter Tests' {
 
         It 'Find-XKCD -Raw does not add the date, html_img or html properties' {

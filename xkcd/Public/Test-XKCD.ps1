@@ -20,6 +20,10 @@ function Test-XKCD {
         whenever you open a new session. Does nothing if that line is already present. Use -RemoveFromProfile to
         remove it again -- does nothing if the profile doesn't exist or doesn't contain that line.
 
+        Use -Offline to check the local cache (created/refreshed by Update-XKCDCache) for the latest comic, or
+        (with -Number) whether a specific comic exists in it, instead of querying the xkcd API. Defaults to the
+        value saved with Set-XKCDDefault -Offline, if any.
+
     .EXAMPLE
         Test-XKCD
 
@@ -41,6 +45,18 @@ function Test-XKCD {
         Test-XKCD -Number 999999
 
         Returns $true if comic #999999 exists, otherwise $false.
+
+    .EXAMPLE
+        Test-XKCD -Offline
+
+        Writes a friendly message to the console stating how many new comics are available, determined from the
+        local cache rather than the xkcd API.
+
+    .EXAMPLE
+        Test-XKCD -Number 999999 -Offline
+
+        Returns $true if comic #999999 exists in the local cache, otherwise $false, without contacting the
+        xkcd API.
 
     .EXAMPLE
         if (Test-XKCD -Quiet) { Test-XKCD }
@@ -107,7 +123,17 @@ function Test-XKCD {
         # has been saved with Set-XKCDDefault -StatePath.
         [Parameter(ParameterSetName = 'Default')]
         [string]
-        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
+        $StatePath = (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot)),
+
+        # Checks the local cache for the latest comic, or (with -Number) whether a specific comic exists in it,
+        # instead of querying the xkcd API. Defaults to the value saved with Set-XKCDDefault -Offline, if any.
+        [switch]
+        $Offline = (Get-XKCDDefaultValue -Name 'Offline' -Value $false),
+
+        # Use with -Offline to specify where comic data is cached. By default this is within the module path,
+        # unless a default has been saved with Set-XKCDDefault -CachePath.
+        [string]
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
     )
 
     if ($AddToProfile -or $RemoveFromProfile) {
@@ -172,6 +198,10 @@ function Test-XKCD {
     }
 
     if ($PSCmdlet.ParameterSetName -eq 'Number') {
+        if ($Offline) {
+            return [bool](Get-XKCDOfflineComic -CachePath $CachePath -Number $Number)
+        }
+
         try {
             Invoke-RestMethod "https://xkcd.com/$Number/info.0.json" -ErrorAction Stop | Out-Null
             return $true
@@ -181,7 +211,12 @@ function Test-XKCD {
         }
     }
 
-    $LatestComic = Invoke-RestMethod 'https://xkcd.com/info.0.json'
+    $LatestComic = if ($Offline) {
+        Get-XKCDOfflineComic -CachePath $CachePath | Sort-Object num -Descending | Select-Object -First 1
+    }
+    else {
+        Invoke-RestMethod 'https://xkcd.com/info.0.json'
+    }
     $Latest = $LatestComic.num
 
     $LastViewed = Get-XKCDLastViewedComic -StatePath $StatePath

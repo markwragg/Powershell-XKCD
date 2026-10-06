@@ -144,4 +144,36 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             { Export-XKCDTerminalImage -Num 970 -Path $TestDrive -Force } | Should -Not -Throw
         }
     }
+
+    Context 'Offline Tests' {
+
+        BeforeAll {
+            Mock -ModuleName $Module Get-XKCDTerminalGraphicsProtocol { 'Kitty' }
+
+            $CachePath = Join-Path $TestDrive 'offline-export-cache.json'
+            @(
+                [pscustomobject]@{ num = 9001; title = 'Offline Comic 1'; img = 'https://imgs.xkcd.com/comics/offline1.jpg'; alt = 'Alt 1'; year = '2006'; month = '1'; day = '1' }
+                [pscustomobject]@{ num = 9002; title = 'Offline Comic 2'; img = 'https://imgs.xkcd.com/comics/offline2.png'; alt = 'Alt 2'; year = '2006'; month = '1'; day = '2' }
+            ) | ConvertTo-Json | Out-File $CachePath
+
+            # Comic 9002's image is deliberately not downloaded, to exercise the missing-image warning path.
+            $DownloadPath = Join-Path $TestDrive 'offline-export-downloads'
+            New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+            [System.IO.File]::WriteAllBytes((Join-Path $DownloadPath '9001.jpg'), [byte[]](1, 2, 3, 4))
+        }
+
+        It 'Export-XKCDTerminalImage -Offline exports a cached comic using its previously downloaded image, without contacting the API' {
+            Mock -ModuleName $Module Invoke-RestMethod { throw 'Invoke-RestMethod should not be called in -Offline mode' }
+            Mock -ModuleName $Module Invoke-WebRequest { throw 'Invoke-WebRequest should not be called in -Offline mode' }
+
+            $OutFile = Export-XKCDTerminalImage -Num 9001 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -Path $TestDrive -PassThru
+
+            $OutFile.FullName | Should -Be (Join-Path $TestDrive '9001.xkcdterm.json')
+        }
+
+        It 'Export-XKCDTerminalImage -Offline warns and does not save a file when the comic image has not been downloaded' {
+            { Export-XKCDTerminalImage -Num 9002 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -Path $TestDrive -WarningAction SilentlyContinue } | Should -Not -Throw
+            Join-Path $TestDrive '9002.xkcdterm.json' | Should -Not -Exist
+        }
+    }
 }

@@ -87,6 +87,14 @@ Describe "Unit Tests PS$PSVersion" {
             $Saved.Discussion | Should -Be $true
             $Saved.Full | Should -Be $true
         }
+
+        It 'Saves the Offline preference used by Get-XKCD and Show-XKCD' {
+            $DefaultsPath = Join-Path $TestDrive 'offline-defaults.json'
+
+            Set-XKCDDefault -Offline -DefaultsPath $DefaultsPath | Out-Null
+
+            (Get-Content $DefaultsPath | ConvertFrom-Json).Offline | Should -Be $true
+        }
     }
 
     Context 'Reset Tests' {
