@@ -114,7 +114,7 @@ Show-XKCD accepts the same -Number parameter (aliased as -Num) as Get-XKCD (and 
 
 12) `Find-XKCD -Query 'Spider'`
 
-Searches comic titles for the specified text and returns any matches. This builds a local cache of the comic data on first use (and refreshes it automatically if it's out of date), so subsequent searches are fast. Add -FullSearch to match against the whole comic object (e.g. the alt text and transcript) instead of just the title.
+Searches comic titles for the specified text and returns any matches. This builds a local cache of the comic data on first use (and refreshes it automatically if it's out of date, unless you specify the `-SkipCacheRefresh` switch, which can also be set to true by default via `Set-XKCDDefault -SkipCacheRefresh`), so subsequent searches are fast. Add -FullSearch to match against the whole comic object (e.g. the alt text and transcript) instead of just the title.
 
 ```powershell
 Find-XKCD -Query 'Time' -And 'Machine'

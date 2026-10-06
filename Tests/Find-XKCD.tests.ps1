@@ -228,6 +228,31 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'SkipCacheRefresh Parameter Tests' {
+
+        It 'Find-XKCD calls Update-XKCDCache by default' {
+            Mock Update-XKCDCache {} -ModuleName $Module
+
+            Find-XKCD -Query 'Spiders' | Out-Null
+
+            Should -Invoke Update-XKCDCache -ModuleName $Module -Times 1 -Exactly
+        }
+
+        It 'Find-XKCD -SkipCacheRefresh does not call Update-XKCDCache' {
+            Mock Update-XKCDCache {} -ModuleName $Module
+
+            Find-XKCD -Query 'Spiders' -SkipCacheRefresh | Out-Null
+
+            Should -Invoke Update-XKCDCache -ModuleName $Module -Times 0 -Exactly
+        }
+
+        It 'Find-XKCD -SkipCacheRefresh still returns results from the existing cache' {
+            $Result = Find-XKCD -Query 'Spiders' -SkipCacheRefresh
+
+            @($Result).Count | Should -Be 4
+        }
+    }
+
     Context 'Raw Parameter Tests' {
 
         It 'Find-XKCD -Raw does not add the date, html_img or html properties' {

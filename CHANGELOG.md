@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* Added `-SkipCacheRefresh` to `Find-XKCD` to allow a user to skip the refresh of the Comic cache, in case they want `Find-XKCD` to work entirely offline.
+* Updated `Set-XKCDDefault` to allow the configuration of a default preference for the new `-SkipCacheRefresh` switch.
+
 ## [1.10.5] - 2026-10-05
 
 * Added `.Link` entries for each cmdlet so that `Get-Help <cmdlet> -Online` opens the GitHub Wiki based help page.

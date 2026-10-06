@@ -150,11 +150,19 @@ function Find-XKCD {
         # Path to where comic data is cached. By default this is within the module path, unless a default has
         # been saved with Set-XKCDDefault -CachePath.
         [string]
-        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+        $CachePath = (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json')),
+
+        # Skips the Update-XKCDCache step, searching the cache as it currently exists on disk. Useful to avoid
+        # the overhead of checking for new comics when you know the cache is already up to date. Defaults to
+        # the value saved with Set-XKCDDefault -SkipCacheRefresh, if any.
+        [switch]
+        $SkipCacheRefresh = (Get-XKCDDefaultValue -Name 'SkipCacheRefresh' -Value $false)
     )
     begin {
         # Ensure the cache is up to date
-        Update-XKCDCache -CachePath $CachePath
+        if (-not $SkipCacheRefresh) {
+            Update-XKCDCache -CachePath $CachePath
+        }
         $AllComics = Get-Content $CachePath | ConvertFrom-Json
     }
     process {

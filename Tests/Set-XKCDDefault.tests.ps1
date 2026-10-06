@@ -68,6 +68,14 @@ Describe "Unit Tests PS$PSVersion" {
             $DefaultsPath | Should -Not -Exist
         }
 
+        It 'Saves the SkipCacheRefresh preference used by Find-XKCD' {
+            $DefaultsPath = Join-Path $TestDrive 'skipcacherefresh-defaults.json'
+
+            Set-XKCDDefault -SkipCacheRefresh -DefaultsPath $DefaultsPath | Out-Null
+
+            (Get-Content $DefaultsPath | ConvertFrom-Json).SkipCacheRefresh | Should -Be $true
+        }
+
         It 'Saves the Explanation, Transcript, Discussion and Full preferences used by Get-XKCDExplanation and Show-XKCDExplanation' {
             $DefaultsPath = Join-Path $TestDrive 'explanation-defaults.json'
 
