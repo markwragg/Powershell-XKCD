@@ -8,37 +8,37 @@ Optionally can download the comic images.
 
 ### Specific (Default)
 ```
-Get-XKCD [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [[-Number] <Int32[]>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Get-XKCD [-Download] [-Offline] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
+ [-StatePath <String>] [-CachePath <String>] [[-Number] <Int32[]>] [-Force] [-NoStateUpdate] [-Raw]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Random
 ```
-Get-XKCD [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-Download] [-Open] [-Show] [-Explain]
- [-Path <String>] [-HighQuality] [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw]
+Get-XKCD [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-Download] [-Offline] [-Open] [-Show] [-Explain]
+ [-Path <String>] [-HighQuality] [-StatePath <String>] [-CachePath <String>] [-Force] [-NoStateUpdate] [-Raw]
  [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Newest
 ```
-Get-XKCD [-Newest <Int32>] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Get-XKCD [-Newest <Int32>] [-Download] [-Offline] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
+ [-StatePath <String>] [-CachePath <String>] [-Force] [-NoStateUpdate] [-Raw]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Next
 ```
-Get-XKCD [-Next] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality] [-StatePath <String>]
- [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+Get-XKCD [-Next] [-Download] [-Offline] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
+ [-StatePath <String>] [-CachePath <String>] [-Force] [-NoStateUpdate] [-Raw]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Previous
 ```
-Get-XKCD [-Previous] [-Download] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
- [-StatePath <String>] [-Force] [-NoStateUpdate] [-Raw] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Get-XKCD [-Previous] [-Download] [-Offline] [-Open] [-Show] [-Explain] [-Path <String>] [-HighQuality]
+ [-StatePath <String>] [-CachePath <String>] [-Force] [-NoStateUpdate] [-Raw]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -67,6 +67,14 @@ state reflects the last one returned.
 -Previous returns nothing once you've reached comic #1.
 -Show updates the state itself via Show-XKCD,
 since it doesn't return a comic object here; -Explain does not update the state.
+
+Use -Offline to return comic data from the local cache (created/refreshed by Update-XKCDCache) instead
+of querying the xkcd API -- this also governs where -Random/-Newest/-Next/-Previous consider the
+"latest" comic to be.
+Combined with -Show, the comic's image is rendered from a copy previously saved
+with -Download rather than downloaded fresh; if that copy doesn't exist yet, a warning is shown asking
+you to use -Download first.
+Defaults to the value saved with Set-XKCDDefault -Offline, if any.
 
 ## EXAMPLES
 
@@ -178,12 +186,31 @@ This command returns the latest comic exactly as received from the xkcd API, wit
 
 ### EXAMPLE 14
 ```
+Get-XKCD -Offline
+```
+
+This command returns the details of the latest cached comic from the local cache (created/refreshed by
+Update-XKCDCache), without querying the xkcd API.
+Requires a local cache to already exist.
+
+### EXAMPLE 15
+```
+Get-XKCD -Show -Offline
+```
+
+This command displays the latest cached comic's title and alt text in the console, rendering its image
+from a copy previously saved with -Download, instead of fetching anything from the xkcd API.
+If the
+image hasn't been downloaded yet, a warning is shown asking you to use -Download first.
+
+### EXAMPLE 16
+```
 1..10 | % { Get-XKCD -Random | select num,img } | FT -AutoSize
 ```
 
 This command returns the details of 10 random comics from the set of all comics and displays the number and image URL of those comics as an autosized table.
 
-### EXAMPLE 15
+### EXAMPLE 17
 ```
 (Get-XKCD).html
 ```
@@ -191,7 +218,7 @@ This command returns the details of 10 random comics from the set of all comics 
 This command returns an HTML \<img\> tag (linking to the comic's page on xkcd.com) for the latest comic,
 suitable for embedding in an HTML page or email.
 
-### EXAMPLE 16
+### EXAMPLE 18
 ```
 (Get-XKCD).html_img
 ```
@@ -310,6 +337,25 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Offline
+Returns comic data from the local cache instead of querying the xkcd API, and (with -Show) renders
+the comic's image from a copy previously saved with -Download instead of downloading it fresh --
+warning and skipping the comic's display if that copy doesn't exist yet.
+Defaults to the value saved
+with Set-XKCDDefault -Offline, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Offline' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Open
 Opens the comic/s in your default web browser
 
@@ -408,6 +454,23 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CachePath
+Use with -Offline to specify where comic data is cached.
+By default this is within the module path,
+unless a default has been saved with Set-XKCDDefault -CachePath.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

@@ -7,23 +7,26 @@ Checks whether any new comics have been published since the last time Test-XKCD 
 
 ### Default (Default)
 ```
-Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
- [<CommonParameters>]
+Test-XKCD [-Quiet] [-Detailed] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Number
 ```
-Test-XKCD [-Number] <Int32> [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Test-XKCD [-Number] <Int32> [-Offline] [-CachePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### AddToProfile
 ```
-Test-XKCD [-AddToProfile] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Test-XKCD [-AddToProfile] [-Offline] [-CachePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ### RemoveFromProfile
 ```
-Test-XKCD [-RemoveFromProfile] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Test-XKCD [-RemoveFromProfile] [-Offline] [-CachePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
+ [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -47,6 +50,11 @@ whenever you open a new session.
 Does nothing if that line is already present.
 Use -RemoveFromProfile to
 remove it again -- does nothing if the profile doesn't exist or doesn't contain that line.
+
+Use -Offline to check the local cache (created/refreshed by Update-XKCDCache) for the latest comic, or
+(with -Number) whether a specific comic exists in it, instead of querying the xkcd API.
+Defaults to the
+value saved with Set-XKCDDefault -Offline, if any.
 
 ## EXAMPLES
 
@@ -82,6 +90,22 @@ Returns $true if comic #999999 exists, otherwise $false.
 
 ### EXAMPLE 5
 ```
+Test-XKCD -Offline
+```
+
+Writes a friendly message to the console stating how many new comics are available, determined from the
+local cache rather than the xkcd API.
+
+### EXAMPLE 6
+```
+Test-XKCD -Number 999999 -Offline
+```
+
+Returns $true if comic #999999 exists in the local cache, otherwise $false, without contacting the
+xkcd API.
+
+### EXAMPLE 7
+```
 if (Test-XKCD -Quiet) { Test-XKCD }
 ```
 
@@ -91,7 +115,7 @@ If new comics are available, this will write a friendly message to the console s
 Add this to your PowerShell profile.ps1 to have it run automatically when you open a new session and prompt you only when new
 comics are available.
 
-### EXAMPLE 6
+### EXAMPLE 8
 ```
 Test-XKCD -AddToProfile
 ```
@@ -100,7 +124,7 @@ Adds \`if (Test-XKCD -Quiet) { Test-XKCD }\` to your PowerShell profile, creatin
 containing directory) if it doesn't already exist.
 Does nothing if that line is already present.
 
-### EXAMPLE 7
+### EXAMPLE 9
 ```
 Test-XKCD -RemoveFromProfile
 ```
@@ -208,6 +232,40 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Offline
+Checks the local cache for the latest comic, or (with -Number) whether a specific comic exists in it,
+instead of querying the xkcd API.
+Defaults to the value saved with Set-XKCDDefault -Offline, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Offline' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CachePath
+Use with -Offline to specify where comic data is cached.
+By default this is within the module path,
+unless a default has been saved with Set-XKCDDefault -CachePath.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

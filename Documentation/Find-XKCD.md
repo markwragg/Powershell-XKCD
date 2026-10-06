@@ -10,7 +10,7 @@ use the -FullSearch switch.
 
 ```
 Find-XKCD [-Query] <String[]> [-Or <String[]>] [-And <String[]>] [-Not <String[]>] [-Year <Int32[]>]
- [-Month <Int32[]>] [-Day <Int32[]>] [-FullSearch] [-Raw] [-CachePath <String>] [-SkipCacheRefresh]
+ [-Month <Int32[]>] [-Day <Int32[]>] [-FullSearch] [-Raw] [-CachePath <String>] [-SkipCacheRefresh] [-Offline]
  [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
@@ -51,6 +51,10 @@ embedding the comic in HTML output -- 'html_img' is just the \<img\> tag, and 'h
 a link to the comic's page on xkcd.com.
 Use -Raw to omit these and get each comic exactly as cached
 (still tagged with 'query').
+
+Use -Offline as an alternative to -SkipCacheRefresh -- it has the same effect of skipping the
+Update-XKCDCache step and searching the cache as it currently exists on disk, without contacting the
+xkcd API, but defaults to the value saved with Set-XKCDDefault -Offline rather than -SkipCacheRefresh.
 
 ## EXAMPLES
 
@@ -138,6 +142,14 @@ Find-XKCD -Query 'Spider' -Month 10 -Day 31
 ```
 
 Returns comics with 'Spider' in the title that were published on October 31st of any year.
+
+### EXAMPLE 12
+```
+Find-XKCD -Query 'Spider' -Offline
+```
+
+Returns comics with 'Spider' in the title, searching the local cache as it currently exists on disk
+without contacting the xkcd API to refresh it first.
 
 ## PARAMETERS
 
@@ -315,6 +327,24 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'SkipCacheRefresh' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Offline
+Has the same effect as -SkipCacheRefresh -- skips the Update-XKCDCache step and searches the cache as
+it currently exists on disk, without contacting the xkcd API.
+Defaults to the value saved with
+Set-XKCDDefault -Offline, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Offline' -Value $false)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

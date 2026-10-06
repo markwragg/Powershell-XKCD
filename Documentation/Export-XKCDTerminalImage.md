@@ -7,8 +7,9 @@ and saves the result to a file, so it can be redisplayed later with Import-XKCDT
 ## SYNTAX
 
 ```
-Export-XKCDTerminalImage [[-Number] <Int32[]>] [-HighQuality] [-Path <String>] [-PassThru] [-Force]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Export-XKCDTerminalImage [[-Number] <Int32[]>] [-HighQuality] [-Path <String>] [-PassThru] [-Force] [-Offline]
+ [-CachePath <String>] [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -32,6 +33,14 @@ doesn't match the protocol detected for the terminal you're importing it into.
 By default, Export-XKCDTerminalImage exports the latest available comic.
 When you use the -Number
 parameter (aliased as -Num) you can specify one or more specific comics to export.
+
+Use -Offline to get comic data from the local cache (created/refreshed by Update-XKCDCache) and render
+the comic's image from a copy previously saved with Get-XKCD -Download, instead of fetching either from
+the xkcd API -- this also governs which comic -Offline considers "latest" when -Number isn't specified.
+If the comic's image hasn't been downloaded to -DownloadPath yet, a warning is shown asking you to use
+-Download first, and that comic is skipped.
+Defaults to the value saved with Set-XKCDDefault -Offline,
+if any.
 
 ## EXAMPLES
 
@@ -72,6 +81,14 @@ Export-XKCDTerminalImage -Number 353 -Force
 Re-exports comic number 353, overwriting '.\353.xkcdterm.json' if it already exists.
 Without -Force,
 Export-XKCDTerminalImage throws rather than overwrite an existing file.
+
+### EXAMPLE 6
+```
+Export-XKCDTerminalImage -Number 353 -Offline -DownloadPath C:\XKCD
+```
+
+Exports comic number 353 using its data from the local cache and its image from a copy previously
+saved to C:\XKCD with Get-XKCD -Download -Path C:\XKCD, without contacting the xkcd API.
 
 ## PARAMETERS
 
@@ -160,6 +177,61 @@ Aliases:
 Required: False
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Offline
+Gets comic data from the local cache, and renders the comic's image from a copy previously saved
+with Get-XKCD -Download, instead of fetching either from the xkcd API.
+Warns and skips the comic if
+its image hasn't been downloaded to -DownloadPath yet.
+Defaults to the value saved with
+Set-XKCDDefault -Offline, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Offline' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CachePath
+Use with -Offline to specify where comic data is cached.
+By default this is within the module path,
+unless a default has been saved with Set-XKCDDefault -CachePath.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DownloadPath
+Use with -Offline to specify the local directory to look for previously downloaded comic images in
+(as saved by Get-XKCD -Download).
+By default this is the current working directory, unless a default
+has been saved with Set-XKCDDefault -Path.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Path' -Value $PWD)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
