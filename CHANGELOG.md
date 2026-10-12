@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.11.0] - 2026-10-06
 
 * Adds an `-Offline` switch to `Get-XKCD`, `Show-XKCD`, `Find-XKCD`, `Export-XKCDTerminalImage` and `Test-XKCD`, so each can work entirely from the local cache/previously downloaded images, without contacting the xkcd API:
   * `Get-XKCD -Offline` returns comic data from the local cache (also used to determine the "latest" comic for `-Random`/`-Newest`/`-Next`/`-Previous`) instead of querying the API. Warns and skips any requested comic that isn't in the cache.

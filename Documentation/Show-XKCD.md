@@ -7,26 +7,26 @@ Displays a comic's title, image, and alt text in the console.
 
 ### Specific (Default)
 ```
-Show-XKCD [[-Number] <Int32[]>] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-XKCD [[-Number] <Int32[]>] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Next
 ```
-Show-XKCD [-Next] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Show-XKCD [-Next] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### Previous
 ```
-Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ### File
 ```
-Show-XKCD [-Path] <String[]> [-HighQuality] [-StatePath <String>] [-ProgressAction <ActionPreference>]
- [-WhatIf] [-Confirm] [<CommonParameters>]
+Show-XKCD [-Path] <String[]> [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,6 +51,15 @@ The saved image is written to the console as-is
 rather than being re-rendered, so it's only guaranteed to display correctly in a terminal that supports
 the same graphics protocol it was exported with; a warning is shown if that doesn't match the protocol
 detected for the terminal you're displaying it in.
+
+Use -Offline to display a comic using data from the local cache (created/refreshed by Update-XKCDCache)
+and an image previously saved with Get-XKCD -Download, instead of fetching either from the xkcd API --
+this also governs where -Next/-Previous and the default (no -Number) consider the "latest" comic to
+be.
+If the comic's image hasn't been downloaded to -DownloadPath yet, a warning is shown asking you to
+use -Download first, and that comic is skipped.
+Defaults to the value saved with Set-XKCDDefault
+-Offline, if any.
 
 ## EXAMPLES
 
@@ -123,6 +132,24 @@ Export-XKCDTerminalImage -Number 353 -PassThru | Show-XKCD
 ```
 
 Exports comic number 353 and immediately displays it from the saved file.
+
+### EXAMPLE 10
+```
+Show-XKCD -Offline
+```
+
+Displays the latest cached comic, rendering its image from a copy previously saved with
+Get-XKCD -Download, instead of fetching either from the xkcd API.
+
+### EXAMPLE 11
+```
+Show-XKCD -Num 353 -Offline -DownloadPath C:\XKCD
+```
+
+Displays comic number 353 from the local cache, rendering its image from a copy previously saved to
+C:\XKCD with Get-XKCD -Download -Path C:\XKCD.
+Warns and skips displaying the comic if no copy of its
+image is found there.
 
 ## PARAMETERS
 
@@ -229,6 +256,61 @@ Aliases:
 Required: False
 Position: Named
 Default value: (Get-XKCDDefaultValue -Name 'StatePath' -Value (Get-XKCDUserDataPath -FileName 'XKCD.state.json' -LegacyDirectory $PSScriptRoot))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Offline
+Displays comic data from the local cache, and the comic's image from a copy previously saved with
+Get-XKCD -Download, instead of fetching either from the xkcd API.
+Warns and skips the comic if its
+image hasn't been downloaded to -DownloadPath yet.
+Defaults to the value saved with
+Set-XKCDDefault -Offline, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Offline' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -CachePath
+Use with -Offline to specify where comic data is cached.
+By default this is within the module path,
+unless a default has been saved with Set-XKCDDefault -CachePath.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'CachePath' -Value (Join-Path $PSScriptRoot 'XKCD.json'))
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DownloadPath
+Use with -Offline to specify the local directory to look for previously downloaded comic images in
+(as saved by Get-XKCD -Download).
+By default this is the current working directory, unless a default
+has been saved with Set-XKCDDefault -Path.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'Path' -Value $PWD)
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

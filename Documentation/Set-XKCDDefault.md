@@ -8,8 +8,8 @@ high quality images by default.
 
 ```
 Set-XKCDDefault [-HighQuality] [[-Path] <String>] [-FullSearch] [-SkipCacheRefresh] [[-CachePath] <String>]
- [[-StatePath] <String>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Reset] [[-DefaultsPath] <String>]
- [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [[-StatePath] <String>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Offline] [-Reset]
+ [[-DefaultsPath] <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -35,6 +35,7 @@ Supported preferences:
 -Transcript        Default for -Transcript on Get-XKCDExplanation and Show-XKCDExplanation.
 -Discussion        Default for -Discussion on Get-XKCDExplanation and Show-XKCDExplanation.
 -Full              Default for -Full on Get-XKCDExplanation and Show-XKCDExplanation.
+-Offline           Default for -Offline on Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD.
 
 ## EXAMPLES
 
@@ -61,12 +62,21 @@ Makes Get-XKCDExplanation and Show-XKCDExplanation retrieve the explanation, tra
 
 ### EXAMPLE 4
 ```
+Set-XKCDDefault -Offline
+```
+
+Makes Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD use their local cache (and,
+for Get-XKCD/Show-XKCD/Export-XKCDTerminalImage, previously downloaded images) by default, instead of
+querying the xkcd API.
+
+### EXAMPLE 5
+```
 Set-XKCDDefault -HighQuality:$false
 ```
 
 Explicitly saves -HighQuality as disabled by default, overriding a previously saved value.
 
-### EXAMPLE 5
+### EXAMPLE 6
 ```
 Set-XKCDDefault -Reset
 ```
@@ -214,6 +224,22 @@ Accept wildcard characters: False
 
 ### -Full
 Sets the default for -Full, used by Get-XKCDExplanation and Show-XKCDExplanation.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Offline
+Sets the default for -Offline, used by Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and
+Test-XKCD.
 
 ```yaml
 Type: SwitchParameter
