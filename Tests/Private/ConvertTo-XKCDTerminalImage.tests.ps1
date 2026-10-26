@@ -35,6 +35,24 @@ Describe "Unit Tests PS$PSVersion" {
             $Result | Should -Match ([regex]::Escape("$esc") + '_Ga=T,f=100,m=1;')
             $Result | Should -Match ([regex]::Escape("$esc") + '_Gm=0;')
         }
+
+        It 'Does not request a specific column width by default' {
+            $Result = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'Kitty' } $SmallImageBytes
+
+            $Result | Should -Not -Match ',c=\d+'
+        }
+
+        It 'Requests the specified column width when -Columns is specified' {
+            $Result = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'Kitty' -Columns 42 } $SmallImageBytes
+
+            $Result | Should -Match 'a=T,f=100,m=0,c=42;'
+        }
+
+        It 'Only includes -Columns on the first chunk of a multi-chunk image' {
+            $Result = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'Kitty' -Columns 42 } $LargeImageBytes
+
+            ([regex]::Matches($Result, 'c=42')).Count | Should -Be 1
+        }
     }
 
     Context 'ConvertTo-XKCDTerminalImage iTerm2 Tests' {
@@ -50,6 +68,16 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Returns an iTerm2 inline image escape sequence' {
             $Result | Should -Match ([regex]::Escape("$esc") + '\]1337;File=inline=1;size=10:')
             $Result | Should -Match ([regex]::Escape("$bel"))
+        }
+
+        It 'Does not request a specific cell width by default' {
+            $Result | Should -Not -Match 'width=\d+'
+        }
+
+        It 'Requests the specified cell width when -Columns is specified' {
+            $ColumnResult = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol 'iTerm2' -Columns 42 } $ImageBytes
+
+            $ColumnResult | Should -Match 'size=10;width=42:'
         }
     }
 

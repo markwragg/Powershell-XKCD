@@ -22,7 +22,15 @@ function ConvertTo-XKCDTerminalImage {
         # actually visible on screen, rather than being downscaled straight back to the standard-quality size.
         # Kitty and iTerm2 aren't affected, as neither is downscaled to a fixed width here.
         [switch]
-        $HighQuality
+        $HighQuality,
+
+        # Requests that Kitty/iTerm2 render the image to occupy exactly this many terminal columns (preserving
+        # aspect ratio), instead of their own default sizing -- used by Start-XKCD so it can center the image
+        # by column rather than guessing at the terminal's actual cell pixel size. Sixel has no equivalent
+        # control (it always renders at the image's actual pixel size relative to the terminal's real cell
+        # size), so this is ignored for that protocol.
+        [int]
+        $Columns
     )
 
     $esc = [char]27
@@ -37,6 +45,7 @@ function ConvertTo-XKCDTerminalImage {
                 $chunk = $base64.Substring($offset, [Math]::Min($chunkSize, $base64.Length - $offset))
                 $more = if (($offset + $chunkSize) -lt $base64.Length) { 1 } else { 0 }
                 $control = if ($offset -eq 0) { "a=T,f=100,m=$more" } else { "m=$more" }
+                if ($offset -eq 0 -and $Columns -gt 0) { $control += ",c=$Columns" }
 
                 [void]$sb.Append("$esc" + "_G$control;$chunk" + "$esc" + '\')
             }
@@ -46,8 +55,9 @@ function ConvertTo-XKCDTerminalImage {
         'iTerm2' {
             $base64 = [Convert]::ToBase64String($ImageBytes)
             $bel = [char]7
+            $widthPart = if ($Columns -gt 0) { ";width=$Columns" } else { '' }
 
-            "$esc]1337;File=inline=1;size=$($ImageBytes.Length):$base64$bel"
+            "$esc]1337;File=inline=1;size=$($ImageBytes.Length)${widthPart}:$base64$bel"
         }
         'Sixel' {
             if ($HighQuality) {

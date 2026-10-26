@@ -1,5 +1,15 @@
 # Change Log
 
+## !Deploy 1.12.0
+
+* Adds `Start-XKCD`, a full-screen terminal interface for browsing the archive without leaving it -- a TUI parody of xkcd.com itself, complete with its own ASCII art banner and tagline:
+  * The current comic's title, image (centered -- exactly for Kitty/iTerm2, approximately for Sixel), and alt text are framed by a control bar shown both above and below the image.
+  * `G` prompts for a specific comic number to jump to; `F`/`L` jump straight to the first/latest comic; `P`/`N` (or the left/right arrow keys) display the previous/next comic; `R` displays a random comic; `Q`/`Esc` exits back to your normal console.
+  * By default it opens on the latest comic; use `Start-XKCD 2000` to open on a specific one instead.
+  * Supports `-HighQuality` and `-Offline` (with `-DownloadPath`), working the same way they do on `Show-XKCD`, and updates the same state file used by `-Next`/`-Previous` and `Test-XKCD`.
+  * `Set-XKCDDefault -HighQuality/-Offline/-CachePath/-StatePath` also apply to `Start-XKCD`, since it shares these preferences with `Show-XKCD`.
+* Adds a `-Columns` parameter to the internal terminal image renderer so Kitty/iTerm2 images can be rendered at an exact column width (used by `Start-XKCD` to center them precisely); `Show-XKCD` and `Export-XKCDTerminalImage` are unaffected.
+
 ## [1.11.0] - 2026-10-06
 
 * Adds an `-Offline` switch to `Get-XKCD`, `Show-XKCD`, `Find-XKCD`, `Export-XKCDTerminalImage` and `Test-XKCD`, so each can work entirely from the local cache/previously downloaded images, without contacting the xkcd API:

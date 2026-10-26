@@ -264,6 +264,18 @@ Displays the full comic -- title, image, and alt text -- from a file created by 
 
 Use -Offline to work entirely from your local cache (built/refreshed by Update-XKCDCache) instead of contacting the xkcd API. On Get-XKCD, comic data -- including which comic counts as "latest" for -Random/-Newest/-Next/-Previous -- comes from the cache. On Show-XKCD, the comic's image is also rendered from a copy previously saved with -Download, looked up via a new -DownloadPath parameter (defaults to the same directory as -Download's -Path); if that image hasn't been downloaded yet, a warning suggests using -Download first and that comic is skipped rather than causing an error, so the rest of a multi-comic request still displays. Find-XKCD, Export-XKCDTerminalImage, and Test-XKCD also support -Offline: on Find-XKCD it has the same effect as the existing -SkipCacheRefresh switch; on Export-XKCDTerminalImage it renders from a previously downloaded image the same way Show-XKCD does; on Test-XKCD it checks the cache instead of the API for the latest comic, or (with -Number) whether a specific comic exists. Set a default for all five at once with `Set-XKCDDefault -Offline`.
 
+32) `Start-XKCD`
+
+Opens a full-screen terminal interface for browsing the archive -- a TUI parody of xkcd.com itself, complete with its own ASCII art banner and tagline. The current comic's title, image, and alt text are framed by a control bar shown both above and below the image:
+
+- `G` prompts for a specific comic number to jump to.
+- `F`/`L` jump straight to the first/latest comic.
+- `P`/`N` (or the left/right arrow keys) display the previous/next comic.
+- `R` displays a random comic.
+- `Q`/`Esc` exits back to your normal console.
+
+By default it opens on the latest comic; use `Start-XKCD 2000` to open on a specific one instead. As with Show-XKCD, each comic you view updates the same state file used by -Next/-Previous and Test-XKCD, and -HighQuality/-Offline (with -DownloadPath) work the same way they do on Show-XKCD.
+
 ## Contributions
 
 Code contributions via issues and/or pull requests are welcomed, see [CONTRIBUTING.md](CONTRIBUTING.md) for further guidance.
