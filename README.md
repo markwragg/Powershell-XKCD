@@ -266,6 +266,8 @@ Use -Offline to work entirely from your local cache (built/refreshed by Update-X
 
 32) `Start-XKCD`
 
+![Start-XKCD cmdlet usage example](Media/start-xkcd.png)
+
 Opens a full-screen terminal interface for browsing the archive -- a TUI parody of xkcd.com itself, complete with its own ASCII art banner and tagline. The current comic's title, image, and alt text are framed by a control bar shown both above and below the image:
 
 - `G` prompts for a specific comic number to jump to.
