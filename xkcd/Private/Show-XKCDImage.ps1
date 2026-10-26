@@ -41,7 +41,7 @@ function Show-XKCDImage {
             HighQuality = $HighQuality
         }
         if ($protocol -in 'Kitty', 'iTerm2') {
-            $TerminalImageParams.Columns = Get-XKCDTerminalImageColumns -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
+            $TerminalImageParams.Columns = Get-XKCDTerminalImageColumnCount -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
         }
 
         $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams

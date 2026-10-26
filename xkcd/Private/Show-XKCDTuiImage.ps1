@@ -35,7 +35,7 @@ function Show-XKCDTuiImage {
         return
     }
 
-    $DisplayColumns = Get-XKCDTerminalImageColumns -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
+    $DisplayColumns = Get-XKCDTerminalImageColumnCount -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
     $Padding = [Math]::Max(0, [int][Math]::Floor(($Width - $DisplayColumns) / 2))
 
     try {

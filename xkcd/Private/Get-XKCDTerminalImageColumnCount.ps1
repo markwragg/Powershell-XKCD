@@ -1,4 +1,4 @@
-function Get-XKCDTerminalImageColumns {
+function Get-XKCDTerminalImageColumnCount {
     <#
     .SYNOPSIS
         Works out how many terminal columns to request an image be rendered into for Kitty/iTerm2, based on
