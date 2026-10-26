@@ -135,28 +135,30 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $RecordedNums | Should -Be @(1, 2, 1)
         }
 
-        It 'Right arrow does nothing once the latest comic is reached' {
+        It 'Right arrow shows a message instead of redrawing once the latest comic is reached' {
             $RecordedNums = [System.Collections.Generic.List[int]]::new()
             Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
             Set-XKCDTestKeySequence 'RightArrow', 'RightArrow', 'Escape'
 
-            Get-XKCDCapturedOutput {
+            $Output = Get-XKCDCapturedOutput {
                 Start-XKCD -Number 3 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
-            } | Out-Null
+            }
 
-            $RecordedNums | Should -Be @(3, 3, 3)
+            $RecordedNums | Should -Be @(3)
+            $Output | Should -Match 'already viewing the latest comic'
         }
 
-        It 'Left arrow does nothing once comic #1 is reached' {
+        It 'Left arrow shows a message instead of redrawing once comic #1 is reached' {
             $RecordedNums = [System.Collections.Generic.List[int]]::new()
             Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
             Set-XKCDTestKeySequence 'LeftArrow', 'LeftArrow', 'Escape'
 
-            Get-XKCDCapturedOutput {
+            $Output = Get-XKCDCapturedOutput {
                 Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
-            } | Out-Null
+            }
 
-            $RecordedNums | Should -Be @(1, 1, 1)
+            $RecordedNums | Should -Be @(1)
+            $Output | Should -Match 'already viewing the first comic'
         }
 
         It 'N and P are equivalent to the right/left arrow keys' {
@@ -211,6 +213,32 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $RecordedNums | Should -Be @(1, 3)
         }
 
+        It 'F shows a message instead of redrawing when already on the first comic' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            Set-XKCDTestKeySequence 'F', 'Escape'
+
+            $Output = Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            }
+
+            $RecordedNums | Should -Be @(1)
+            $Output | Should -Match 'already viewing the first comic'
+        }
+
+        It 'L shows a message instead of redrawing when already on the latest comic' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            Set-XKCDTestKeySequence 'L', 'Escape'
+
+            $Output = Get-XKCDCapturedOutput {
+                Start-XKCD -Number 3 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            }
+
+            $RecordedNums | Should -Be @(3)
+            $Output | Should -Match 'already viewing the latest comic'
+        }
+
         It 'G prompts for and jumps to a specific comic number' {
             $RecordedNums = [System.Collections.Generic.List[int]]::new()
             Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
@@ -224,17 +252,59 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $RecordedNums | Should -Be @(1, 2)
         }
 
-        It 'G leaves the current comic unchanged when the typed number is invalid' {
+        It 'G shows a message instead of redrawing when the typed number is invalid' {
             $RecordedNums = [System.Collections.Generic.List[int]]::new()
             Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
             Mock -ModuleName $Module Read-XKCDConsoleLine { '999' }
             Set-XKCDTestKeySequence 'G', 'Escape'
 
-            Get-XKCDCapturedOutput {
+            $Output = Get-XKCDCapturedOutput {
                 Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
-            } | Out-Null
+            }
 
-            $RecordedNums | Should -Be @(1, 1)
+            $RecordedNums | Should -Be @(1)
+            $Output | Should -Match "not a valid comic number"
+        }
+
+        It 'G shows a message instead of redrawing when the typed number is in range but does not exist' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            # The cache here only has comics #1 and #3 -- #2 is a gap, so $Latest (the highest cached number)
+            # is still 3, making '2' a syntactically valid, in-range request that nonetheless doesn't exist.
+            Mock -ModuleName $Module Get-XKCDOfflineComic {
+                Param($CachePath, $Number)
+                $ExistingComics = @(1, 3) | ForEach-Object {
+                    [pscustomobject]@{ num = $_; title = "Comic $_"; img = "https://imgs.xkcd.com/comics/comic$_.jpg"; alt = "Alt $_"; year = '2006'; month = '1'; day = "$_" }
+                }
+                if ($Number) { $ExistingComics | Where-Object { $_.num -in $Number } } else { $ExistingComics }
+            }
+            Mock -ModuleName $Module Read-XKCDConsoleLine { '2' }
+            Set-XKCDTestKeySequence 'G', 'Escape'
+
+            $Output = Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            }
+
+            $RecordedNums | Should -Be @(1)
+            $Output | Should -Match "Comic #2 doesn't exist"
+        }
+
+        It 'G re-prompts one line above a still-visible message when the previous attempt was also invalid' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $LineQueue = [System.Collections.Generic.Queue[string]]::new([string[]]@('999', '998'))
+            Mock -ModuleName $Module Read-XKCDConsoleLine { $LineQueue.Dequeue() }
+            Set-XKCDTestKeySequence 'G', 'G', 'Escape'
+
+            $Output = Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            }
+
+            $Esc = [char]27
+            $RecordedNums | Should -Be @(1)
+            # Only the second attempt's re-prompt should move up a line -- there's no message yet to preserve
+            # the first time around.
+            ([regex]::Matches($Output, [regex]::Escape("$Esc[1A"))).Count | Should -Be 1
         }
     }
 

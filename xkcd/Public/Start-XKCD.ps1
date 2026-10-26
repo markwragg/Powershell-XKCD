@@ -115,36 +115,100 @@ function Start-XKCD {
         Write-Verbose 'No console window available (e.g. output redirected), falling back to the default width'
     }
 
-    while ($true) {
-        $Comic = Get-XKCD -Num $Current -NoStateUpdate -Offline:$Offline -CachePath $CachePath
-        if (-not $Comic) { return }
+    $NeedsRedraw = $true
+    $BoundaryMessage = $null
+    $ComicPromptMessageShown = $false
 
-        $ImageBytes = if ($Offline) {
-            Get-XKCDOfflineImageContent -Comic $Comic -Path $DownloadPath
-        }
-        else {
-            Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality
-        }
+    try {
+        [Console]::CursorVisible = $false
+    }
+    catch {
+        Write-Verbose 'Unable to hide the console cursor (e.g. output redirected); continuing with it shown.'
+    }
 
-        Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width
+    try {
+        while ($true) {
+            if ($NeedsRedraw) {
+                $Comic = Get-XKCD -Num $Current -NoStateUpdate -Offline:$Offline -CachePath $CachePath
+                if (-not $Comic) { return }
 
-        if ($PSCmdlet.ShouldProcess($StatePath, "Track comic #$Current as the one most recently viewed")) {
-            Update-XKCDLastReadState -Num $Current -StatePath $StatePath -Cmdlet $PSCmdlet
-        }
+                $ImageBytes = if ($Offline) {
+                    Get-XKCDOfflineImageContent -Comic $Comic -Path $DownloadPath -WarningVariable ImageWarning -WarningAction SilentlyContinue
+                }
+                else {
+                    Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality -WarningVariable ImageWarning -WarningAction SilentlyContinue
+                }
 
-        $Key = Read-XKCDConsoleKey
+                Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -Warning ($ImageWarning | Select-Object -Last 1)
 
-        switch ($Key.Key) {
-            { $_ -in 'LeftArrow', 'P' } { if ($Current -gt 1) { $Current-- } }
-            { $_ -in 'RightArrow', 'N' } { if ($Current -lt $Latest) { $Current++ } }
-            'R' { $Current = Get-Random -Minimum 1 -Maximum ($Latest + 1) }
-            'F' { $Current = 1 }
-            'L' { $Current = $Latest }
-            'G' {
-                $Requested = Read-XKCDComicNumberPrompt -Latest $Latest
-                if ($Requested) { $Current = $Requested }
+                if ($PSCmdlet.ShouldProcess($StatePath, "Track comic #$Current as the one most recently viewed")) {
+                    Update-XKCDLastReadState -Num $Current -StatePath $StatePath -Cmdlet $PSCmdlet
+                }
+
+                $NeedsRedraw = $false
             }
-            { $_ -in 'Q', 'Escape' } { return }
+            elseif ($BoundaryMessage) {
+                Write-XKCDCenteredLine -InPlace -Width $Width -Text "$([char]27)[33m$BoundaryMessage$([char]27)[0m"
+            }
+
+            $Key = Read-XKCDConsoleKey
+            $MoveUpForPrompt = $ComicPromptMessageShown
+            $BoundaryMessage = $null
+            $ComicPromptMessageShown = $false
+
+            switch ($Key.Key) {
+                { $_ -in 'LeftArrow', 'P' } {
+                    if ($Current -gt 1) { $Current--; $NeedsRedraw = $true }
+                    else { $BoundaryMessage = "You're already viewing the first comic." }
+                }
+                { $_ -in 'RightArrow', 'N' } {
+                    if ($Current -lt $Latest) { $Current++; $NeedsRedraw = $true }
+                    else { $BoundaryMessage = "You're already viewing the latest comic." }
+                }
+                'R' { $Current = Get-Random -Minimum 1 -Maximum ($Latest + 1); $NeedsRedraw = $true }
+                'F' {
+                    if ($Current -ne 1) { $Current = 1; $NeedsRedraw = $true }
+                    else { $BoundaryMessage = "You're already viewing the first comic." }
+                }
+                'L' {
+                    if ($Current -ne $Latest) { $Current = $Latest; $NeedsRedraw = $true }
+                    else { $BoundaryMessage = "You're already viewing the latest comic." }
+                }
+                'G' {
+                    $Requested = Read-XKCDComicNumberPrompt -Latest $Latest -Width $Width -MoveUp:$MoveUpForPrompt
+                    if (-not $Requested) {
+                        $BoundaryMessage = "That's not a valid comic number."
+                        $ComicPromptMessageShown = $true
+                    }
+                    else {
+                        $RequestedComic = $null
+                        try {
+                            $RequestedComic = Get-XKCD -Num $Requested -NoStateUpdate -Offline:$Offline -CachePath $CachePath -WarningAction SilentlyContinue
+                        }
+                        catch {
+                            $RequestedComic = $null
+                        }
+
+                        if ($RequestedComic) {
+                            $Current = $Requested
+                            $NeedsRedraw = $true
+                        }
+                        else {
+                            $BoundaryMessage = "Comic #$Requested doesn't exist."
+                            $ComicPromptMessageShown = $true
+                        }
+                    }
+                }
+                { $_ -in 'Q', 'Escape' } { return }
+            }
+        }
+    }
+    finally {
+        try {
+            [Console]::CursorVisible = $true
+        }
+        catch {
+            Write-Verbose 'Unable to restore the console cursor (e.g. output redirected).'
         }
     }
 }

@@ -84,5 +84,40 @@ Describe "Unit Tests PS$PSVersion" {
 
             $Result | Should -BeNullOrEmpty
         }
+
+        It 'Moves up a line first when -MoveUp is specified, so a message below is left undisturbed' {
+            Mock -ModuleName $Module Read-XKCDConsoleLine { '1' }
+
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj { Param($Latest) Read-XKCDComicNumberPrompt -Latest $Latest -MoveUp } 500 | Out-Null
+            }
+
+            $Esc = [char]27
+            $Output | Should -Match "$Esc\[1A`r$Esc\[2K"
+        }
+
+        It 'Also clears the line below (the previous message) when -MoveUp is specified' {
+            Mock -ModuleName $Module Read-XKCDConsoleLine { '1' }
+
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj { Param($Latest) Read-XKCDComicNumberPrompt -Latest $Latest -MoveUp } 500 | Out-Null
+            }
+
+            # Saves cursor position, moves down to the message line, clears it, then restores the cursor so
+            # typed input still echoes right after the prompt above.
+            $Esc = [char]27
+            $Output | Should -Match "$Esc\[s$Esc\[1B`r$Esc\[2K$Esc\[u"
+        }
+
+        It 'Does not move up a line when -MoveUp is not specified' {
+            Mock -ModuleName $Module Read-XKCDConsoleLine { '1' }
+
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj { Param($Latest) Read-XKCDComicNumberPrompt -Latest $Latest } 500 | Out-Null
+            }
+
+            $Esc = [char]27
+            $Output | Should -Not -Match "$Esc\[1A"
+        }
     }
 }

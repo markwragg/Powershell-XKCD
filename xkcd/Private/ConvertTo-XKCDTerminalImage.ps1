@@ -30,7 +30,12 @@ function ConvertTo-XKCDTerminalImage {
         # control (it always renders at the image's actual pixel size relative to the terminal's real cell
         # size), so this is ignored for that protocol.
         [int]
-        $Columns
+        $Columns,
+
+        # Passed straight through to ConvertTo-XKCDSixel (ignored for Kitty/iTerm2) -- see its own parameter
+        # of the same name.
+        [scriptblock]
+        $OnLargeImageWarning
     )
 
     $esc = [char]27
@@ -61,10 +66,10 @@ function ConvertTo-XKCDTerminalImage {
         }
         'Sixel' {
             if ($HighQuality) {
-                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 925
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 925 -OnLargeImageWarning $OnLargeImageWarning
             }
             else {
-                ConvertTo-XKCDSixel -ImageBytes $ImageBytes
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -OnLargeImageWarning $OnLargeImageWarning
             }
         }
         default {

@@ -84,8 +84,8 @@ Describe "Unit Tests PS$PSVersion" {
             $Sixel | Should -BeOfType [string]
         }
 
-        It 'Starts with the Sixel introducer for the image dimensions' {
-            $Header = "$esc" + 'Pq"1;1;4;4'
+        It 'Starts with the Sixel introducer (with transparent-background P2=1) for the image dimensions' {
+            $Header = "$esc" + 'P0;1;0q"1;1;4;4'
             $Sixel.Substring(0, $Header.Length) | Should -Be $Header
         }
 
@@ -108,7 +108,7 @@ Describe "Unit Tests PS$PSVersion" {
 
         It 'Downscales images wider than -MaxWidth, preserving aspect ratio' {
             $esc = [char]27
-            $Header = "$esc" + 'Pq"1;1;5;2'
+            $Header = "$esc" + 'P0;1;0q"1;1;5;2'
             $Sixel.Substring(0, $Header.Length) | Should -Be $Header
         }
     }

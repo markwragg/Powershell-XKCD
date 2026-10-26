@@ -42,7 +42,7 @@ function Show-XKCDComicImage {
         [Console]::Out.Write($newLine)
     }
     else {
-        Show-XKCDImage -ImageBytes $ImageBytes -HighQuality:$HighQuality
+        Show-XKCDImage -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width
     }
 
     if ($Comic.alt) {

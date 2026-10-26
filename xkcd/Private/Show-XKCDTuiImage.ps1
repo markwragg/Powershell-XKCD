@@ -35,13 +35,7 @@ function Show-XKCDTuiImage {
         return
     }
 
-    $MaxPixelWidth = if ($HighQuality) { 925 } else { 740 }
-    $AssumedCellWidthPx = 10
-
-    $Size = Get-XKCDImageSize -ImageBytes $ImageBytes
-    $PixelWidth = if ($Size) { [Math]::Min($Size.Width, $MaxPixelWidth) } else { $MaxPixelWidth }
-
-    $DisplayColumns = [Math]::Max(1, [Math]::Min($Width - 4, [int][Math]::Ceiling($PixelWidth / $AssumedCellWidthPx)))
+    $DisplayColumns = Get-XKCDTerminalImageColumns -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
     $Padding = [Math]::Max(0, [int][Math]::Floor(($Width - $DisplayColumns) / 2))
 
     try {
@@ -54,13 +48,39 @@ function Show-XKCDTuiImage {
             $TerminalImageParams.Columns = $DisplayColumns
         }
 
-        $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams
+        # ConvertTo-XKCDSixel's own large-image warning is written via the usual Write-Warning (suppressed
+        # here so it doesn't also show up in its default, un-centered form) -- but since that only fires
+        # *before* the slow conversion it warns about, the -OnLargeImageWarning callback is what actually
+        # gets it on screen at that point, rather than only after the whole (slow) call below has returned.
+        # Deliberately self-contained (no call out to Write-XKCDCenteredLine or any other module function):
+        # .GetNewClosure() detaches the scriptblock's command resolution from the module, so a call to a
+        # module-private function here would fail silently once invoked from inside ConvertTo-XKCDSixel.
+        # Left without a trailing newline (cursor stays on this line) so the image, once ready, can overwrite
+        # it in place below rather than leaving a stale "may take a while" notice sitting above the comic.
+        # $WarningState is a hashtable (rather than a plain variable) purely so the closure's mutation of
+        # .Shown is visible back here afterwards -- GetNewClosure() snapshots variable *bindings*, so a
+        # reassigned plain variable inside the closure wouldn't be, but a shared object's mutated contents are.
+        $CapturedWidth = $Width
+        $WarningState = @{ Shown = $false }
+        $TerminalImageParams.OnLargeImageWarning = {
+            Param($Message)
+            $Padding = [Math]::Max(0, [int][Math]::Floor(($CapturedWidth - $Message.Length) / 2))
+            [Console]::Out.Write((' ' * $Padding) + "$([char]27)[33m$Message$([char]27)[0m")
+            $WarningState.Shown = $true
+        }.GetNewClosure()
+
+        $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams -WarningAction SilentlyContinue
     }
     catch {
         Write-Warning "Unable to render the comic as $($Protocol): $_"
         return
     }
 
+    if ($WarningState.Shown) {
+        # `\r` + erase-line returns to the start of that line and clears it, so the image replaces the
+        # large-image notice in place instead of leaving it sitting above the comic.
+        [Console]::Out.Write("`r$([char]27)[2K")
+    }
     [Console]::Out.Write(' ' * $Padding)
     [Console]::Out.Write($TerminalImage)
     [Console]::Out.Write([Environment]::NewLine)

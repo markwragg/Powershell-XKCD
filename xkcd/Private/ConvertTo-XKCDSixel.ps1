@@ -32,7 +32,15 @@ function ConvertTo-XKCDSixel {
         # that Sixel rendering may take a while. The per-pixel conversion below scales with image size, so this
         # gives a heads-up before the wait rather than after it. Defaults to roughly a 740x676 image.
         [int]
-        $LargeImageThreshold = 500000
+        $LargeImageThreshold = 500000,
+
+        # Optional callback invoked immediately with the large-image heads-up message, before the slow
+        # per-pixel conversion below begins. A caller that captures warnings with -WarningVariable for later
+        # display (e.g. so it can render them in a consistent on-screen spot) would otherwise only see this
+        # one once the whole (slow) conversion has already finished -- defeating its whole point of warning
+        # before the wait rather than after it. This callback lets such a caller still surface it immediately.
+        [scriptblock]
+        $OnLargeImageWarning
     )
 
     # Windows PowerShell 5.1 has no $IsWindows variable at all (it only ever runs on Windows); PowerShell 7+
@@ -89,7 +97,9 @@ function ConvertTo-XKCDSixel {
     }
 
     if (($width * $height) -gt $LargeImageThreshold) {
-        Write-Warning "This is a large image ($width x $height pixels) - rendering it as Sixel may take a while."
+        $LargeImageMessage = "This is a large image ($width x $height pixels) - rendering it as Sixel may take a while."
+        if ($OnLargeImageWarning) { & $OnLargeImageWarning $LargeImageMessage }
+        Write-Warning $LargeImageMessage
     }
 
     $stride = $width * 4
@@ -127,7 +137,12 @@ function ConvertTo-XKCDSixel {
     $esc = [char]27
     $sb = [System.Text.StringBuilder]::new()
 
-    [void]$sb.Append($esc).Append('Pq"1;1;').Append($width).Append(';').Append($height)
+    # The DCS introducer's middle parameter (P2) selects how pixels that no run ever colours are drawn --
+    # "1" leaves them as whatever was already on screen (transparent), vs. the default "0"/"2" which paints
+    # them in the background colour (typically opaque black). The last 6-row band is only partially filled
+    # whenever $height isn't a multiple of 6, so without this, those leftover rows show up as a solid black
+    # bar under the image.
+    [void]$sb.Append($esc).Append('P0;1;0q"1;1;').Append($width).Append(';').Append($height)
 
     foreach ($entry in $palette.Values) {
         [void]$sb.Append('#').Append($entry.Index).Append(';2;').Append($entry.R).Append(';').Append($entry.G).Append(';').Append($entry.B)

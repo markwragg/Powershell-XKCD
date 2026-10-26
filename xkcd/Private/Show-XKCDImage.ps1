@@ -3,6 +3,12 @@ function Show-XKCDImage {
     .SYNOPSIS
         Writes an image to the console using whichever inline graphics protocol the terminal supports
         (Kitty, iTerm2, or Sixel). Does nothing but warn if none are detected.
+
+    .DESCRIPTION
+        For Kitty/iTerm2, requests a specific column count (derived from the image's own pixel width and the
+        console width) rather than leaving it to the client's own default sizing -- otherwise, if the image's
+        pixel height isn't an exact multiple of the terminal's actual cell pixel height, the partial trailing
+        cell row is left as background-coloured padding, showing up as a thin solid bar under the image.
     #>
     [cmdletbinding()]
     Param(
@@ -14,7 +20,11 @@ function Show-XKCDImage {
         # Indicates that $ImageBytes is a higher resolution (_2x) source image, so it should be rendered at a
         # correspondingly higher quality rather than downscaled to the standard size.
         [switch]
-        $HighQuality
+        $HighQuality,
+
+        # The console width to fit the image within (used only to work out the Kitty/iTerm2 column count).
+        [int]
+        $Width = 80
     )
 
     $protocol = Get-XKCDTerminalGraphicsProtocol
@@ -25,7 +35,16 @@ function Show-XKCDImage {
     }
 
     try {
-        $TerminalImage = ConvertTo-XKCDTerminalImage -ImageBytes $ImageBytes -Protocol $protocol -HighQuality:$HighQuality
+        $TerminalImageParams = @{
+            ImageBytes  = $ImageBytes
+            Protocol    = $protocol
+            HighQuality = $HighQuality
+        }
+        if ($protocol -in 'Kitty', 'iTerm2') {
+            $TerminalImageParams.Columns = Get-XKCDTerminalImageColumns -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
+        }
+
+        $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams
     }
     catch {
         Write-Warning "Unable to render the comic as $($protocol): $_"

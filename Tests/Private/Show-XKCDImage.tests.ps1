@@ -48,7 +48,10 @@ Describe "Unit Tests PS$PSVersion" {
                 & $ModuleObj { Param($ImageBytes) Show-XKCDImage -ImageBytes $ImageBytes } $SmallImageBytes
             }
 
-            $Output | Should -Match ([regex]::Escape("$esc") + '_Ga=T,f=100,m=0;')
+            # Now also requests an explicit column count (so Kitty scales the image to fit exactly, rather
+            # than leaving a partial trailing cell row of background padding under it) -- hence ",c=<n>"
+            # before the first chunk's terminating ";", rather than "m=0;" directly.
+            $Output | Should -Match ([regex]::Escape("$esc") + '_Ga=T,f=100,m=0,c=\d+;')
             $Output | Should -Match ([regex]::Escape("$esc\"))
         }
 
@@ -57,7 +60,7 @@ Describe "Unit Tests PS$PSVersion" {
                 & $ModuleObj { Param($ImageBytes) Show-XKCDImage -ImageBytes $ImageBytes } $LargeImageBytes
             }
 
-            $Output | Should -Match ([regex]::Escape("$esc") + '_Ga=T,f=100,m=1;')
+            $Output | Should -Match ([regex]::Escape("$esc") + '_Ga=T,f=100,m=1,c=\d+;')
             $Output | Should -Match ([regex]::Escape("$esc") + '_Gm=0;')
         }
     }
@@ -77,7 +80,10 @@ Describe "Unit Tests PS$PSVersion" {
         }
 
         It 'Writes an iTerm2 inline image escape sequence' {
-            $Output | Should -Match ([regex]::Escape("$esc") + '\]1337;File=inline=1;size=10:')
+            # Now also requests an explicit width (so iTerm2 scales the image to fit exactly, rather than
+            # leaving a partial trailing cell row of background padding under it), hence ";width=<n>" before
+            # the ":", rather than "size=10:" directly.
+            $Output | Should -Match ([regex]::Escape("$esc") + '\]1337;File=inline=1;size=10;width=\d+:')
             $Output | Should -Match ([regex]::Escape("$bel"))
         }
     }

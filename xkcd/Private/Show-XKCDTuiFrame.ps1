@@ -24,21 +24,18 @@ function Show-XKCDTuiFrame {
 
         # The console width to center and wrap content to.
         [int]
-        $Width = 80
+        $Width = 80,
+
+        # A warning or notice to display in place of (or alongside) the image, e.g. because the image
+        # couldn't be obtained, or a requested quality wasn't available. Rendered as part of the frame itself
+        # rather than via Write-Warning, so it always appears in a consistent spot instead of possibly
+        # showing up out of order relative to the rest of the frame.
+        [string]
+        $Warning
     )
 
     $esc = [char]27
     $reset = "$esc[0m"
-    $newLine = [Environment]::NewLine
-
-    function Write-XKCDCenteredLine ([string]$Text = '') {
-        # Strips ANSI/OSC8 escape sequences (colour/style codes, and the invisible wrapper around a
-        # hyperlink's visible label) so centering is based on what's actually visible, not the raw string
-        # length -- those sequences occupy no columns on screen.
-        $Plain = ($Text -replace "$esc\[[0-9;]*[a-zA-Z]", '') -replace "$esc\][^$esc]*$esc\\", ''
-        $Padding = [Math]::Max(0, [int][Math]::Floor(($Width - $Plain.Length) / 2))
-        [Console]::Out.Write((' ' * $Padding) + $Text + $newLine)
-    }
 
     try {
         [Console]::Clear()
@@ -49,26 +46,31 @@ function Show-XKCDTuiFrame {
 
     $Banner = Get-XKCDBanner
 
-    Write-XKCDCenteredLine
+    Write-XKCDCenteredLine -Width $Width
     foreach ($Line in $Banner.Lines) {
-        Write-XKCDCenteredLine "$esc[1;93m$Line$reset"
+        Write-XKCDCenteredLine -Width $Width -Text "$esc[1;93m$Line$reset"
     }
-    Write-XKCDCenteredLine "$esc[2m$($Banner.Tagline)$reset"
-    Write-XKCDCenteredLine
+    Write-XKCDCenteredLine -Width $Width -Text "$esc[2m$($Banner.Tagline)$reset"
+    Write-XKCDCenteredLine -Width $Width
 
-    Write-XKCDCenteredLine "$esc[1;4;96m#$($Comic.num): $($Comic.title)$reset"
-    Write-XKCDCenteredLine
+    Write-XKCDCenteredLine -Width $Width -Text "$esc[1;4;96m#$($Comic.num): $($Comic.title)$reset"
+    Write-XKCDCenteredLine -Width $Width
 
     $Controls = Get-XKCDControlsText
-    Write-XKCDCenteredLine "$esc[7m$Controls$reset"
-    Write-XKCDCenteredLine
+    Write-XKCDCenteredLine -Width $Width -Text "$esc[7m$Controls$reset"
+    Write-XKCDCenteredLine -Width $Width
 
-    Write-XKCDCenteredLine "$esc[2m$(Get-XKCDComicMetaText -Comic $Comic)$reset"
-    Write-XKCDCenteredLine
+    Write-XKCDCenteredLine -Width $Width -Text "$esc[2m$(Get-XKCDComicMetaText -Comic $Comic)$reset"
+    Write-XKCDCenteredLine -Width $Width
 
     if ($ImageBytes) {
         Show-XKCDTuiImage -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width
-        Write-XKCDCenteredLine
+        Write-XKCDCenteredLine -Width $Width
+    }
+
+    if ($Warning) {
+        Write-XKCDCenteredLine -Width $Width -Text "$esc[33m$Warning$reset"
+        Write-XKCDCenteredLine -Width $Width
     }
 
     if ($Comic.alt) {
@@ -92,10 +94,10 @@ function Show-XKCDTuiFrame {
         if ($CurrentLine) { $Lines.Add($CurrentLine) }
 
         foreach ($Line in $Lines) {
-            Write-XKCDCenteredLine "$esc[3m$Line$reset"
+            Write-XKCDCenteredLine -Width $Width -Text "$esc[3m$Line$reset"
         }
-        Write-XKCDCenteredLine
+        Write-XKCDCenteredLine -Width $Width
     }
 
-    Write-XKCDCenteredLine "$esc[7m$Controls$reset"
+    Write-XKCDCenteredLine -Width $Width -Text "$esc[7m$Controls$reset"
 }
