@@ -24,6 +24,8 @@ $PSVersionTable
 
 # Load dependencies
 if ($PSBoundParameters.Keys -contains 'ResolveDependency') {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
     # Bootstrap environment
     Get-PackageProvider -Name 'NuGet' -ForceBootstrap | Out-Null
 
