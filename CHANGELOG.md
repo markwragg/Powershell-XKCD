@@ -1,5 +1,15 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD`'s `P`/`N` (and the left/right arrow keys), `F`, and `L` controls now show an in-place "You're already viewing the first/latest comic" message instead of redrawing the identical frame when you're already at that end of the archive.
+* `Start-XKCD`'s `G` control now validates the comic number you enter: a blank/non-numeric/out-of-range entry, or one that's syntactically valid but doesn't correspond to an actual comic (e.g. a gap in the archive), shows an in-place message instead of silently doing nothing or redrawing. Re-prompting after a failed attempt reuses the same input line -- moving up one line first if a message from the previous attempt is still showing, so it stays visible, then clearing it once you start typing again.
+* `Start-XKCD` now hides the blinking console cursor for the duration of the viewer, restoring it on exit (including on error or Ctrl+C).
+* Fixes several warnings in `Start-XKCD` (image not downloaded yet, high-quality fallback, no inline image protocol detected, image render failure, and Sixel's "large image, may take a while" notice) showing up in an inconsistent spot -- sometimes after the frame had already finished drawing, or interleaved oddly within it -- because they went through PowerShell's separate warning stream rather than being written as part of the frame itself, like everything else in it. All of these now render inline, in a consistent spot; the large-image notice in particular now appears *before* the slow Sixel conversion it's warning about (rather than only after), and gets cleanly replaced by the comic once it's ready instead of lingering above it.
+* Fixes a black bar sometimes appearing under a comic's image:
+  * For Sixel (`Show-XKCD` and `Start-XKCD` alike): the Sixel escape sequence's background-selection parameter was left at its default, which fills any pixel no colour run ever touches with an opaque background colour (typically black) -- this showed up as a bar under the image whenever its height wasn't an exact multiple of 6 (the size of a Sixel band), which is most of the time. Unset pixels are now explicitly left transparent instead.
+  * For Kitty/iTerm2 specifically in `Show-XKCD`: image rendering now requests an explicit column count (as `Start-XKCD` already did), rather than leaving sizing to the client's own default -- avoiding a similar bar caused by a partial trailing cell row of background padding, and making `Show-XKCD`'s image sizing consistent with `Start-XKCD`'s.
+
 ## [1.12.0] - 2026-10-26
 
 * Adds `Start-XKCD`, a full-screen terminal interface for browsing the archive without leaving it -- a TUI parody of xkcd.com itself, complete with its own ASCII art banner and tagline:
