@@ -263,5 +263,16 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
             (Get-Content $StatePath | ConvertFrom-Json).LastViewed | Should -Be 2
         }
+
+        It 'Does not update the state file when -WhatIf is specified' {
+            $StatePath = Join-Path $TestDrive 'start-xkcd-whatif-state.json'
+            Set-XKCDTestKeySequence 'Escape'
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -StatePath $StatePath -WarningAction SilentlyContinue -WhatIf
+            } | Out-Null
+
+            $StatePath | Should -Not -Exist
+        }
     }
 }

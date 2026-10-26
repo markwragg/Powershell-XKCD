@@ -128,7 +128,9 @@ function Start-XKCD {
 
         Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width
 
-        Update-XKCDLastReadState -Num $Current -StatePath $StatePath -Cmdlet $PSCmdlet
+        if ($PSCmdlet.ShouldProcess($StatePath, "Track comic #$Current as the one most recently viewed")) {
+            Update-XKCDLastReadState -Num $Current -StatePath $StatePath -Cmdlet $PSCmdlet
+        }
 
         $Key = Read-XKCDConsoleKey
 
