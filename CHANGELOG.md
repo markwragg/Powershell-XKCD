@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.12.1] - 2026-10-26
 
 * `Start-XKCD`'s `P`/`N` (and the left/right arrow keys), `F`, and `L` controls now show an in-place "You're already viewing the first/latest comic" message instead of redrawing the identical frame when you're already at that end of the archive.
 * `Start-XKCD`'s `G` control now validates the comic number you enter: a blank/non-numeric/out-of-range entry, or one that's syntactically valid but doesn't correspond to an actual comic (e.g. a gap in the archive), shows an in-place message instead of silently doing nothing or redrawing. Re-prompting after a failed attempt reuses the same input line -- moving up one line first if a message from the previous attempt is still showing, so it stays visible, then clearing it once you start typing again.
