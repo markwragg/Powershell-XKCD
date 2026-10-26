@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy 1.12.0
+## [1.12.0] - 2026-10-26
 
 * Adds `Start-XKCD`, a full-screen terminal interface for browsing the archive without leaving it -- a TUI parody of xkcd.com itself, complete with its own ASCII art banner and tagline:
   * The current comic's title, image (centered -- exactly for Kitty/iTerm2, approximately for Sixel), and alt text are framed by a control bar shown both above and below the image.

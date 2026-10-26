@@ -25,17 +25,17 @@ Use
 
 Supported preferences:
 
--HighQuality       Default for -HighQuality on Get-XKCD, Show-XKCD, Get-XKCDExplanation, Show-XKCDExplanation and Export-XKCDTerminalImage.
+-HighQuality       Default for -HighQuality on Get-XKCD, Show-XKCD, Start-XKCD, Get-XKCDExplanation, Show-XKCDExplanation and Export-XKCDTerminalImage.
 -Path              Default download directory for Get-XKCD -Download, and default save directory for Export-XKCDTerminalImage.
 -FullSearch        Default for -FullSearch on Find-XKCD.
 -SkipCacheRefresh  Default for -SkipCacheRefresh on Find-XKCD.
 -CachePath         Default comic data cache location for Update-XKCDCache, Get-XKCDCache and Find-XKCD.
--StatePath         Default location of the most-recently-viewed record for Show-XKCD, Get-XKCD -Show and Test-XKCD.
+-StatePath         Default location of the most-recently-viewed record for Show-XKCD, Start-XKCD, Get-XKCD -Show and Test-XKCD.
 -Explanation       Default for -Explanation on Get-XKCDExplanation and Show-XKCDExplanation.
 -Transcript        Default for -Transcript on Get-XKCDExplanation and Show-XKCDExplanation.
 -Discussion        Default for -Discussion on Get-XKCDExplanation and Show-XKCDExplanation.
 -Full              Default for -Full on Get-XKCDExplanation and Show-XKCDExplanation.
--Offline           Default for -Offline on Get-XKCD, Show-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD.
+-Offline           Default for -Offline on Get-XKCD, Show-XKCD, Start-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD.
 
 ## EXAMPLES
 
