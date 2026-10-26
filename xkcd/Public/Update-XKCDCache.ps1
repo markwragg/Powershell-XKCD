@@ -58,5 +58,3 @@ function Update-XKCDCache {
         $AllComics | ConvertTo-Json | Out-File $CachePath -Force
     }
 }
-
-
