@@ -6,3 +6,5 @@ xkcd/Public/XKCD.defaults.json
 
 # Transient clone of the GitHub wiki repo, created by the UpdateWiki build task
 /wiki/
+
+coverage.xml
