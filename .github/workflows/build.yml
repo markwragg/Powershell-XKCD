@@ -11,44 +11,12 @@ env:
   DeployBranch: master
 
 jobs:
-  test-windows:
+  test-windows-powershell:
     runs-on: windows-latest
     outputs:
-      CoveragePercent: ${{ steps.test-core.outputs.CoveragePercent }}
+      CoveragePercent: ${{ steps.test-winps.outputs.CoveragePercent }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Resolve PowerShell Core modules path
-        id: modules-path-core
-        shell: pwsh
-        run: |
-          $modulesPath = ($env:PSModulePath -split [IO.Path]::PathSeparator) |
-            Where-Object { $_ -like "$HOME*" } | Select-Object -First 1
-          "path=$modulesPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-
-      - name: Cache PowerShell Core modules
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.modules-path-core.outputs.path }}
-          key: pwshmodules-${{ runner.os }}-${{ hashFiles('Build/build.depend.psd1') }}
-          restore-keys: pwshmodules-${{ runner.os }}-
-
-      - name: Install Dependencies
-        shell: pwsh
-        run: ./Build/build.ps1 -ResolveDependency -TaskList 'Init'
-
-      - name: Combine PowerShell functions into single module file
-        shell: pwsh
-        run: ./Build/build.ps1 -TaskList 'CombineFunctionsAndStage'
-
-      - name: Analyze
-        shell: pwsh
-        run: ./Build/build.ps1 -TaskList 'Analyze'
-
-      - name: Test PowerShell Core
-        id: test-core
-        shell: pwsh
-        run: ./Build/build.ps1 -TaskList 'Test'
 
       - name: Resolve Windows PowerShell modules path
         id: modules-path-winps
@@ -65,18 +33,19 @@ jobs:
           key: psmodules-${{ runner.os }}-${{ hashFiles('Build/build.depend.psd1') }}
           restore-keys: psmodules-${{ runner.os }}-
 
-      - name: Install Dependencies (Windows PowerShell)
+      - name: Install Dependencies
         shell: powershell
         run: ./Build/build.ps1 -ResolveDependency -TaskList 'Init'
 
       - name: Test Windows PowerShell
+        id: test-winps
         shell: powershell
         run: ./Build/build.ps1 -TaskList 'Test'
 
   test-crossplatform:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -113,12 +82,12 @@ jobs:
         run: ./Build/build.ps1 -TaskList 'Test'
 
   build:
-    needs: [test-windows, test-crossplatform]
+    needs: [test-windows-powershell, test-crossplatform]
     runs-on: windows-latest
     permissions:
       contents: write
     env:
-      CoveragePercent: ${{ needs.test-windows.outputs.CoveragePercent }}
+      CoveragePercent: ${{ needs.test-windows-powershell.outputs.CoveragePercent }}
       NugetApiKey: ${{ secrets.NUGET_API_KEY }}
       GITHUBPAT: ${{ secrets.GH_PAT }}
     steps:
@@ -188,10 +157,3 @@ jobs:
         with:
           name: Artifacts
           path: Artifacts
-
-      - name: Publish Artifact - PowerShell Module
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: PSModule
-          path: Staging
