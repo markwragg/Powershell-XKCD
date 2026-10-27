@@ -16,7 +16,7 @@ jobs:
     outputs:
       CoveragePercent: ${{ steps.test-winps.outputs.CoveragePercent }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Resolve Windows PowerShell modules path
         id: modules-path-winps
@@ -27,7 +27,7 @@ jobs:
           "path=$modulesPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Cache Windows PowerShell modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.modules-path-winps.outputs.path }}
           key: psmodules-${{ runner.os }}-${{ hashFiles('Build/build.depend.psd1') }}
@@ -53,7 +53,7 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Resolve PowerShell modules path
         id: modules-path
@@ -64,7 +64,7 @@ jobs:
           "path=$modulesPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Cache PowerShell modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.modules-path.outputs.path }}
           key: pwshmodules-${{ runner.os }}-${{ hashFiles('Build/build.depend.psd1') }}
@@ -96,9 +96,17 @@ jobs:
       NugetApiKey: ${{ secrets.NUGET_API_KEY }}
       GITHUBPAT: ${{ secrets.GH_PAT }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: true
+
+      - name: Resolve project name
+        id: project
+        shell: pwsh
+        run: |
+          $ProjectName = (Get-ChildItem -Path . -Filter '*.psd1' -Recurse -Depth 1 |
+            Where-Object { $_.BaseName -eq $_.Directory.Name }).BaseName
+          "name=$ProjectName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Resolve PowerShell Core modules path
         id: modules-path
@@ -109,7 +117,7 @@ jobs:
           "path=$modulesPath" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
       - name: Cache PowerShell Core modules
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.modules-path.outputs.path }}
           key: pwshmodules-${{ runner.os }}-${{ hashFiles('Build/build.depend.psd1') }}
@@ -158,7 +166,7 @@ jobs:
 
       - name: Publish Artifact - Zipped module
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: Artifacts
+          name: ${{ steps.project.outputs.name }}-Module
           path: Artifacts
