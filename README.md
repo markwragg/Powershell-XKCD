@@ -44,6 +44,8 @@ Install-PSResource -Name XKCD
 
 ## Cmdlets
 
+This module provides the following cmdlets:
+
 | Cmdlet | Synopsis |
 | --- | --- |
 | [Get-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCD) | Gets the details of the comics @ https://xkcd.com/. Optionally can download the comic images. |
@@ -293,7 +295,7 @@ Opens a full-screen terminal interface for browsing the archive -- a TUI parody 
 - `R` displays a random comic.
 - `Q`/`Esc` exits back to your normal console.
 
-By default it opens on the latest comic; use `Start-XKCD 2000` to open on a specific one instead. As with `Show-XKCD`, each comic you view updates the same state file used by -Next/-Previous and `Test-XKCD`, and -HighQuality/-Offline (with -DownloadPath) work the same way they do on `Show-XKCD`.
+By default it opens on the latest comic; use `Start-XKCD 2000` to open on a specific one instead -- -Number also accepts pipeline input, e.g. `Get-XKCD -Random | Start-XKCD`. Use -Random to open on a random comic instead, optionally bounded by -Minimum/-Maximum (aliased -Min/-Max), e.g. `Start-XKCD -Random -Minimum 100 -Maximum 150`. As with `Show-XKCD`, each comic you view updates the same state file used by -Next/-Previous and `Test-XKCD`, and -HighQuality/-Offline (with -DownloadPath) work the same way they do on `Show-XKCD`.
 
 ## Contributions
 
