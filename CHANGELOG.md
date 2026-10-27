@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.12.4] - 2026-10-27
 
 * `Start-XKCD` now has a secret.
 
