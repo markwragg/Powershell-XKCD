@@ -93,14 +93,16 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Prints the comic data as JSON for an existing file' {
             $Result = Invoke-XKCDTestAdminCommand -Comic $Comic -Path @('2006', '01') -Line 'cat 1.json'
 
-            ($Result.Output -join "`n") | Should -Match '"num": 1'
-            ($Result.Output -join "`n") | Should -Match '"title": "Comic 1"'
+            # ConvertTo-Json's whitespace after the colon differs between PowerShell editions (one space on
+            # 7+, two on Windows PowerShell 5.1), so it's matched loosely here rather than pinned exactly.
+            ($Result.Output -join "`n") | Should -Match '"num":\s+1'
+            ($Result.Output -join "`n") | Should -Match '"title":\s+"Comic 1"'
         }
 
         It 'Allows the ".json" extension to be omitted' {
             $Result = Invoke-XKCDTestAdminCommand -Comic $Comic -Path @('2006', '01') -Line 'cat 1'
 
-            ($Result.Output -join "`n") | Should -Match '"num": 1'
+            ($Result.Output -join "`n") | Should -Match '"num":\s+1'
         }
 
         It 'Reports an error for a file that does not exist' {
