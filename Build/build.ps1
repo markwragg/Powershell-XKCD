@@ -29,6 +29,11 @@ if ($PSBoundParameters.Keys -contains 'ResolveDependency') {
     # Bootstrap environment
     Get-PackageProvider -Name 'NuGet' -ForceBootstrap | Out-Null
 
+    if (-not (Get-PSRepository -Name 'PSGallery' -ErrorAction SilentlyContinue)) {
+        Register-PSRepository -Default
+    }
+    Set-PSRepository -Name 'PSGallery' -InstallationPolicy 'Trusted'
+
     # Install PSDepend module if it is not already installed
     if (-not (Get-Module -Name 'PSDepend' -ListAvailable)) {
         Write-Output "`nPSDepend is not yet installed...installing PSDepend now..."

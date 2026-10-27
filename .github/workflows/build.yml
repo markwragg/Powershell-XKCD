@@ -48,6 +48,7 @@ jobs:
 
   test-crossplatform:
     strategy:
+      fail-fast: false
       matrix:
         os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
