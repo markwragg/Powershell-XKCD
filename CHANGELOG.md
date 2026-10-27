@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.12.3] - 2026-10-27
 
 * `Start-XKCD`'s ASCII art banner now gets a seasonal flourish: a 🎃 either side of its "X88K" line in October, and a 🎄 in December.
 * `Start-XKCD` now caches each comic's rendered terminal image for the rest of the session, so revisiting one (e.g. via `P`/`N`/`F`/`L`/`G`) redisplays it instantly instead of re-rendering it -- which for Sixel in particular can take a while.
