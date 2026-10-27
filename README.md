@@ -42,6 +42,24 @@ Or:
 Install-PSResource -Name XKCD
 ```
 
+## Cmdlets
+
+| Cmdlet | Synopsis |
+| --- | --- |
+| [Get-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCD) | Gets the details of the comics @ https://xkcd.com/. Optionally can download the comic images. |
+| [Show-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCD) | Displays a comic's title, image, and alt text in the console. |
+| [Find-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Find-XKCD) | Retrieves the details of comics @ https://xkcd.com/ based on whether a specified search string appears in the title text (by default). To search for a specified string in the full text of the comic data, use the -FullSearch switch. |
+| [Update-XKCDCache](https://github.com/markwragg/Powershell-XKCD/wiki/Update-XKCDCache) | Updates the local cache of the XKCD API. |
+| [Get-XKCDCache](https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDCache) | Returns the details of comics @ https://xkcd.com/ from the local cache. |
+| [Test-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Test-XKCD) | Checks whether any new comics have been published since the last time Test-XKCD was run. |
+| [Get-XKCDExplanation](https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDExplanation) | Gets the explanation of a comic from the explain xkcd wiki: https://www.explainxkcd.com/. |
+| [Show-XKCDExplanation](https://github.com/markwragg/Powershell-XKCD/wiki/Show-XKCDExplanation) | Displays a comic's title, image, and explanation in the console. |
+| [Set-XKCDDefault](https://github.com/markwragg/Powershell-XKCD/wiki/Set-XKCDDefault) | Sets default preferences used automatically by other cmdlets in this module, such as whether to use high quality images by default. |
+| [Get-XKCDDefault](https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDDefault) | Gets the default preferences saved by Set-XKCDDefault. |
+| [Export-XKCDTerminalImage](https://github.com/markwragg/Powershell-XKCD/wiki/Export-XKCDTerminalImage) | Renders a comic using the current terminal's inline image graphics protocol (Sixel, Kitty, or iTerm2) and saves the result to a file, so it can be redisplayed later with Import-XKCDTerminalImage. |
+| [Import-XKCDTerminalImage](https://github.com/markwragg/Powershell-XKCD/wiki/Import-XKCDTerminalImage) | Redisplays a comic's image from a file previously saved with Export-XKCDTerminalImage. |
+| [Start-XKCD](https://github.com/markwragg/Powershell-XKCD/wiki/Start-XKCD) | Opens a full-screen terminal interface for browsing XKCD comics -- a TUI parody of https://xkcd.com/. |
+
 ## Usage Examples
 
 ### `Get-XKCD`
