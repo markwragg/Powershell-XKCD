@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.12.2] - 2026-10-27
 
 * Adds a `-Random` switch to `Start-XKCD`, to open the viewer on a random comic instead of the latest one, optionally bounded by `-Minimum`/`-Maximum` (aliased `-Min`/`-Max`), matching `Get-XKCD`'s existing `-Random` parameters.
 * `Start-XKCD`'s `-Number` now accepts pipeline input (including by property name, e.g. from `Get-XKCD`), so `Get-XKCD -Random | Start-XKCD` opens the viewer on that comic.

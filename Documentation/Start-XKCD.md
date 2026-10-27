@@ -5,9 +5,17 @@ Opens a full-screen terminal interface for browsing XKCD comics -- a TUI parody 
 
 ## SYNTAX
 
+### Specific (Default)
 ```
 Start-XKCD [[-Number] <Int32>] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
  [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
+### Random
+```
+Start-XKCD [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-HighQuality] [-StatePath <String>] [-Offline]
+ [-CachePath <String>] [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -31,7 +39,9 @@ so stepping out of Start-XKCD leaves you exactly where Show-XKCD -Next would pic
 
 By default, Start-XKCD opens on the latest available comic.
 Use -Number to open on a specific comic
-instead.
+instead (accepts pipeline input, e.g.
+from Get-XKCD), or -Random to open on a random comic -- optionally
+bounded by -Minimum/-Maximum (aliased -Min/-Max).
 
 Use -Offline to browse using data from the local cache (created/refreshed by Update-XKCDCache) and
 images previously saved with Get-XKCD -Download, instead of fetching either from the xkcd API -- this
@@ -59,13 +69,34 @@ Opens the interactive viewer on comic number 2000.
 
 ### EXAMPLE 3
 ```
+Start-XKCD -Random
+```
+
+Opens the interactive viewer on a random comic from the full archive.
+
+### EXAMPLE 4
+```
+Start-XKCD -Random -Minimum 100 -Maximum 150
+```
+
+Opens the interactive viewer on a random comic numbered between 100 and 150.
+
+### EXAMPLE 5
+```
+Get-XKCD -Random | Start-XKCD
+```
+
+Opens the interactive viewer on a random comic retrieved via Get-XKCD, passed in via the pipeline.
+
+### EXAMPLE 6
+```
 Start-XKCD -HighQuality
 ```
 
 Opens the interactive viewer, rendering the higher resolution (_2x) version of each comic's image
 where available.
 
-### EXAMPLE 4
+### EXAMPLE 7
 ```
 Start-XKCD -Offline
 ```
@@ -78,14 +109,66 @@ fetching either from the xkcd API.
 ### -Number
 Opens the interactive viewer on the specified comic.
 By default it opens on the latest comic.
+Accepts
+pipeline input, e.g.
+from Get-XKCD.
 
 ```yaml
 Type: Int32
-Parameter Sets: (All)
+Parameter Sets: Specific
 Aliases: Num
 
 Required: False
 Position: 1
+Default value: 0
+Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -Random
+Opens the interactive viewer on a random comic from the full archive, optionally bounded by
+-Minimum/-Maximum.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Random
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Minimum
+Use with -Random to define a lower bound within which to pick a comic.
+Defaults to 1.
+
+```yaml
+Type: Int32
+Parameter Sets: Random
+Aliases: Min
+
+Required: False
+Position: Named
+Default value: 1
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Maximum
+Use with -Random to define an upper bound within which to pick a comic.
+Defaults to the latest comic
+number (or the latest cached comic number, with -Offline).
+
+```yaml
+Type: Int32
+Parameter Sets: Random
+Aliases: Max
+
+Required: False
+Position: Named
 Default value: 0
 Accept pipeline input: False
 Accept wildcard characters: False
