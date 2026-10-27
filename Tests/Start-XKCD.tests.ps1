@@ -308,6 +308,61 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Admin Console Tests' {
+
+        BeforeAll {
+            $CachePath = Join-Path $TestDrive 'start-xkcd-admin-cache.json'
+            @(
+                [pscustomobject]@{ num = 1; title = 'Comic 1'; img = 'https://imgs.xkcd.com/comics/comic1.jpg'; alt = 'Alt 1'; year = '2006'; month = '1'; day = '1' }
+                [pscustomobject]@{ num = 2; title = 'Comic 2'; img = 'https://imgs.xkcd.com/comics/comic2.png'; alt = 'Alt 2'; year = '2006'; month = '1'; day = '2' }
+                [pscustomobject]@{ num = 3; title = 'Comic 3'; img = 'https://imgs.xkcd.com/comics/comic3.jpg'; alt = 'Alt 3'; year = '2006'; month = '1'; day = '3' }
+            ) | ConvertTo-Json | Out-File $CachePath
+
+            $DownloadPath = Join-Path $TestDrive 'start-xkcd-admin-downloads'
+            New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+
+            Mock -ModuleName $Module Read-XKCDConsoleKey { $script:XKCDTestKeyQueue.Dequeue() }
+
+            # Not a named ConsoleKey the existing New-XKCDTestKey helper can produce (its KeyChar is always
+            # [char]0) -- backtick's ConsoleKey is Oem3 on a US keyboard, so it's built directly here instead.
+            function New-XKCDBacktickKey {
+                [System.ConsoleKeyInfo]::new('`', [System.ConsoleKey]::Oem3, $false, $false, $false)
+            }
+        }
+
+        It 'Backtick drops into the admin console, and "exit" returns to the same comic' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            Mock -ModuleName $Module Read-XKCDConsoleLine { 'exit' }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDBacktickKey), (New-XKCDTestKey 'Escape'))
+            )
+
+            $Output = Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            }
+
+            $RecordedNums | Should -Be @(1, 1)
+            $Output | Should -Match 'secret XKCD admin console'
+        }
+
+        It '"open" jumps straight to the requested comic and exits the console' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $LineQueue = [System.Collections.Generic.Queue[string]]::new([string[]]@('cd 2006/01', 'open 3'))
+            Mock -ModuleName $Module Read-XKCDConsoleLine { $LineQueue.Dequeue() }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDBacktickKey), (New-XKCDTestKey 'Escape'))
+            )
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $RecordedNums | Should -Be @(1, 3)
+        }
+    }
+
     Context 'Offline State Tests' {
 
         BeforeAll {

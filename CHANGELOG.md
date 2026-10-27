@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD` now has a secret.
+
 ## [1.12.3] - 2026-10-27
 
 * `Start-XKCD`'s ASCII art banner now gets a seasonal flourish: a 🎃 either side of its "X88K" line in October, and a 🎄 in December.

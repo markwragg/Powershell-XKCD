@@ -204,50 +204,57 @@ function Start-XKCD {
                 $BoundaryMessage = $null
                 $ComicPromptMessageShown = $false
 
-                switch ($Key.Key) {
-                    { $_ -in 'LeftArrow', 'P' } {
-                        if ($Current -gt 1) { $Current--; $NeedsRedraw = $true }
-                        else { $BoundaryMessage = "You're already viewing the first comic." }
-                    }
-                    { $_ -in 'RightArrow', 'N' } {
-                        if ($Current -lt $Latest) { $Current++; $NeedsRedraw = $true }
-                        else { $BoundaryMessage = "You're already viewing the latest comic." }
-                    }
-                    'R' { $Current = Get-Random -Minimum 1 -Maximum ($Latest + 1); $NeedsRedraw = $true }
-                    'F' {
-                        if ($Current -ne 1) { $Current = 1; $NeedsRedraw = $true }
-                        else { $BoundaryMessage = "You're already viewing the first comic." }
-                    }
-                    'L' {
-                        if ($Current -ne $Latest) { $Current = $Latest; $NeedsRedraw = $true }
-                        else { $BoundaryMessage = "You're already viewing the latest comic." }
-                    }
-                    'G' {
-                        $Requested = Read-XKCDComicNumberPrompt -Latest $Latest -Width $Width -MoveUp:$MoveUpForPrompt
-                        if (-not $Requested) {
-                            $BoundaryMessage = "That's not a valid comic number."
-                            $ComicPromptMessageShown = $true
+                if ($Key.KeyChar -eq '`') {
+                    $Jump = Show-XKCDAdminConsole -CachePath $CachePath
+                    if ($Jump) { $Current = $Jump }
+                    $NeedsRedraw = $true
+                }
+                else {
+                    switch ($Key.Key) {
+                        { $_ -in 'LeftArrow', 'P' } {
+                            if ($Current -gt 1) { $Current--; $NeedsRedraw = $true }
+                            else { $BoundaryMessage = "You're already viewing the first comic." }
                         }
-                        else {
-                            $RequestedComic = $null
-                            try {
-                                $RequestedComic = Get-XKCD -Num $Requested -NoStateUpdate -Offline:$Offline -CachePath $CachePath -WarningAction SilentlyContinue
-                            }
-                            catch {
-                                $RequestedComic = $null
-                            }
-
-                            if ($RequestedComic) {
-                                $Current = $Requested
-                                $NeedsRedraw = $true
-                            }
-                            else {
-                                $BoundaryMessage = "Comic #$Requested doesn't exist."
+                        { $_ -in 'RightArrow', 'N' } {
+                            if ($Current -lt $Latest) { $Current++; $NeedsRedraw = $true }
+                            else { $BoundaryMessage = "You're already viewing the latest comic." }
+                        }
+                        'R' { $Current = Get-Random -Minimum 1 -Maximum ($Latest + 1); $NeedsRedraw = $true }
+                        'F' {
+                            if ($Current -ne 1) { $Current = 1; $NeedsRedraw = $true }
+                            else { $BoundaryMessage = "You're already viewing the first comic." }
+                        }
+                        'L' {
+                            if ($Current -ne $Latest) { $Current = $Latest; $NeedsRedraw = $true }
+                            else { $BoundaryMessage = "You're already viewing the latest comic." }
+                        }
+                        'G' {
+                            $Requested = Read-XKCDComicNumberPrompt -Latest $Latest -Width $Width -MoveUp:$MoveUpForPrompt
+                            if (-not $Requested) {
+                                $BoundaryMessage = "That's not a valid comic number."
                                 $ComicPromptMessageShown = $true
                             }
+                            else {
+                                $RequestedComic = $null
+                                try {
+                                    $RequestedComic = Get-XKCD -Num $Requested -NoStateUpdate -Offline:$Offline -CachePath $CachePath -WarningAction SilentlyContinue
+                                }
+                                catch {
+                                    $RequestedComic = $null
+                                }
+
+                                if ($RequestedComic) {
+                                    $Current = $Requested
+                                    $NeedsRedraw = $true
+                                }
+                                else {
+                                    $BoundaryMessage = "Comic #$Requested doesn't exist."
+                                    $ComicPromptMessageShown = $true
+                                }
+                            }
                         }
+                        { $_ -in 'Q', 'Escape' } { return }
                     }
-                    { $_ -in 'Q', 'Escape' } { return }
                 }
             }
         }
