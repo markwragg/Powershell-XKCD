@@ -89,6 +89,19 @@ Describe "Unit Tests PS$PSVersion" {
 
             Should -Invoke -CommandName Show-XKCDTuiImage -ModuleName $Module -Times 1 -Exactly
         }
+
+        It 'Passes a -CacheKey derived from the comic number and -HighQuality through to Show-XKCDTuiImage' {
+            Get-XKCDCapturedOutput {
+                & $ModuleObj {
+                    Param($Comic, $ImageBytes)
+                    Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -Width 100 -HighQuality -Cache @{}
+                } $Comic $ImageBytes
+            } | Out-Null
+
+            Should -Invoke -CommandName Show-XKCDTuiImage -ModuleName $Module -Times 1 -Exactly -ParameterFilter {
+                $CacheKey -eq '1786|True' -and $Cache -is [hashtable]
+            }
+        }
     }
 
     Context 'Show-XKCDTuiFrame Without An Image Tests' {

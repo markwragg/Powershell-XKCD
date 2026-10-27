@@ -128,6 +128,31 @@ Describe "Unit Tests PS$PSVersion" {
             $Output | Should -Match 'FAKE-SIXEL-DATA'
             $Output.Substring(0, $Output.IndexOf('FAKE-SIXEL-DATA')).Length | Should -Be 30
         }
+
+        It 'Re-uses a cached render for the same -CacheKey instead of converting again' {
+            $Cache = @{}
+
+            1..2 | ForEach-Object {
+                & $ModuleObj {
+                    Param($ImageBytes, $Cache)
+                    Show-XKCDTuiImage -ImageBytes $ImageBytes -Width 100 -Cache $Cache -CacheKey '1786|False'
+                } $ImageBytes $Cache
+            } | Out-Null
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 1 -Exactly
+        }
+
+        It 'Renders separately when -CacheKey differs' {
+            $Cache = @{}
+
+            & $ModuleObj {
+                Param($ImageBytes, $Cache)
+                Show-XKCDTuiImage -ImageBytes $ImageBytes -Width 100 -Cache $Cache -CacheKey '1786|False'
+                Show-XKCDTuiImage -ImageBytes $ImageBytes -Width 100 -Cache $Cache -CacheKey '1787|False'
+            } $ImageBytes $Cache
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 2 -Exactly
+        }
     }
 
     Context 'Show-XKCDTuiImage Unsupported Terminal Tests' {

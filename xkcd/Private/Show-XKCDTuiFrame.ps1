@@ -31,7 +31,14 @@ function Show-XKCDTuiFrame {
         # rather than via Write-Warning, so it always appears in a consistent spot instead of possibly
         # showing up out of order relative to the rest of the frame.
         [string]
-        $Warning
+        $Warning,
+
+        # A hashtable used to re-use a previously rendered terminal image rather than rendering it again --
+        # used by Start-XKCD so revisiting a comic already shown this session skips the (particularly slow,
+        # for Sixel) re-render. Keyed internally by the comic's number plus -HighQuality. Omit to always
+        # render the image fresh.
+        [hashtable]
+        $Cache
     )
 
     $esc = [char]27
@@ -64,7 +71,7 @@ function Show-XKCDTuiFrame {
     Write-XKCDCenteredLine -Width $Width
 
     if ($ImageBytes) {
-        Show-XKCDTuiImage -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width
+        Show-XKCDTuiImage -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -Cache $Cache -CacheKey "$($Comic.num)|$HighQuality"
         Write-XKCDCenteredLine -Width $Width
     }
 

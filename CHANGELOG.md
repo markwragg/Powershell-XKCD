@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD`'s ASCII art banner now gets a seasonal flourish: a 🎃 either side of its "X88K" line in October, and a 🎄 in December.
+* `Start-XKCD` now caches each comic's rendered terminal image for the rest of the session, so revisiting one (e.g. via `P`/`N`/`F`/`L`/`G`) redisplays it instantly instead of re-rendering it -- which for Sixel in particular can take a while.
+
 ## [1.12.2] - 2026-10-27
 
 * Adds a `-Random` switch to `Start-XKCD`, to open the viewer on a random comic instead of the latest one, optionally bounded by `-Minimum`/`-Maximum` (aliased `-Min`/`-Max`), matching `Get-XKCD`'s existing `-Random` parameters.

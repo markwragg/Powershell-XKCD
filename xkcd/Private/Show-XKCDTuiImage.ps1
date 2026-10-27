@@ -25,7 +25,20 @@ function Show-XKCDTuiImage {
 
         # The console width to center the image within.
         [int]
-        $Width = 80
+        $Width = 80,
+
+        # A hashtable used to re-use a previously rendered terminal image rather than rendering it again --
+        # used by Start-XKCD so revisiting a comic already shown this session (e.g. via P/N) skips the
+        # conversion, which for Sixel in particular can take a while. Keyed by -CacheKey plus the detected
+        # protocol, so switching terminals mid-session (unlikely, but cheap to guard against) can't return a
+        # stale render for the wrong protocol. Omit (along with -CacheKey) to always render fresh.
+        [hashtable]
+        $Cache,
+
+        # The key identifying this image within -Cache, e.g. the comic's number plus -HighQuality -- anything
+        # that uniquely identifies $ImageBytes for the caller's purposes. Ignored if -Cache isn't supplied.
+        [string]
+        $CacheKey
     )
 
     $Protocol = Get-XKCDTerminalGraphicsProtocol
@@ -38,42 +51,52 @@ function Show-XKCDTuiImage {
     $DisplayColumns = Get-XKCDTerminalImageColumnCount -ImageBytes $ImageBytes -Width $Width -HighQuality:$HighQuality
     $Padding = [Math]::Max(0, [int][Math]::Floor(($Width - $DisplayColumns) / 2))
 
-    try {
-        $TerminalImageParams = @{
-            ImageBytes  = $ImageBytes
-            Protocol    = $Protocol
-            HighQuality = $HighQuality
-        }
-        if ($Protocol -in 'Kitty', 'iTerm2') {
-            $TerminalImageParams.Columns = $DisplayColumns
-        }
+    $FullCacheKey = if ($Cache -and $CacheKey) { "$CacheKey|$Protocol" }
 
-        # ConvertTo-XKCDSixel's own large-image warning is written via the usual Write-Warning (suppressed
-        # here so it doesn't also show up in its default, un-centered form) -- but since that only fires
-        # *before* the slow conversion it warns about, the -OnLargeImageWarning callback is what actually
-        # gets it on screen at that point, rather than only after the whole (slow) call below has returned.
-        # Deliberately self-contained (no call out to Write-XKCDCenteredLine or any other module function):
-        # .GetNewClosure() detaches the scriptblock's command resolution from the module, so a call to a
-        # module-private function here would fail silently once invoked from inside ConvertTo-XKCDSixel.
-        # Left without a trailing newline (cursor stays on this line) so the image, once ready, can overwrite
-        # it in place below rather than leaving a stale "may take a while" notice sitting above the comic.
-        # $WarningState is a hashtable (rather than a plain variable) purely so the closure's mutation of
-        # .Shown is visible back here afterwards -- GetNewClosure() snapshots variable *bindings*, so a
-        # reassigned plain variable inside the closure wouldn't be, but a shared object's mutated contents are.
-        $CapturedWidth = $Width
-        $WarningState = @{ Shown = $false }
-        $TerminalImageParams.OnLargeImageWarning = {
-            Param($Message)
-            $Padding = [Math]::Max(0, [int][Math]::Floor(($CapturedWidth - $Message.Length) / 2))
-            [Console]::Out.Write((' ' * $Padding) + "$([char]27)[33m$Message$([char]27)[0m")
-            $WarningState.Shown = $true
-        }.GetNewClosure()
+    # A hashtable (rather than a plain variable) purely so the OnLargeImageWarning closure's mutation of
+    # .Shown is visible back here afterwards -- GetNewClosure() snapshots variable *bindings*, so a
+    # reassigned plain variable inside the closure wouldn't be, but a shared object's mutated contents are.
+    $WarningState = @{ Shown = $false }
 
-        $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams -WarningAction SilentlyContinue
+    if ($FullCacheKey -and $Cache.ContainsKey($FullCacheKey)) {
+        $TerminalImage = $Cache[$FullCacheKey]
     }
-    catch {
-        Write-Warning "Unable to render the comic as $($Protocol): $_"
-        return
+    else {
+        try {
+            $TerminalImageParams = @{
+                ImageBytes  = $ImageBytes
+                Protocol    = $Protocol
+                HighQuality = $HighQuality
+            }
+            if ($Protocol -in 'Kitty', 'iTerm2') {
+                $TerminalImageParams.Columns = $DisplayColumns
+            }
+
+            # ConvertTo-XKCDSixel's own large-image warning is written via the usual Write-Warning (suppressed
+            # here so it doesn't also show up in its default, un-centered form) -- but since that only fires
+            # *before* the slow conversion it warns about, the -OnLargeImageWarning callback is what actually
+            # gets it on screen at that point, rather than only after the whole (slow) call below has returned.
+            # Deliberately self-contained (no call out to Write-XKCDCenteredLine or any other module function):
+            # .GetNewClosure() detaches the scriptblock's command resolution from the module, so a call to a
+            # module-private function here would fail silently once invoked from inside ConvertTo-XKCDSixel.
+            # Left without a trailing newline (cursor stays on this line) so the image, once ready, can overwrite
+            # it in place below rather than leaving a stale "may take a while" notice sitting above the comic.
+            $CapturedWidth = $Width
+            $TerminalImageParams.OnLargeImageWarning = {
+                Param($Message)
+                $Padding = [Math]::Max(0, [int][Math]::Floor(($CapturedWidth - $Message.Length) / 2))
+                [Console]::Out.Write((' ' * $Padding) + "$([char]27)[33m$Message$([char]27)[0m")
+                $WarningState.Shown = $true
+            }.GetNewClosure()
+
+            $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams -WarningAction SilentlyContinue
+        }
+        catch {
+            Write-Warning "Unable to render the comic as $($Protocol): $_"
+            return
+        }
+
+        if ($FullCacheKey) { $Cache[$FullCacheKey] = $TerminalImage }
     }
 
     if ($WarningState.Shown) {

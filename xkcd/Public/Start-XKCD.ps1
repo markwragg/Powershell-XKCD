@@ -149,6 +149,10 @@ function Start-XKCD {
         catch {
             Write-Verbose 'No console window available (e.g. output redirected), falling back to the default width'
         }
+
+        # Caches each comic's rendered terminal image for the rest of this session, so revisiting one (e.g.
+        # via P/N) skips re-rendering it -- which for Sixel in particular can take a while.
+        $ImageCache = @{}
     }
 
     Process {
@@ -183,7 +187,7 @@ function Start-XKCD {
                         Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality -WarningVariable ImageWarning -WarningAction SilentlyContinue
                     }
 
-                    Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -Warning ($ImageWarning | Select-Object -Last 1)
+                    Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -Warning ($ImageWarning | Select-Object -Last 1) -Cache $ImageCache
 
                     if ($PSCmdlet.ShouldProcess($StatePath, "Track comic #$Current as the one most recently viewed")) {
                         Update-XKCDLastReadState -Num $Current -StatePath $StatePath -Cmdlet $PSCmdlet
