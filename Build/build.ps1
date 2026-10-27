@@ -65,6 +65,16 @@ if ($PSBoundParameters.Keys -contains 'ResolveDependency') {
 # Init BuildHelpers
 Set-BuildEnvironment -Force
 
+# BuildHelpers 2.0.1 (pinned in build.depend.psd1) has no GitHub Actions detection, so Set-BuildEnvironment
+# above would otherwise leave BHBuildSystem as 'Unknown' (silently disabling deploy.psdeploy.ps1's deploy
+# gate) and fall back to a git rev-parse for BHBranchName, which returns 'HEAD' rather than the branch name
+# when actions/checkout leaves the repo in a detached-HEAD state.
+if ($env:GITHUB_ACTIONS -eq 'true') {
+    $env:BHBuildSystem = 'GitHub Actions'
+    $env:BHBranchName = $env:GITHUB_REF_NAME
+    $env:BHBuildNumber = $env:GITHUB_RUN_NUMBER
+}
+
 
 # Execute PSake tasts
 $invokePsakeParams = @{

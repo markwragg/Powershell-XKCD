@@ -79,12 +79,12 @@ Task 'UpdateWiki' -Depends 'ImportStagingModule' {
             throw "Refusing to publish: current git repository [$CurrentRepoRoot] does not match the wiki clone [$ResolvedWikiPath]."
         }
 
-        git config user.email "build@azuredevops.com"
-        git config user.name "AzureDevOps"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git config user.name "github-actions[bot]"
         git add -A
 
         if (git status --porcelain) {
-            git commit -m "[skip ci] AzureDevOps Build $($env:BUILD_BUILDID)"
+            git commit -m "[skip ci] GitHub Actions Build $env:GITHUB_RUN_NUMBER"
             git push
 
             if ($LASTEXITCODE -ne 0) {

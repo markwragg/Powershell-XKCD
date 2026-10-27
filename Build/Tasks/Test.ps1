@@ -31,5 +31,5 @@ Task 'Test' -Depends 'ImportStagingModule' {
     # separate, discarded workspace) can apply it to README.md without re-running the tests.
     $CoveragePercent = [math]::floor($TestResults.CodeCoverage.CoveragePercent)
 
-    Write-Host "##vso[task.setvariable variable=CoveragePercent;isOutput=true]$CoveragePercent"
+    "CoveragePercent=$CoveragePercent" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 }

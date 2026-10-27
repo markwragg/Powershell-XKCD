@@ -30,4 +30,34 @@ Describe "Unit Tests PS$PSVersion" {
             $Result.Tagline | Should -Not -BeNullOrEmpty
         }
     }
+
+    Context 'Get-XKCDBanner Seasonal Tests' {
+
+        It 'Flanks a line with pumpkins in October' {
+            Mock -ModuleName $Module Get-Date { [datetime]'2026-10-15' }
+
+            $October = & $ModuleObj { Get-XKCDBanner }
+
+            ($October.Lines -join "`n") | Should -Match '🎃'
+            ($October.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+        }
+
+        It 'Flanks a line with christmas trees in December' {
+            Mock -ModuleName $Module Get-Date { [datetime]'2026-12-15' }
+
+            $December = & $ModuleObj { Get-XKCDBanner }
+
+            ($December.Lines -join "`n") | Should -Match '🎄'
+            ($December.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+        }
+
+        It 'Adds no seasonal emoji outside of October/December' {
+            Mock -ModuleName $Module Get-Date { [datetime]'2026-06-15' }
+
+            $June = & $ModuleObj { Get-XKCDBanner }
+
+            ($June.Lines -join "`n") | Should -Not -Match '🎃|🎄'
+            ($June.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+        }
+    }
 }

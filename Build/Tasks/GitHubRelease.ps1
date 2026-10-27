@@ -48,12 +48,12 @@ Task 'GitHubRelease' -Depends 'Init' {
     $Headers = @{
         Authorization = "Bearer $env:GITHUBPAT"
         Accept        = 'application/vnd.github+json'
-        'User-Agent'  = 'AzureDevOps-Build'
+        'User-Agent'  = 'GitHub-Actions-Build'
     }
 
     $ReleaseBody = @{
         tag_name         = $Tag
-        target_commitish = $env:BUILD_SOURCEVERSION
+        target_commitish = $env:GITHUB_SHA
         name             = $Tag
         body             = $ReleaseNotes
     } | ConvertTo-Json

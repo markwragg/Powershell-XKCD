@@ -153,6 +153,22 @@ Describe "Unit Tests PS$PSVersion" {
 
             Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 2 -Exactly
         }
+
+        It 'Shows the large-image warning while converting, then clears it once the image is ready' {
+            Mock -ModuleName $Module ConvertTo-XKCDSixel {
+                Param($ImageBytes, $MaxWidth, $OnLargeImageWarning)
+                & $OnLargeImageWarning 'This is a large image (999 x 999 pixels) - rendering it as Sixel may take a while.'
+                'FAKE-SIXEL-DATA'
+            }
+
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj { Param($ImageBytes) Show-XKCDTuiImage -ImageBytes $ImageBytes -Width 100 } $ImageBytes
+            }
+
+            $Output | Should -Match 'may take a while'
+            $Output | Should -Match ([regex]::Escape("`r$esc[2K"))
+            $Output | Should -Match 'FAKE-SIXEL-DATA'
+        }
     }
 
     Context 'Show-XKCDTuiImage Unsupported Terminal Tests' {

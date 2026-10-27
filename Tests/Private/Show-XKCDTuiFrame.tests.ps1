@@ -65,6 +65,22 @@ Describe "Unit Tests PS$PSVersion" {
             ($Output -split '\r?\n' -join ' ') -replace '\s+', ' ' | Should -Match ([regex]::Escape($Comic.alt))
         }
 
+        It 'Wraps alt text onto multiple lines when it exceeds the wrap width' {
+            Mock -ModuleName $Module Show-XKCDTuiImage { }
+            $LongAlt = (1..20 | ForEach-Object { "word$_" }) -join ' '
+            $LongComic = [pscustomobject]@{ num = 1786; title = 'Home Organization'; alt = $LongAlt; year = '2017'; month = '1'; day = '16' }
+
+            $WrappedOutput = Get-XKCDCapturedOutput {
+                & $ModuleObj {
+                    Param($Comic)
+                    Show-XKCDTuiFrame -Comic $Comic -Width 100
+                } $LongComic
+            }
+
+            1..20 | ForEach-Object { $WrappedOutput | Should -Match "word$_" }
+            ($WrappedOutput -split '\r?\n' | Where-Object { $_ -match 'word\d+' }).Count | Should -BeGreaterThan 1
+        }
+
         It 'Includes the control bar, with every control' {
             $Output | Should -Match '\[G\]o to'
             $Output | Should -Match '\[F\]irst'
