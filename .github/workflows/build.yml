@@ -37,6 +37,10 @@ jobs:
         shell: powershell
         run: ./Build/build.ps1 -ResolveDependency -TaskList 'Init'
 
+      - name: Combine PowerShell functions into single module file
+        shell: powershell
+        run: ./Build/build.ps1 -TaskList 'CombineFunctionsAndStage'
+
       - name: Test Windows PowerShell
         id: test-winps
         shell: powershell
