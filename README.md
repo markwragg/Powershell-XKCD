@@ -1,7 +1,7 @@
 # Powershell-XKCD
 
 [![Build Status](https://github.com/markwragg/Powershell-XKCD/actions/workflows/build.yml/badge.svg)](https://github.com/markwragg/Powershell-XKCD/actions/workflows/build.yml)
-![coverage](https://img.shields.io/badge/coverage-89%25-yellow.svg)
+![coverage](https://img.shields.io/badge/coverage-90%25-brightgreen.svg)
 [![PowerShell Gallery Version](https://img.shields.io/powershellgallery/v/xkcd?label=PS%20Gallery)](https://www.powershellgallery.com/packages/XKCD)
 [![PowerShell Gallery Downloads](https://img.shields.io/powershellgallery/dt/xkcd?color=D3D3D3)](https://www.powershellgallery.com/packages/XKCD)
 
