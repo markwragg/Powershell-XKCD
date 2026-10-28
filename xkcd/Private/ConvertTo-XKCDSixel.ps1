@@ -40,7 +40,14 @@ function ConvertTo-XKCDSixel {
         # one once the whole (slow) conversion has already finished -- defeating its whole point of warning
         # before the wait rather than after it. This callback lets such a caller still surface it immediately.
         [scriptblock]
-        $OnLargeImageWarning
+        $OnLargeImageWarning,
+
+        # Optional callback checked once per row (and once per 6-row band during the Sixel encoding step
+        # below) -- returning $true abandons the conversion by throwing an OperationCanceledException, rather
+        # than finishing a render nobody's waiting for any more. Used by Show-XKCDTuiImage so a keypress (e.g.
+        # paging to the next comic) can interrupt a slow conversion instead of blocking behind it.
+        [scriptblock]
+        $ShouldCancel
     )
 
     # Windows PowerShell 5.1 has no $IsWindows variable at all (it only ever runs on Windows); PowerShell 7+
@@ -84,6 +91,8 @@ function ConvertTo-XKCDSixel {
         $resized = [byte[]]::new($newWidth * $newHeight * 4)
 
         for ($y = 0; $y -lt $newHeight; $y++) {
+            if ($ShouldCancel -and (& $ShouldCancel)) { throw [System.OperationCanceledException]::new('Sixel rendering cancelled.') }
+
             $srcY = [Math]::Min($height - 1, [int]($y * $height / $newHeight))
             for ($x = 0; $x -lt $newWidth; $x++) {
                 $srcX = [Math]::Min($width - 1, [int]($x * $width / $newWidth))
@@ -109,6 +118,8 @@ function ConvertTo-XKCDSixel {
     $palette = @{}
 
     for ($y = 0; $y -lt $height; $y++) {
+        if ($ShouldCancel -and (& $ShouldCancel)) { throw [System.OperationCanceledException]::new('Sixel rendering cancelled.') }
+
         $rowOffset = $y * $stride
         for ($x = 0; $x -lt $width; $x++) {
             $pixelOffset = $rowOffset + ($x * 4)
@@ -149,6 +160,8 @@ function ConvertTo-XKCDSixel {
     }
 
     for ($bandStart = 0; $bandStart -lt $height; $bandStart += 6) {
+        if ($ShouldCancel -and (& $ShouldCancel)) { throw [System.OperationCanceledException]::new('Sixel rendering cancelled.') }
+
         $bandHeight = [Math]::Min(6, $height - $bandStart)
         $bandColors = [System.Collections.Generic.HashSet[int]]::new()
 

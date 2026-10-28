@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD` no longer blocks behind a slow Sixel render when paging quickly through comics -- a waiting keypress now abandons an in-progress conversion straight away instead of finishing it first, so `P`/`N`/etc. feel immediate even before a comic has finished rendering.
+* `Start-XKCD`'s left/right arrow keys now support Shift+Left/Shift+Right to jump 10 comics at a time instead of 1, clamped to the first/latest comic.
+
 ## [1.12.5] - 2026-10-28
 
 * `Start-XKCD`'s ASCII art banner is striped with the colours of the original 8-colour pride flag in June (Pride Month), instead of its usual solid yellow.

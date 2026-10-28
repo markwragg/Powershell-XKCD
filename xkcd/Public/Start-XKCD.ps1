@@ -10,9 +10,11 @@ function Start-XKCD {
 
         - G prompts for a comic number to jump straight to.
         - F displays the first comic (#1).
-        - P or the left arrow displays the previous comic (does nothing at comic #1).
+        - P or the left arrow displays the previous comic (does nothing at comic #1). Shift+Left jumps back
+          10 comics at a time instead (clamped to comic #1).
         - R displays a random comic from the full archive.
         - N or the right arrow displays the next comic (does nothing once you reach the latest comic).
+          Shift+Right jumps ahead 10 comics at a time instead (clamped to the latest comic).
         - L displays the latest comic.
         - Q or Escape exits back to your normal console.
 
@@ -210,13 +212,19 @@ function Start-XKCD {
                     $NeedsRedraw = $true
                 }
                 else {
+                    # Shift+Left/Right jumps 10 comics at a time instead of 1. Scoped to the arrow keys
+                    # specifically (rather than just checking the Shift modifier) because P/N share this same
+                    # switch arm, and a terminal reports typing an upper-case "P" the same way: ConsoleKey.P
+                    # with the Shift modifier set -- without this, that would wrongly jump 10 instead of 1.
+                    $Step = if (($Key.Key -in 'LeftArrow', 'RightArrow') -and ($Key.Modifiers -band [System.ConsoleModifiers]::Shift)) { 10 } else { 1 }
+
                     switch ($Key.Key) {
                         { $_ -in 'LeftArrow', 'P' } {
-                            if ($Current -gt 1) { $Current--; $NeedsRedraw = $true }
+                            if ($Current -gt 1) { $Current = [Math]::Max(1, $Current - $Step); $NeedsRedraw = $true }
                             else { $BoundaryMessage = "You're already viewing the first comic." }
                         }
                         { $_ -in 'RightArrow', 'N' } {
-                            if ($Current -lt $Latest) { $Current++; $NeedsRedraw = $true }
+                            if ($Current -lt $Latest) { $Current = [Math]::Min($Latest, $Current + $Step); $NeedsRedraw = $true }
                             else { $BoundaryMessage = "You're already viewing the latest comic." }
                         }
                         'R' { $Current = Get-Random -Minimum 1 -Maximum ($Latest + 1); $NeedsRedraw = $true }

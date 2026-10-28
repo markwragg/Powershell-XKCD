@@ -149,4 +149,29 @@ Describe "Unit Tests PS$PSVersion" {
             $DefaultThresholdWarning | Should -BeNullOrEmpty
         }
     }
+
+    Context 'ConvertTo-XKCDSixel Cancellation Tests' {
+
+        BeforeAll {
+            $ImageBytes = New-XKCDTestImageBytes -Width 4 -Height 4
+        }
+
+        It 'Throws an OperationCanceledException when -ShouldCancel returns true' {
+            {
+                & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes -ShouldCancel { $true } } $ImageBytes
+            } | Should -Throw -ExceptionType ([System.OperationCanceledException])
+        }
+
+        It 'Converts normally when -ShouldCancel returns false' {
+            $Sixel = & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes -ShouldCancel { $false } } $ImageBytes
+
+            $Sixel | Should -BeOfType [string]
+        }
+
+        It 'Converts normally when -ShouldCancel is omitted' {
+            {
+                & $ModuleObj { Param($ImageBytes) ConvertTo-XKCDSixel -ImageBytes $ImageBytes } $ImageBytes
+            } | Should -Not -Throw
+        }
+    }
 }

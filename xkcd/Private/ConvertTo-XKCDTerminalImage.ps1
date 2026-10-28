@@ -35,7 +35,12 @@ function ConvertTo-XKCDTerminalImage {
         # Passed straight through to ConvertTo-XKCDSixel (ignored for Kitty/iTerm2) -- see its own parameter
         # of the same name.
         [scriptblock]
-        $OnLargeImageWarning
+        $OnLargeImageWarning,
+
+        # Passed straight through to ConvertTo-XKCDSixel (ignored for Kitty/iTerm2, which have no comparably
+        # slow per-pixel step to interrupt) -- see its own parameter of the same name.
+        [scriptblock]
+        $ShouldCancel
     )
 
     $esc = [char]27
@@ -66,10 +71,10 @@ function ConvertTo-XKCDTerminalImage {
         }
         'Sixel' {
             if ($HighQuality) {
-                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 925 -OnLargeImageWarning $OnLargeImageWarning
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -MaxWidth 925 -OnLargeImageWarning $OnLargeImageWarning -ShouldCancel $ShouldCancel
             }
             else {
-                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -OnLargeImageWarning $OnLargeImageWarning
+                ConvertTo-XKCDSixel -ImageBytes $ImageBytes -OnLargeImageWarning $OnLargeImageWarning -ShouldCancel $ShouldCancel
             }
         }
         default {

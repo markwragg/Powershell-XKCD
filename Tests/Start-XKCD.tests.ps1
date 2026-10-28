@@ -62,6 +62,11 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             [System.ConsoleKeyInfo]::new([char]0, $Key, $false, $false, $false)
         }
 
+        # Like New-XKCDTestKey, but with the Shift modifier set -- used to test Shift+Left/Right's 10-comic jump.
+        function New-XKCDTestShiftKey ([System.ConsoleKey]$Key) {
+            [System.ConsoleKeyInfo]::new([char]0, $Key, $true, $false, $false)
+        }
+
         # Queues a scripted sequence of keypresses for Read-XKCDConsoleKey (mocked per-test) to return one at
         # a time, so each test's navigation through Start-XKCD's loop is deterministic and never blocks.
         function Set-XKCDTestKeySequence ([System.ConsoleKey[]]$Keys) {
@@ -305,6 +310,93 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             # Only the second attempt's re-prompt should move up a line -- there's no message yet to preserve
             # the first time around.
             ([regex]::Matches($Output, [regex]::Escape("$Esc[1A"))).Count | Should -Be 1
+        }
+    }
+
+    Context 'Shift+Arrow Navigation Tests' {
+
+        BeforeAll {
+            # A bigger cache than the other contexts' (1..20 rather than 1..3) so a 10-comic jump, and its
+            # clamping at either end, is distinguishable from simply landing on the first/last comic.
+            $CachePath = Join-Path $TestDrive 'start-xkcd-shift-cache.json'
+            1..20 | ForEach-Object {
+                [pscustomobject]@{ num = $_; title = "Comic $_"; img = "https://imgs.xkcd.com/comics/comic$_.jpg"; alt = "Alt $_"; year = '2006'; month = '1'; day = "$_" }
+            } | ConvertTo-Json | Out-File $CachePath
+
+            $DownloadPath = Join-Path $TestDrive 'start-xkcd-shift-downloads'
+            New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+
+            Mock -ModuleName $Module Read-XKCDConsoleKey { $script:XKCDTestKeyQueue.Dequeue() }
+        }
+
+        It 'Shift+Right jumps ahead 10 comics instead of 1' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDTestShiftKey 'RightArrow'), (New-XKCDTestKey 'Escape'))
+            )
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $RecordedNums | Should -Be @(1, 11)
+        }
+
+        It 'Shift+Left jumps back 10 comics instead of 1' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDTestShiftKey 'LeftArrow'), (New-XKCDTestKey 'Escape'))
+            )
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 15 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $RecordedNums | Should -Be @(15, 5)
+        }
+
+        It 'Shift+Right clamps to the latest comic rather than overshooting it' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDTestShiftKey 'RightArrow'), (New-XKCDTestKey 'Escape'))
+            )
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 15 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $RecordedNums | Should -Be @(15, 20)
+        }
+
+        It 'Shift+Left clamps to the first comic rather than undershooting it' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDTestShiftKey 'LeftArrow'), (New-XKCDTestKey 'Escape'))
+            )
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 5 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $RecordedNums | Should -Be @(5, 1)
+        }
+
+        It 'Shift+P (a plain upper-case P) still moves only 1 comic, unlike Shift+Left' {
+            $RecordedNums = [System.Collections.Generic.List[int]]::new()
+            Mock -ModuleName $Module Show-XKCDTuiFrame { $RecordedNums.Add($Comic.num) }
+            $script:XKCDTestKeyQueue = [System.Collections.Generic.Queue[System.ConsoleKeyInfo]]::new(
+                [System.ConsoleKeyInfo[]]@((New-XKCDTestShiftKey 'P'), (New-XKCDTestKey 'Escape'))
+            )
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 15 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $RecordedNums | Should -Be @(15, 14)
         }
     }
 

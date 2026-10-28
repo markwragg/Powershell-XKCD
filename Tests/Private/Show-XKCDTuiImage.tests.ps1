@@ -207,4 +207,55 @@ Describe "Unit Tests PS$PSVersion" {
             } | Should -Not -Throw
         }
     }
+
+    Context 'Show-XKCDTuiImage Cancellation Tests' {
+
+        BeforeAll {
+            Mock -ModuleName $Module Get-XKCDTerminalGraphicsProtocol { 'Sixel' }
+            Mock -ModuleName $Module ConvertTo-XKCDSixel { throw [System.OperationCanceledException]::new('Sixel rendering cancelled.') }
+        }
+
+        It 'Does not throw when the conversion is cancelled' {
+            {
+                Get-XKCDCapturedOutput {
+                    & $ModuleObj {
+                        Param($ImageBytes)
+                        Show-XKCDTuiImage -ImageBytes $ImageBytes -WarningAction SilentlyContinue
+                    } $ImageBytes
+                }
+            } | Should -Not -Throw
+        }
+
+        It 'Writes nothing to the console when the conversion is cancelled' {
+            $Output = Get-XKCDCapturedOutput {
+                & $ModuleObj {
+                    Param($ImageBytes)
+                    Show-XKCDTuiImage -ImageBytes $ImageBytes -WarningAction SilentlyContinue
+                } $ImageBytes
+            }
+
+            $Output | Should -BeNullOrEmpty
+        }
+
+        It 'Does not warn when the conversion is cancelled -- it was deliberate, not a failure' {
+            $CapturedWarning = & $ModuleObj {
+                Param($ImageBytes)
+                Show-XKCDTuiImage -ImageBytes $ImageBytes -WarningVariable CapturedWarning -WarningAction SilentlyContinue | Out-Null
+                $CapturedWarning
+            } $ImageBytes
+
+            $CapturedWarning | Should -BeNullOrEmpty
+        }
+
+        It 'Does not cache a cancelled render' {
+            $Cache = @{}
+
+            & $ModuleObj {
+                Param($ImageBytes, $Cache)
+                Show-XKCDTuiImage -ImageBytes $ImageBytes -Cache $Cache -CacheKey '1786|False' -WarningAction SilentlyContinue
+            } $ImageBytes $Cache
+
+            $Cache.Count | Should -Be 0
+        }
+    }
 }

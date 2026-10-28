@@ -89,7 +89,18 @@ function Show-XKCDTuiImage {
                 $WarningState.Shown = $true
             }.GetNewClosure()
 
+            # Lets a pending keypress (e.g. paging to the next comic) abandon a slow Sixel conversion instead
+            # of blocking behind it -- KeyAvailable only peeks, so whatever key is waiting is still there
+            # afterwards for Start-XKCD's own blocking read to pick straight up. Wrapped in a try/catch since
+            # it throws when there's no real console to check (e.g. output redirected, or under test).
+            $TerminalImageParams.ShouldCancel = {
+                try { [Console]::KeyAvailable } catch { $false }
+            }
+
             $TerminalImage = ConvertTo-XKCDTerminalImage @TerminalImageParams -WarningAction SilentlyContinue
+        }
+        catch [System.OperationCanceledException] {
+            return
         }
         catch {
             Write-Warning "Unable to render the comic as $($Protocol): $_"
