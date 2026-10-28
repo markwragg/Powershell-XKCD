@@ -36,7 +36,7 @@ This module is published in the PowerShell Gallery as [XKCD](https://www.powersh
 Install-Module -Name XKCD
 ```
 
-Or:
+or
 
 ```powershell
 Install-PSResource -Name XKCD
