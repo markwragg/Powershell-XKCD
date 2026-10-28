@@ -127,6 +127,12 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
         Import-Module "$Root/$Module" -Force
 
+        # Redirects the per-user data directory (~/.xkcd) that Get-XKCD falls back to for -StatePath (used
+        # to track the most recently read/viewed comic) whenever a test below doesn't pass its own -StatePath
+        # explicitly -- without this, those tests would read/write the real file on whatever machine runs
+        # them, silently clobbering the actual last-read/viewed comic recorded there.
+        Mock -ModuleName $Module Get-XKCDUserDataPath { Param($FileName, $LegacyDirectory) [void]$LegacyDirectory; Join-Path $TestDrive $FileName }
+
         # Get-XKCD -Show renders the comic straight to the console; running it here would otherwise spam
         # the real terminal with comic art every time these tests run.
         function Get-XKCDCapturedOutput {

@@ -32,6 +32,12 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
         Import-Module "$Root/$Module" -Force
 
+        # Redirects the per-user data directory (~/.xkcd) that Start-XKCD falls back to for -StatePath (used
+        # to track the most recently read/viewed comic) whenever a test below doesn't pass its own -StatePath
+        # explicitly -- without this, those tests would read/write the real file on whatever machine runs
+        # them, silently clobbering the actual comic you were last reading.
+        Mock -ModuleName $Module Get-XKCDUserDataPath { Param($FileName, $LegacyDirectory) [void]$LegacyDirectory; Join-Path $TestDrive $FileName }
+
         # Start-XKCD renders straight to the console and blocks on key input, so running it here would
         # otherwise spam the real terminal and hang waiting for a real keypress every time these tests run.
         # Start-XKCD itself is called directly throughout (it's exported, so it's always resolved against
