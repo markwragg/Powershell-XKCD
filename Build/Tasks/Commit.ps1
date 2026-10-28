@@ -22,6 +22,7 @@ Task 'Commit' -Depends 'Init' {
     git add README.md
     git add CHANGELOG.md
     git add $SourceCachePath
+    git add $env:BHPSModuleManifest
     git commit -m "[skip ci] GitHub Actions Build $env:GITHUB_RUN_NUMBER"
     git push
 }

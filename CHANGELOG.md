@@ -1,5 +1,10 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD`'s ASCII art banner is striped with the colours of the original 8-colour pride flag in June (Pride Month), instead of its usual solid yellow.
+
+
 ## [1.12.4] - 2026-10-27
 
 * `Start-XKCD` now has a secret.

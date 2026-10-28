@@ -53,9 +53,17 @@ function Show-XKCDTuiFrame {
 
     $Banner = Get-XKCDBanner
 
+    # In June (Pride Month), stripe the banner with the colours of the original 8-colour pride flag
+    # instead of the usual solid yellow, one colour per line.
+    $PrideColors = if ((Get-Date).Month -eq 6) {
+        @(198, 202, 208, 220, 46, 45, 27, 128)
+    }
+
     Write-XKCDCenteredLine -Width $Width
-    foreach ($Line in $Banner.Lines) {
-        Write-XKCDCenteredLine -Width $Width -Text "$esc[1;93m$Line$reset"
+    for ($i = 0; $i -lt $Banner.Lines.Count; $i++) {
+        $Line = $Banner.Lines[$i]
+        $Color = if ($PrideColors) { "38;5;$($PrideColors[$i % $PrideColors.Count])" } else { '93' }
+        Write-XKCDCenteredLine -Width $Width -Text "$esc[1;${Color}m$Line$reset"
     }
     Write-XKCDCenteredLine -Width $Width -Text "$esc[2m$($Banner.Tagline)$reset"
     Write-XKCDCenteredLine -Width $Width
