@@ -42,7 +42,7 @@ jobs:
         run: ./Build/build.ps1 -TaskList 'CombineFunctionsAndStage'
 
       - name: Analyze
-        shell: pwsh
+        shell: powershell
         run: ./Build/build.ps1 -TaskList 'Analyze'
 
       - name: Test Windows PowerShell
