@@ -12,7 +12,13 @@ function Show-XKCDAdminConsole {
         # of whether the current Start-XKCD session is actually running in -Offline mode.
         [Parameter(Mandatory)]
         [string]
-        $CachePath
+        $CachePath,
+
+        # A pre-selected seasonal emoji to flank the banner with (see Get-XKCDBanner), so Start-XKCD can show
+        # the same one across redraws for the rest of the session instead of re-randomizing on every frame.
+        # Pass $null (or omit) to pick a new random one for the current month.
+        [string]
+        $Seasonal
     )
 
     $esc = [char]27
@@ -28,7 +34,8 @@ function Show-XKCDAdminConsole {
         Write-Verbose 'Unable to clear the console (e.g. output redirected); continuing without clearing.'
     }
 
-    $Banner = Get-XKCDBanner
+    $BannerParams = if ($PSBoundParameters.ContainsKey('Seasonal')) { @{ Seasonal = $Seasonal } } else { @{} }
+    $Banner = Get-XKCDBanner @BannerParams
     foreach ($BannerLine in $Banner.Lines) {
         [Console]::Out.Write("${Green}$BannerLine${Reset}$NewLine")
     }

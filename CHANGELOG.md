@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD`'s random seasonal banner emoji is now picked once per session instead of re-randomizing on every redraw, so it stays the same one as you page through comics (`P`/`N`/etc.) instead of changing each time.
+
 ## [1.12.6] - 2026-10-28
 
 * `Start-XKCD`'s seasonal banner emoji is now randomly picked from a small set each time, instead of always being the same one: 🎃/👻/🦇/💀 in October, 🎄/🎅/🎁/🔔 in December.

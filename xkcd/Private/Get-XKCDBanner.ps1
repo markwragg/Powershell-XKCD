@@ -4,7 +4,14 @@
         Returns the ASCII art "xkcd" banner and tagline shown at the top of Start-XKCD's interface.
     #>
     [cmdletbinding()]
-    Param()
+    Param(
+        # A pre-selected seasonal emoji to flank the banner with, instead of picking a new random one -- used
+        # by Start-XKCD so it can pick once per session (via Get-XKCDSeasonalEmoji) and keep showing the same
+        # one across redraws, rather than re-randomizing every time the banner is drawn. Pass $null (or omit)
+        # to fall back to the default behavior of picking a new random one for the current month.
+        [string]
+        $Seasonal
+    )
 
     # Every line is padded to the same length (35) so Show-XKCDTuiFrame centers each one identically,
     # rather than each line drifting by however many trailing spaces it happens to have.
@@ -24,10 +31,8 @@
     # lines stay the same length (required for each to center consistently) and the "xkcd" art itself doesn't
     # shift out of alignment -- all candidates are single-codepoint, supplementary-plane emoji (so .Length is
     # 2 for each of them), which keeps that alignment math the same regardless of which one is picked.
-    $Seasonal = switch ((Get-Date).Month) {
-        10 { Get-Random -InputObject @('🎃', '👻', '🦇', '💀') }
-        12 { Get-Random -InputObject @('🎄', '🎅', '🎁', '🔔') }
-        default { $null }
+    if (-not $PSBoundParameters.ContainsKey('Seasonal')) {
+        $Seasonal = Get-XKCDSeasonalEmoji
     }
 
     if ($Seasonal) {

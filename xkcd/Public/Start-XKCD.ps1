@@ -168,6 +168,10 @@ function Start-XKCD {
         # Caches each comic's rendered terminal image for the rest of this session, so revisiting one (e.g.
         # via P/N) skips re-rendering it -- which for Sixel in particular can take a while.
         $ImageCache = @{}
+
+        # Picked once per session (rather than letting Get-XKCDBanner re-randomize it on every redraw), so
+        # the same seasonal emoji (if any) stays put for as long as this Start-XKCD session runs.
+        $SeasonalEmoji = Get-XKCDSeasonalEmoji
     }
 
     Process {
@@ -206,7 +210,7 @@ function Start-XKCD {
                         Get-XKCDComicImageContent -Comic $Comic -HighQuality:$HighQuality -WarningVariable ImageWarning -WarningAction SilentlyContinue
                     }
 
-                    Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -Warning ($ImageWarning | Select-Object -Last 1) -Cache $ImageCache
+                    Show-XKCDTuiFrame -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -Warning ($ImageWarning | Select-Object -Last 1) -Cache $ImageCache -Seasonal $SeasonalEmoji
 
                     if ($PSCmdlet.ShouldProcess($StatePath, "Track comic #$Current as the one most recently viewed")) {
                         Update-XKCDLastReadState -Num $Current -StatePath $StatePath -Cmdlet $PSCmdlet
@@ -224,7 +228,7 @@ function Start-XKCD {
                 $ComicPromptMessageShown = $false
 
                 if ($Key.KeyChar -eq '`') {
-                    $Jump = Show-XKCDAdminConsole -CachePath $CachePath
+                    $Jump = Show-XKCDAdminConsole -CachePath $CachePath -Seasonal $SeasonalEmoji
                     if ($Jump) { $Current = $Jump }
                     $NeedsRedraw = $true
                 }

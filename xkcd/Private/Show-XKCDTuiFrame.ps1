@@ -38,7 +38,13 @@ function Show-XKCDTuiFrame {
         # for Sixel) re-render. Keyed internally by the comic's number plus -HighQuality. Omit to always
         # render the image fresh.
         [hashtable]
-        $Cache
+        $Cache,
+
+        # A pre-selected seasonal emoji to flank the banner with (see Get-XKCDBanner), so Start-XKCD can show
+        # the same one across redraws for the rest of the session instead of re-randomizing on every frame.
+        # Pass $null (or omit) to pick a new random one for the current month.
+        [string]
+        $Seasonal
     )
 
     $esc = [char]27
@@ -51,7 +57,8 @@ function Show-XKCDTuiFrame {
         Write-Verbose 'Unable to clear the console (e.g. output redirected); continuing without clearing.'
     }
 
-    $Banner = Get-XKCDBanner
+    $BannerParams = if ($PSBoundParameters.ContainsKey('Seasonal')) { @{ Seasonal = $Seasonal } } else { @{} }
+    $Banner = Get-XKCDBanner @BannerParams
 
     # In June (Pride Month), stripe the banner with the colours of the original 8-colour pride flag
     # instead of the usual solid yellow, one colour per line.
