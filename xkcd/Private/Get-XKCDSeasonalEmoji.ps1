@@ -1,4 +1,4 @@
-function Get-XKCDSeasonalEmoji {
+﻿function Get-XKCDSeasonalEmoji {
     <#
     .SYNOPSIS
         Returns a random seasonal emoji for the current month (Halloween in October, Christmas in December),
