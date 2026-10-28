@@ -33,22 +33,26 @@ Describe "Unit Tests PS$PSVersion" {
 
     Context 'Get-XKCDBanner Seasonal Tests' {
 
-        It 'Flanks a line with pumpkins in October' {
+        It 'Flanks a line with a random Halloween emoji in October' {
             Mock -ModuleName $Module Get-Date { [datetime]'2026-10-15' }
 
-            $October = & $ModuleObj { Get-XKCDBanner }
+            1..10 | ForEach-Object {
+                $October = & $ModuleObj { Get-XKCDBanner }
 
-            ($October.Lines -join "`n") | Should -Match '🎃'
-            ($October.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+                ($October.Lines -join "`n") | Should -Match '🎃|👻|🦇|💀'
+                ($October.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+            }
         }
 
-        It 'Flanks a line with christmas trees in December' {
+        It 'Flanks a line with a random Christmas emoji in December' {
             Mock -ModuleName $Module Get-Date { [datetime]'2026-12-15' }
 
-            $December = & $ModuleObj { Get-XKCDBanner }
+            1..10 | ForEach-Object {
+                $December = & $ModuleObj { Get-XKCDBanner }
 
-            ($December.Lines -join "`n") | Should -Match '🎄'
-            ($December.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+                ($December.Lines -join "`n") | Should -Match '🎄|🎅|🎁|🔔'
+                ($December.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
+            }
         }
 
         It 'Adds no seasonal emoji outside of October/December' {
@@ -56,7 +60,7 @@ Describe "Unit Tests PS$PSVersion" {
 
             $June = & $ModuleObj { Get-XKCDBanner }
 
-            ($June.Lines -join "`n") | Should -Not -Match '🎃|🎄'
+            ($June.Lines -join "`n") | Should -Not -Match '🎃|👻|🦇|💀|🎄|🎅|🎁|🔔'
             ($June.Lines | ForEach-Object Length | Sort-Object -Unique).Count | Should -Be 1
         }
     }

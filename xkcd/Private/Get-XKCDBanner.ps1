@@ -19,12 +19,14 @@
         '888  888 888  888  "Y8888P "Y88888 '
     )
 
-    # A seasonal emoji flanking one line of the banner: pumpkins in October, christmas trees in December.
-    # Flanked with an equal-width space placeholder on every other line, so all lines stay the same length
-    # (required for each to center consistently) and the "xkcd" art itself doesn't shift out of alignment.
+    # A seasonal emoji flanking one line of the banner: a random Halloween pick in October, a random
+    # Christmas pick in December. Flanked with an equal-width space placeholder on every other line, so all
+    # lines stay the same length (required for each to center consistently) and the "xkcd" art itself doesn't
+    # shift out of alignment -- all candidates are single-codepoint, supplementary-plane emoji (so .Length is
+    # 2 for each of them), which keeps that alignment math the same regardless of which one is picked.
     $Seasonal = switch ((Get-Date).Month) {
-        10 { '🎃' }
-        12 { '🎄' }
+        10 { Get-Random -InputObject @('🎃', '👻', '🦇', '💀') }
+        12 { Get-Random -InputObject @('🎄', '🎅', '🎁', '🔔') }
         default { $null }
     }
 

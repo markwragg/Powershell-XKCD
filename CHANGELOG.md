@@ -2,6 +2,8 @@
 
 ## !Deploy
 
+* `Start-XKCD`'s seasonal banner emoji is now randomly picked from a small set each time, instead of always being the same one: 🎃/👻/🦇/💀 in October, 🎄/🎅/🎁/🔔 in December.
+* Adds a `-Resume` switch to `Start-XKCD`, to open the viewer on whichever comic you last read, as recorded in the state file (the same record used by `Get-XKCD`/`Show-XKCD`'s `-Next`/`-Previous` and by `Test-XKCD`) -- falls back to the latest comic if the state file has no record yet.
 * `Start-XKCD` no longer blocks behind a slow Sixel render when paging quickly through comics -- a waiting keypress now abandons an in-progress conversion straight away instead of finishing it first, so `P`/`N`/etc. feel immediate even before a comic has finished rendering.
 * `Start-XKCD`'s left/right arrow keys now support Shift+Left/Shift+Right to jump 10 comics at a time instead of 1, clamped to the first/latest comic.
 

@@ -24,8 +24,9 @@ function Start-XKCD {
         so stepping out of Start-XKCD leaves you exactly where Show-XKCD -Next would pick back up.
 
         By default, Start-XKCD opens on the latest available comic. Use -Number to open on a specific comic
-        instead (accepts pipeline input, e.g. from Get-XKCD), or -Random to open on a random comic -- optionally
-        bounded by -Minimum/-Maximum (aliased -Min/-Max).
+        instead (accepts pipeline input, e.g. from Get-XKCD), -Random to open on a random comic -- optionally
+        bounded by -Minimum/-Maximum (aliased -Min/-Max) -- or -Resume to open on whichever comic you last read,
+        as recorded in the state file (falls back to the latest comic if the state file has no record yet).
 
         Use -Offline to browse using data from the local cache (created/refreshed by Update-XKCDCache) and
         images previously saved with Get-XKCD -Download, instead of fetching either from the xkcd API -- this
@@ -71,6 +72,11 @@ function Start-XKCD {
         Opens the interactive viewer using the local cache and previously downloaded images, instead of
         fetching either from the xkcd API.
 
+    .EXAMPLE
+        Start-XKCD -Resume
+
+        Opens the interactive viewer on whichever comic you last read, as recorded in the state file.
+
     .LINK
         https://github.com/markwragg/Powershell-XKCD/wiki/Start-XKCD
 
@@ -91,6 +97,13 @@ function Start-XKCD {
         [Parameter(ParameterSetName = 'Random', Mandatory)]
         [switch]
         $Random,
+
+        # Opens the interactive viewer on whichever comic you last read, as recorded in the state file (the
+        # same record used by Get-XKCD/Show-XKCD's -Next/-Previous and by Test-XKCD). Falls back to the latest
+        # comic if the state file has no record yet.
+        [Parameter(ParameterSetName = 'Resume', Mandatory)]
+        [switch]
+        $Resume,
 
         # Use with -Random to define a lower bound within which to pick a comic. Defaults to 1.
         [Parameter(ParameterSetName = 'Random')]
@@ -161,6 +174,10 @@ function Start-XKCD {
         $Current = if ($Random) {
             $RandomMaximum = if ($Maximum) { $Maximum } else { $Latest }
             Get-Random -Minimum $Minimum -Maximum ($RandomMaximum + 1)
+        }
+        elseif ($Resume) {
+            $LastRead = Get-XKCDLastReadComic -StatePath $StatePath
+            if ($LastRead -gt 0) { $LastRead } else { $Latest }
         }
         elseif ($Number) { $Number }
         else { $Latest }
