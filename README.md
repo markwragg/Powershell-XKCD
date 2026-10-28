@@ -105,7 +105,7 @@ The number parameter accepts array input and pipeline input, so you can use eith
 
 ### `Get-XKCD -Download` or `Get-XKCD 1337 -Download -Path C:\XKCD`
 
-Use the -Download switch to download the image/s of the returned comics. Optionally specify a path to download to, by default it uses the current directory. Note you can use -Download and -Path with any of the other parameters.
+Use the -Download switch to download the image/s of the returned comics. Optionally specify a path to download to, by default it uses the current directory. Note you can use `-Download` and `-Path` with any of the other parameters. Specify `-HighQuality` to download the high quality (larger) comic image, where available (high quality image is available from comic 1084 onwards).
 
 ### `1..10 | % { Get-XKCD -Random -Minimum 1 -Maximum 100 | select num,img } | FT -AutoSize`
 
@@ -130,6 +130,14 @@ If you want to look up a comic with `Get-XKCD` without moving this marker -- e.g
 ### `Show-XKCD 2000` or `Get-XKCD -Random | Show-XKCD`
 
 `Show-XKCD` accepts the same -Number parameter (aliased as -Num) as `Get-XKCD` (and defaults to the latest comic if not specified), and can also take a comic object via the pipeline, e.g. from `Get-XKCD` or `Find-XKCD`.
+
+### `Show-XKCD -HighQuality`
+
+Most XKCD comics now include a high quality version of the image, which `Show-XKCD` renders as a larger comic in the terminal. You can return this by specifying `-HighQuality`:
+
+![Show-XKCD example usage](Media/show-xkcd-highquality.png)
+
+See `Set-XKCDDefault` below if you'd like the high quality image always returned by default.
 
 ### `Find-XKCD -Query 'Spider'`
 
