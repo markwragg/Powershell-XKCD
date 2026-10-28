@@ -39,14 +39,20 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         $Root = "$PSScriptRoot/../"
         $Module = 'xkcd'
 
-        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
-        Import-Module "$Root/$Module" -Force
-
         # Redirects the per-user data directory (~/.xkcd) that Show-XKCD falls back to for -StatePath (used
         # to track the most recently read/viewed comic) whenever a test below doesn't pass its own -StatePath
         # explicitly -- without this, those tests would read/write the real file on whatever machine runs
-        # them, silently clobbering the actual last-read/viewed comic recorded there.
-        Mock -ModuleName $Module Get-XKCDUserDataPath { Param($FileName, $LegacyDirectory) [void]$LegacyDirectory; Join-Path $TestDrive $FileName }
+        # them, silently clobbering the actual last-read/viewed comic recorded there. Overriding $HOME itself
+        # (rather than mocking Get-XKCDUserDataPath, which reads it) survives this file's own mid-suite
+        # Import-Module -Force (in 'Module Tests' below) without needing to be re-applied -- $HOME is an
+        # AllScope variable (one shared instance across every scope, not a per-scope copy), so this takes
+        # effect everywhere immediately rather than needing to propagate down a scope chain. Set-Variable
+        # -Force is required since $HOME is read-only to a plain "$HOME = ..." assignment.
+        $script:OriginalHome = $HOME
+        Set-Variable -Name HOME -Value (Join-Path $TestDrive 'home') -Force
+
+        Get-Module $Module | Remove-Module -Force -ErrorAction SilentlyContinue
+        Import-Module "$Root/$Module" -Force
 
         # Show-XKCD writes the rendered comic straight to the console; running it here would otherwise
         # spam the real terminal with comic art and text every time these tests run.
@@ -68,6 +74,10 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
 
             $Writer.ToString()
         }
+    }
+
+    AfterAll {
+        Set-Variable -Name HOME -Value $script:OriginalHome -Force
     }
 
     Context 'Module Tests' {
