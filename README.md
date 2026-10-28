@@ -378,8 +378,14 @@ Use `-Explanation`, `-Transcript`, and/or `-Discussion` to display exactly the s
 
 ```powershell
 Get-XKCDExplanation -Show -Explanation
+```
+```powershell
 Get-XKCDExplanation -Show -Transcript
+```
+```powershell
 Get-XKCDExplanation -Show -Discussion
+```
+```powershell
 Get-XKCDExplanation -Show -Full
 ```
 
