@@ -245,6 +245,9 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
     Context 'Offline Tests' {
 
         BeforeAll {
+            # Avoids depending on whatever graphics protocol the terminal actually running these tests happens to report
+            Mock -ModuleName $Module Get-XKCDTerminalGraphicsProtocol { 'Kitty' }
+
             $CachePath = Join-Path $TestDrive 'offline-show-cache.json'
             @(
                 [pscustomobject]@{ num = 1; title = 'Comic 1'; img = 'https://imgs.xkcd.com/comics/comic1.jpg'; alt = 'Alt 1'; year = '2006'; month = '1'; day = '1' }

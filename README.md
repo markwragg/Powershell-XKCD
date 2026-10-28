@@ -297,9 +297,6 @@ Returns comics straight from the local cache instead of querying the API for eac
 ```powershell
 Get-XKCDCache
 ```
-
-or
-
 ```powershell
 Get-XKCDCache -Number 4,5,6
 ```
@@ -315,9 +312,6 @@ Both `Get-XKCDCache` and `Find-XKCD` also accept `-Year`, `-Month` and/or `-Day`
 ```powershell
 Get-XKCDCache -Year 2010
 ```
-
-or
-
 ```powershell
 Find-XKCD -Query 'Spider' -Month 10 -Day 31
 ```
