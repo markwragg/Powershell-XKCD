@@ -18,6 +18,12 @@ Start-XKCD [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-HighQuality] [-Stat
  [<CommonParameters>]
 ```
 
+### Resume
+```
+Start-XKCD [-Resume] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
 ## DESCRIPTION
 The Start-XKCD cmdlet opens an interactive, full-screen view of a comic (its title, image, and alt
 text, framed by an ASCII art "xkcd" banner, with a control bar shown both above and below the image)
@@ -26,8 +32,11 @@ and lets you browse the archive without leaving it:
 - G prompts for a comic number to jump straight to.
 - F displays the first comic (#1).
 - P or the left arrow displays the previous comic (does nothing at comic #1).
+Shift+Left jumps back
+  10 comics at a time instead (clamped to comic #1).
 - R displays a random comic from the full archive.
 - N or the right arrow displays the next comic (does nothing once you reach the latest comic).
+  Shift+Right jumps ahead 10 comics at a time instead (clamped to the latest comic).
 - L displays the latest comic.
 - Q or Escape exits back to your normal console.
 
@@ -40,8 +49,9 @@ so stepping out of Start-XKCD leaves you exactly where Show-XKCD -Next would pic
 By default, Start-XKCD opens on the latest available comic.
 Use -Number to open on a specific comic
 instead (accepts pipeline input, e.g.
-from Get-XKCD), or -Random to open on a random comic -- optionally
-bounded by -Minimum/-Maximum (aliased -Min/-Max).
+from Get-XKCD), -Random to open on a random comic -- optionally
+bounded by -Minimum/-Maximum (aliased -Min/-Max) -- or -Resume to open on whichever comic you last read,
+as recorded in the state file (falls back to the latest comic if the state file has no record yet).
 
 Use -Offline to browse using data from the local cache (created/refreshed by Update-XKCDCache) and
 images previously saved with Get-XKCD -Download, instead of fetching either from the xkcd API -- this
@@ -104,6 +114,13 @@ Start-XKCD -Offline
 Opens the interactive viewer using the local cache and previously downloaded images, instead of
 fetching either from the xkcd API.
 
+### EXAMPLE 8
+```
+Start-XKCD -Resume
+```
+
+Opens the interactive viewer on whichever comic you last read, as recorded in the state file.
+
 ## PARAMETERS
 
 ### -Number
@@ -132,6 +149,24 @@ Opens the interactive viewer on a random comic from the full archive, optionally
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Random
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Resume
+Opens the interactive viewer on whichever comic you last read, as recorded in the state file (the
+same record used by Get-XKCD/Show-XKCD's -Next/-Previous and by Test-XKCD).
+Falls back to the latest
+comic if the state file has no record yet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Resume
 Aliases:
 
 Required: True

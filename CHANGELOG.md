@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.12.6] - 2026-10-28
 
 * `Start-XKCD`'s seasonal banner emoji is now randomly picked from a small set each time, instead of always being the same one: 🎃/👻/🦇/💀 in October, 🎄/🎅/🎁/🔔 in December.
 * Adds a `-Resume` switch to `Start-XKCD`, to open the viewer on whichever comic you last read, as recorded in the state file (the same record used by `Get-XKCD`/`Show-XKCD`'s `-Next`/`-Previous` and by `Test-XKCD`) -- falls back to the latest comic if the state file has no record yet.
