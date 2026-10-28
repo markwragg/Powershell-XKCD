@@ -41,6 +41,10 @@ jobs:
         shell: powershell
         run: ./Build/build.ps1 -TaskList 'CombineFunctionsAndStage'
 
+      - name: Analyze
+        shell: pwsh
+        run: ./Build/build.ps1 -TaskList 'Analyze'
+
       - name: Test Windows PowerShell
         id: test-winps
         shell: powershell
@@ -77,10 +81,6 @@ jobs:
       - name: Combine PowerShell functions into single module file
         shell: pwsh
         run: ./Build/build.ps1 -TaskList 'CombineFunctionsAndStage'
-
-      - name: Analyze
-        shell: pwsh
-        run: ./Build/build.ps1 -TaskList 'Analyze'
 
       - name: Test PowerShell Core
         shell: pwsh
@@ -168,5 +168,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ steps.project.outputs.name }}-Module
+          name: ${{ steps.project.outputs.name }}
           path: Artifacts
