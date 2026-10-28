@@ -90,13 +90,10 @@ Note that by default this does not display all of the available properties. To s
 Specify the number of specific comic/s you want to access via the `-Number` parameter (aliased as `-Num`; this is also a positional parameter so it doesn't need to be explicitly used):
 
 ```powershell
-Get-XKCD 1
-```
-
-or
-
-```powershell
 Get-XKCD -Number 1
+```
+```powershell
+Get-XKCD 1
 ```
 
 Use the `-Random` switch to get a Random comic. Optionally specify `-Minimum` and `-Maximum` if you want to restrict the randomisation to a specific range of comic numbers:
