@@ -32,6 +32,9 @@ Properties {
     $StagingModulePath = Join-Path -Path $StagingFolder -ChildPath $env:BHProjectName
     $StagingModuleManifestPath = Join-Path -Path $StagingModulePath -ChildPath "$($env:BHProjectName).psd1"
 
+    # Repo-specific files to ship with the module (e.g. seed data)
+    $ModuleArtifactsConfigPath = Join-Path -Path $PSScriptRoot -ChildPath 'build.artifacts.psd1'
+
     # Documentation
     $DocumentationPath = Join-Path -Path $ProjectRoot -ChildPath 'Documentation'
 

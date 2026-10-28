@@ -32,18 +32,26 @@ Task 'CombineFunctionsAndStage' -Depends 'Clean' {
     # Copy existing manifest
     Copy-Item -Path $env:BHPSModuleManifest -Destination $StagingModulePath -Recurse
 
-    # Copy format/type ps1xml files (e.g. xkcd.Format.ps1xml) so the views they define ship with the
-    # built module -- FormatsToProcess in the manifest references them by filename relative to the
-    # module root, which the combined psm1 also resolves $PSScriptRoot to, so they need to sit
-    # alongside it in Staging the same way they do in source.
+    # Copy format/type ps1xml files so the views they define ship with the built module
     Get-ChildItem -Path $env:BHModulePath -Filter '*.ps1xml' -File | Copy-Item -Destination $StagingModulePath
 
-    # Seed the staged module with the existing comic cache, so the 'Test' task's Update-XKCDCache call
-    # can update it incrementally instead of rebuilding the entire cache from the XKCD API from scratch,
-    # and so the cache ships as part of the published module (users don't have to build it themselves).
-    $CacheSeedPath = Join-Path -Path $env:BHModulePath -ChildPath 'Public\XKCD.json'
+    # Copy localized help (about_*.help.txt / MAML *-help.xml under en-US) if present.
+    $HelpSourcePath = Join-Path -Path $env:BHModulePath -ChildPath 'en-US'
 
-    if (Test-Path $CacheSeedPath) {
-        Copy-Item -Path $CacheSeedPath -Destination $StagingModulePath
+    if (Test-Path $HelpSourcePath) {
+        Copy-Item -Path $HelpSourcePath -Destination $StagingModulePath -Recurse
+    }
+
+    # Copy repo-specific files (e.g. seed data) listed in build.artifacts.psd1.
+    if (Test-Path $ModuleArtifactsConfigPath) {
+        $ModuleArtifacts = Import-PowerShellDataFile -Path $ModuleArtifactsConfigPath
+
+        foreach ($RelativePath in $ModuleArtifacts.ModuleFiles) {
+            $ArtifactPath = Join-Path -Path $env:BHModulePath -ChildPath $RelativePath
+
+            if (Test-Path $ArtifactPath) {
+                Copy-Item -Path $ArtifactPath -Destination $StagingModulePath
+            }
+        }
     }
 }

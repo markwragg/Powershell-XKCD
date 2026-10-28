@@ -1,5 +1,4 @@
-# Create a versioned zip of just the built module (xkcd.psd1/psm1 and friends)
-# NOTE: Admin Rights are needed if you run this locally
+# Create a versioned zip of the built module
 Task 'CreateBuildArtifact' -Depends 'Init' {
     $lines
 
