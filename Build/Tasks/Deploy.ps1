@@ -4,6 +4,15 @@ Task 'Deploy' -Depends 'Init' {
     # Load the module, read the exported functions, update the psd1 FunctionsToExport
     Set-ModuleFunctions -Name $env:BHPSModuleManifest
 
+    if (Test-Path $StagingModuleManifestPath) {
+        Set-ModuleFunctions -Name $StagingModuleManifestPath
+
+        $env:BHStagingModulePath = $StagingModulePath
+    }
+    else {
+        Write-Warning "Staging module not found at [$StagingModulePath] -- run the CombineFunctionsAndStage task first. Falling back to publishing directly from source."
+    }
+
     # A "## !Deploy" CHANGELOG.md line can optionally pin an exact version, e.g. "## !Deploy 1.12.0" --
     # used below for both the version bump and the deploy gate further down, so it's read once up front.
     $ChangeLogPath = "$ProjectRoot/CHANGELOG.md"
@@ -11,11 +20,18 @@ Task 'Deploy' -Depends 'Init' {
     $ChangeLog = if (Test-Path $ChangeLogPath) { Get-Content $ChangeLogPath }
     $DeployLine = $ChangeLog | Where-Object { $_ -match $DeployPattern } | Select-Object -First 1
 
-    if ($DeployLine) {
-        $null = $DeployLine -match $DeployPattern
-        $RequestedVersion = $Matches.Version
+    if (-not $DeployLine) {
+        if ($ChangeLog) {
+            Write-Host 'CHANGELOG.md did not contain ## !Deploy. Skipping deployment.'
+        }
+        else {
+            Write-Host "$ChangeLogPath not found. Skipping deployment."
+        }
+        return
     }
 
+    $null = $DeployLine -match $DeployPattern
+    $RequestedVersion = $Matches.Version
     # Bump the module version. An explicit version pinned via "## !Deploy x.x.x" is used as-is, after
     # checking it's newer than what's already published (so a stale/typo'd version can't ship); otherwise
     # it's just the next patch/build number from the Gallery, as before.
@@ -46,45 +62,25 @@ Task 'Deploy' -Depends 'Init' {
         throw "Failed to update version for '$env:BHProjectName': $_.`n"
     }
 
-    # deploy.psdeploy.ps1 publishes the combined module built by CombineFunctionsAndStage, not the source --
-    # its manifest was copied from source before this task bumped the version above, so it needs the same
-    # updates applied to it directly too.
     if (Test-Path $StagingModuleManifestPath) {
-        Set-ModuleFunctions -Name $StagingModuleManifestPath
         Update-Metadata -Path $StagingModuleManifestPath -PropertyName 'ModuleVersion' -Value $Version -ErrorAction 'Stop'
-
-        # Invoke-PSDeploy runs deploy.psdeploy.ps1 from inside the PSDeploy module's own function scope, which
-        # can't see this task's local $StagingModulePath -- module scope boundaries block that. An environment
-        # variable crosses the boundary instead.
-        $env:BHStagingModulePath = $StagingModulePath
-    }
-    else {
-        Write-Warning "Staging module not found at [$StagingModulePath] -- run the CombineFunctionsAndStage task first. Falling back to publishing directly from source."
     }
 
-    if ($DeployLine) {
+    $Params = @{
+        Path    = "$ProjectRoot/Build/deploy.psdeploy.ps1"
+        Force   = $true
+        Recurse = $false
+    }
 
-        $Params = @{
-            Path    = "$ProjectRoot/Build/deploy.psdeploy.ps1"
-            Force   = $true
-            Recurse = $false
-        }
+    Invoke-PSDeploy @Verbose @Params
 
-        Invoke-PSDeploy @Verbose @Params
+    # Update ChangeLog with deployment version and date
+    $ChangeLog = $ChangeLog -replace $DeployPattern, "## [$Version] - $(Get-Date -Format 'yyyy-MM-dd')"
+    Set-Content -Path $ChangeLogPath -Value $ChangeLog
 
-        # Update ChangeLog with deployment version and date
-        $ChangeLog = $ChangeLog -replace $DeployPattern, "## [$Version] - $(Get-Date -Format 'yyyy-MM-dd')"
-        Set-Content -Path $ChangeLogPath -Value $ChangeLog
-
-        # Signal to the pipeline that a real deploy happened, so the GitHubRelease step (which runs as
-        # a later, separate step in the same job) knows to run - it can't infer this safely on its own,
-        # since $Version above is (re)computed on every build regardless of whether this branch runs.
+    # Signal to the pipeline that a real deploy happened, so the GitHubRelease step (which runs as a later,
+    # separate step in the same job) knows to run. Only set when actually running in GitHub Actions.
+    if ($env:GITHUB_OUTPUT) {
         "DidDeploy=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-    }
-    elseif ($ChangeLog) {
-        Write-Host 'CHANGELOG.md did not contain ## !Deploy. Skipping deployment.'
-    }
-    else {
-        Write-Host "$ChangeLogPath not found. Skipping deployment."
     }
 }

@@ -29,7 +29,9 @@ Task 'Test' -Depends 'ImportStagingModule' {
 
     # Surface the coverage result as a pipeline output variable so a later stage (which runs in a
     # separate, discarded workspace) can apply it to README.md without re-running the tests.
-    $CoveragePercent = [math]::floor($TestResults.CodeCoverage.CoveragePercent)
+    if ($env:GITHUB_OUTPUT) {
+        $CoveragePercent = [math]::floor($TestResults.CodeCoverage.CoveragePercent)
 
-    "CoveragePercent=$CoveragePercent" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "CoveragePercent=$CoveragePercent" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+    }
 }
