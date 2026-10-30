@@ -28,13 +28,6 @@ Task 'GitHubRelease' -Depends 'Init' {
 
     $Tag = "v$Version"
 
-    # $env:GITHUB_SHA is fixed to the commit that triggered this workflow run, but the Commit task (an
-    # earlier step in this same job) has since pushed a further commit containing the version bump and
-    # regenerated docs/badge that this release is actually for - using $env:GITHUB_SHA here would tag the
-    # release at the stale, pre-bump commit instead. Resolving the repo's current HEAD picks up that later
-    # commit, since this step runs in the same, already-updated local clone the Commit task pushed from.
-    $CurrentCommit = git -C $ProjectRoot rev-parse HEAD
-
     # This task only runs (per the pipeline step's condition) when the Deploy task's DidDeploy output
     # variable was set, i.e. a real PSGallery publish just happened - the manifest version read above is
     # otherwise bumped on every build regardless, so that alone can't be trusted as the "did we deploy"
@@ -58,9 +51,11 @@ Task 'GitHubRelease' -Depends 'Init' {
         'User-Agent'  = 'GitHub-Actions-Build'
     }
 
+    # Tags the commit that triggered this run, so the release's diff shows the actual change rather than
+    # mechanical build output (version bump, regenerated docs/badge).
     $ReleaseBody = @{
         tag_name         = $Tag
-        target_commitish = $CurrentCommit
+        target_commitish = $env:GITHUB_SHA
         name             = $Tag
         body             = $ReleaseNotes
     } | ConvertTo-Json
