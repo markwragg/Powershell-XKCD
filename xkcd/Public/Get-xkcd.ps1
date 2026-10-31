@@ -141,6 +141,7 @@
         https://xkcd.com/json.html
     #>
     [cmdletbinding(DefaultParameterSetName = 'Specific', SupportsShouldProcess = $true)]
+    [OutputType([pscustomobject])]
     Param (
         # Gets a random comic.
         [Parameter(ParameterSetName = 'Random', Mandatory)]
@@ -296,12 +297,12 @@
             if ($Download -and $PSCmdlet.ShouldProcess($ImageUrl, "Save as ${ID}${Extension}")) {
                 $OutFile = Join-Path $Path "${ID}${Extension}"
                 try {
-                    Invoke-WebRequest $ImageUrl -OutFile $OutFile -UseBasicParsing -ErrorAction Stop
+                    $null = Invoke-WebRequest $ImageUrl -OutFile $OutFile -UseBasicParsing -ErrorAction Stop
                 }
                 catch {
                     if ($HighQuality) {
                         Write-Warning "High quality image not available for comic $ID, downloading standard quality instead"
-                        Invoke-WebRequest $Comic.img -OutFile $OutFile -UseBasicParsing
+                        $null = Invoke-WebRequest $Comic.img -OutFile $OutFile -UseBasicParsing
                     }
                     else {
                         throw
@@ -322,7 +323,7 @@
                     if (-not $confirmation) { $confirmation = Read-Host "This will open $($Number.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
                 }
                 if ($confirmation -eq 'y' -or $Number.count -lt 10 -or $Force) {
-                    Start-Process "https://xkcd.com/$ID"
+                    $null = Start-Process "https://xkcd.com/$ID"
                 }
             }
 

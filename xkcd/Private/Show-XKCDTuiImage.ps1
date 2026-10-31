@@ -29,9 +29,11 @@ function Show-XKCDTuiImage {
 
         # A hashtable used to re-use a previously rendered terminal image rather than rendering it again --
         # used by Start-XKCD so revisiting a comic already shown this session (e.g. via P/N) skips the
-        # conversion, which for Sixel in particular can take a while. Keyed by -CacheKey plus the detected
-        # protocol, so switching terminals mid-session (unlikely, but cheap to guard against) can't return a
-        # stale render for the wrong protocol. Omit (along with -CacheKey) to always render fresh.
+        # conversion, which for Sixel in particular can take a while. Start-XKCD passes in the same
+        # module-scoped cache Show-XKCDImage uses for Show-XKCD/Show-XKCDExplanation, so a comic already
+        # rendered by one of those cmdlets (or vice versa) is re-used here too. Keyed by -CacheKey plus the
+        # detected protocol, so switching terminals mid-session (unlikely, but cheap to guard against) can't
+        # return a stale render for the wrong protocol. Omit (along with -CacheKey) to always render fresh.
         [hashtable]
         $Cache,
 

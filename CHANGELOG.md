@@ -1,5 +1,11 @@
 # Change Log
 
+## !Deploy
+
+* `Show-XKCD` and `Show-XKCDExplanation` now cache each comic's rendered terminal image for the rest of the session, so redisplaying one -- e.g. paging back to it with `-Previous`, or viewing its explanation right after -- skips re-rendering it, which for Sixel in particular can take a while. This cache is shared with `Start-XKCD`'s own (previously separate) session cache, so a comic already rendered by any one of these cmdlets is reused by the others too, in either direction.
+* Adds a `-Resume` switch to `Show-XKCD`, to display whichever comic you last read, as recorded in the state file (the same record used by `-Next`/`-Previous`, `Test-XKCD`, and `Start-XKCD`'s own `-Resume`) -- falls back to the latest comic if the state file has no record yet.
+* Adds an `-AsPlainText` switch to `Get-XKCDExplanation`, to strip the Markdown-style bold/italic, inline code, and link/url formatting it normally includes from the returned `Explanation`, `Transcript`, and `Discussion` properties, down to fully plain text. Defaults to the value saved with `Set-XKCDDefault -AsPlainText`, if any.
+
 ## [1.12.7] - 2026-10-28
 
 * `Start-XKCD`'s random seasonal banner emoji is now picked once per session instead of re-randomizing on every redraw, so it stays the same one as you page through comics (`P`/`N`/etc.) instead of changing each time.

@@ -120,6 +120,55 @@ Describe "Unit Tests PS$PSVersion" {
         }
     }
 
+    Context 'Show-XKCDImage Session Cache Tests' {
+
+        BeforeAll {
+            $ImageBytes = [byte[]](1..10)
+
+            Mock -ModuleName $Module Get-XKCDTerminalGraphicsProtocol { 'Sixel' }
+            Mock -ModuleName $Module ConvertTo-XKCDSixel { 'FAKE-SIXEL-DATA' }
+        }
+
+        BeforeEach {
+            # The cache is a module-scoped variable (so it survives across separate Show-XKCD/
+            # Show-XKCDExplanation calls, unlike Start-XKCD's own per-call -Cache hashtable) -- reset it before
+            # each test so earlier tests in this context can't leave a stale entry behind.
+            & $ModuleObj { $script:XKCDImageCache = @{} }
+        }
+
+        It 'Re-uses a cached render for the same -CacheKey instead of converting again' {
+            1..2 | ForEach-Object {
+                & $ModuleObj {
+                    Param($ImageBytes)
+                    Show-XKCDImage -ImageBytes $ImageBytes -CacheKey '1786|False'
+                } $ImageBytes
+            } | Out-Null
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 1 -Exactly
+        }
+
+        It 'Renders separately when -CacheKey differs' {
+            & $ModuleObj {
+                Param($ImageBytes)
+                Show-XKCDImage -ImageBytes $ImageBytes -CacheKey '1786|False'
+                Show-XKCDImage -ImageBytes $ImageBytes -CacheKey '1787|False'
+            } $ImageBytes
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 2 -Exactly
+        }
+
+        It 'Renders fresh each time when no -CacheKey is supplied' {
+            1..2 | ForEach-Object {
+                & $ModuleObj {
+                    Param($ImageBytes)
+                    Show-XKCDImage -ImageBytes $ImageBytes
+                } $ImageBytes
+            } | Out-Null
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 2 -Exactly
+        }
+    }
+
     Context 'Show-XKCDImage Unsupported Terminal Tests' {
 
         BeforeAll {

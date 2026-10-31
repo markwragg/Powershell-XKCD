@@ -29,6 +29,12 @@ Describe "Unit Tests PS$PSVersion" {
         It 'Show-XKCD does not allow -Path and -Num to be used together' {
             { Show-XKCD -Path 'foo.xkcdterm.json' -Num 1 } | Should -Throw
         }
+        It 'Show-XKCD does not allow -Resume and -Num to be used together' {
+            { Show-XKCD -Resume -Num 1 } | Should -Throw
+        }
+        It 'Show-XKCD does not allow -Resume and -Next to be used together' {
+            { Show-XKCD -Resume -Next } | Should -Throw
+        }
     }
 }
 
@@ -211,6 +217,27 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
             $State = Get-Content $StatePath | ConvertFrom-Json
             $State.LastRead | Should -Be 100
             $State.LastViewed | Should -Be 100
+        }
+
+        It 'Show-XKCD -Resume displays the comic most recently read rather than the latest' {
+            $StatePath = Join-Path $TestDrive 'show-state-resume.json'
+            [pscustomobject]@{ LastViewed = 150; LastRead = 90 } | ConvertTo-Json | Out-File $StatePath
+
+            Get-XKCDCapturedOutput { Show-XKCD -Resume -StatePath $StatePath } | Out-Null
+
+            # LastRead (not the LastViewed high-water mark) is what -Resume picks up, matching -Next/-Previous.
+            $State = Get-Content $StatePath | ConvertFrom-Json
+            $State.LastRead | Should -Be 90
+            $State.LastViewed | Should -Be 150
+        }
+
+        It 'Show-XKCD -Resume falls back to the latest comic when the state file has no record yet' {
+            $StatePath = Join-Path $TestDrive 'show-state-resume-none.json'
+            $Latest = (Get-XKCD).num
+
+            Get-XKCDCapturedOutput { Show-XKCD -Resume -StatePath $StatePath } | Out-Null
+
+            (Get-Content $StatePath | ConvertFrom-Json).LastRead | Should -Be $Latest
         }
     }
 

@@ -471,6 +471,52 @@ Describe "Integration Tests PS$PSVersion" -tag 'Integration' {
         }
     }
 
+    Context 'Shared Image Cache Tests' {
+
+        BeforeAll {
+            $CachePath = Join-Path $TestDrive 'start-xkcd-shared-cache.json'
+            @(
+                [pscustomobject]@{ num = 1; title = 'Comic 1'; img = 'https://imgs.xkcd.com/comics/comic1.jpg'; alt = 'Alt 1'; year = '2006'; month = '1'; day = '1' }
+            ) | ConvertTo-Json | Out-File $CachePath
+
+            $DownloadPath = Join-Path $TestDrive 'start-xkcd-shared-downloads'
+            New-Item -ItemType Directory -Path $DownloadPath -Force | Out-Null
+
+            Mock -ModuleName $Module Read-XKCDConsoleKey { $script:XKCDTestKeyQueue.Dequeue() }
+            Mock -ModuleName $Module Get-XKCDOfflineImageContent { [byte[]](1..10) }
+            Mock -ModuleName $Module Get-XKCDTerminalGraphicsProtocol { 'Sixel' }
+            Mock -ModuleName $Module ConvertTo-XKCDSixel { 'FAKE-SIXEL-DATA' }
+        }
+
+        It 'Re-uses an image already rendered by Show-XKCD/Show-XKCDExplanation instead of converting it again' {
+            # Pre-populates the same module-scoped cache Show-XKCDImage writes to, keyed exactly as
+            # Show-XKCDTuiFrame/Show-XKCDComic/Show-XKCDExplanationText all key it: "<num>|<HighQuality>",
+            # combined with the detected protocol.
+            & (Get-Module $Module) { $script:XKCDImageCache = @{ '1|False|Sixel' = 'FAKE-SIXEL-DATA' } }
+
+            Set-XKCDTestKeySequence 'Escape'
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -HighQuality:$false -WarningAction SilentlyContinue
+            } | Out-Null
+
+            Should -Invoke -CommandName ConvertTo-XKCDSixel -ModuleName $Module -Times 0 -Exactly
+        }
+
+        It 'Populates the shared cache so Show-XKCD/Show-XKCDExplanation can re-use a render it made' {
+            & (Get-Module $Module) { $script:XKCDImageCache = @{} }
+
+            Set-XKCDTestKeySequence 'Escape'
+
+            Get-XKCDCapturedOutput {
+                Start-XKCD -Number 1 -Offline -CachePath $CachePath -DownloadPath $DownloadPath -HighQuality:$false -WarningAction SilentlyContinue
+            } | Out-Null
+
+            $Cache = & (Get-Module $Module) { $script:XKCDImageCache }
+            $Cache['1|False|Sixel'] | Should -Be 'FAKE-SIXEL-DATA'
+        }
+    }
+
     Context 'Offline State Tests' {
 
         BeforeAll {

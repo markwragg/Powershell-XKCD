@@ -162,7 +162,7 @@ Get-XKCD -Show
 
 ![Show-XKCD example usage](Media/show-xkcd-example.png)
 
-Any comic returned or displayed by `Get-XKCD` or `Show-XKCD` -- the default latest comic, `-Number`, `-Random`, `-Newest`, or a previous `-Next`/`-Previous` -- is recorded as the one to page from next. Use `-Next` and `-Previous` to page through comics one at a time from wherever you left off, in either direction, without needing to know the comic number -- e.g. `Show-XKCD -Next` repeatedly steps forward one comic at a time, and `-Previous` steps back. This is tracked separately from the record `Test-XKCD` uses to report new comics, so paging backwards with `-Previous` doesn't affect that count. `-Next` returns/displays nothing once you reach the latest comic, and `-Previous` returns/displays nothing once you reach comic #1.
+Any comic returned or displayed by `Get-XKCD` or `Show-XKCD` -- the default latest comic, `-Number`, `-Random`, `-Newest`, or a previous `-Next`/`-Previous`/`-Resume` -- is recorded as the one to page from next. Use `-Next` and `-Previous` to page through comics one at a time from wherever you left off, in either direction, without needing to know the comic number -- e.g. `Show-XKCD -Next` repeatedly steps forward one comic at a time, and `-Previous` steps back. This is tracked separately from the record `Test-XKCD` uses to report new comics, so paging backwards with `-Previous` doesn't affect that count. `-Next` returns/displays nothing once you reach the latest comic, and `-Previous` returns/displays nothing once you reach comic #1. Use `-Resume` to instead display whichever comic you last read -- the same record `Start-XKCD -Resume` uses -- falling back to the latest comic if there's no record yet.
 
 If you want to look up a comic with `Get-XKCD` without moving this marker -- e.g. checking a specific comic out of curiosity, without losing your place -- add the `-NoStateUpdate` parameter:
 
@@ -343,7 +343,7 @@ Add this to your PowerShell `profile.ps1` to have it run automatically when you 
 
 ### Get-XKCDExplanation
 
-Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as plain text (the site's wiki markup is stripped out for readability) -- by default that's the only section retrieved. Add `-Transcript` and/or `-Discussion` (reader comments, from its explain xkcd talk page) to also retrieve those, or `-Full` for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. By default it returns the explanation of the latest comic; use `-Number` to request specific comics, which -- like `Get-XKCD` -- also accepts array and pipeline input. `Get-XKCDExplanation` also supports the same `-Random` (`-Minimum`/`-Maximum`), `-Newest`, and `-Open`/`-Force` parameters as `Get-XKCD`, e.g. `Get-XKCDExplanation -Random -Minimum 1 -Maximum 100` or `Get-XKCDExplanation -Newest 5`:
+Gets the explanation of a comic from the [explain xkcd](https://www.explainxkcd.com/) wiki, using its MediaWiki API. Returns an object with the comic's number, title, explain xkcd URL, and its "Explanation" as text, with the site's wiki markup converted to Markdown-style formatting and hyperlinks for readability -- by default that's the only section retrieved. Add `-Transcript` and/or `-Discussion` (reader comments, from its explain xkcd talk page) to also retrieve those, or `-Full` for all three, e.g. `(Get-XKCDExplanation 2000 -Transcript).Transcript`. Add `-AsPlainText` to instead strip that formatting (and any urls) entirely, returning fully plain text. By default it returns the explanation of the latest comic; use `-Number` to request specific comics, which -- like `Get-XKCD` -- also accepts array and pipeline input. `Get-XKCDExplanation` also supports the same `-Random` (`-Minimum`/`-Maximum`), `-Newest`, and `-Open`/`-Force` parameters as `Get-XKCD`, e.g. `Get-XKCDExplanation -Random -Minimum 1 -Maximum 100` or `Get-XKCDExplanation -Newest 5`:
 
 ```powershell
 Get-XKCDExplanation
@@ -411,6 +411,7 @@ Saves default preferences that other cmdlets in this module then use automatical
 - `-StatePath` (`Show-XKCD`, `Get-XKCD` `-Show`/`-Next`/`-Previous`, `Test-XKCD`)
 - `-Offline` (`Get-XKCD`, `Show-XKCD`, `Find-XKCD`, `Export-XKCDTerminalImage`, `Test-XKCD`)
 - `-Explanation`, `-Transcript`, `-Discussion` and `-Full` (`Get-XKCDExplanation`, `Show-XKCDExplanation`)
+- `-AsPlainText` (`Get-XKCDExplanation`)
 
 Only the preferences you specify are changed; explicitly passing a parameter on a cmdlet always overrides the saved default. Use `-Reset` to remove all saved preferences:
 

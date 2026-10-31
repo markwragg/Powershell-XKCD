@@ -166,8 +166,12 @@ function Start-XKCD {
         }
 
         # Caches each comic's rendered terminal image for the rest of this session, so revisiting one (e.g.
-        # via P/N) skips re-rendering it -- which for Sixel in particular can take a while.
-        $ImageCache = @{}
+        # via P/N) skips re-rendering it -- which for Sixel in particular can take a while. Backed by the same
+        # module-scoped cache Show-XKCDImage uses for Show-XKCD/Show-XKCDExplanation (rather than a hashtable
+        # private to this call), so a comic already rendered by one of those cmdlets doesn't need rendering
+        # again here, and vice versa.
+        if (-not $script:XKCDImageCache) { $script:XKCDImageCache = @{} }
+        $ImageCache = $script:XKCDImageCache
 
         # Picked once per session (rather than letting Get-XKCDBanner re-randomize it on every redraw), so
         # the same seasonal emoji (if any) stays put for as long as this Start-XKCD session runs.

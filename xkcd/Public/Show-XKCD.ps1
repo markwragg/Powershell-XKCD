@@ -12,9 +12,10 @@ function Show-XKCD {
 
         Each displayed comic updates a local state file with two records: the highest-numbered comic you've ever
         viewed, used by Test-XKCD to report how many new comics have been published since you last checked; and
-        the comic you most recently displayed in either direction, used by -Next and -Previous so you can page
-        back and forth through comics sequentially. -Next displays nothing once you've reached the latest comic,
-        and -Previous displays nothing once you've reached comic #1.
+        the comic you most recently displayed in either direction, used by -Next, -Previous, and -Resume (also
+        shared with Start-XKCD) so you can page back and forth through comics sequentially, or pick back up
+        where you left off. -Next displays nothing once you've reached the latest comic, and -Previous displays
+        nothing once you've reached comic #1.
 
         Use -Path to display a comic from a file previously saved with Export-XKCDTerminalImage instead of
         fetching it from the xkcd API -- useful for redisplaying a comic without needing network access, or for
@@ -69,6 +70,13 @@ function Show-XKCD {
         if you're already at comic #1.
 
     .EXAMPLE
+        Show-XKCD -Resume
+
+        Displays whichever comic you last read, as recorded in the state file (the same record used by -Next,
+        -Previous, Test-XKCD, and Start-XKCD). Falls back to the latest comic if the state file has no record
+        yet.
+
+    .EXAMPLE
         Show-XKCD -Path .\353.xkcdterm.json
 
         Displays the comic saved to '.\353.xkcdterm.json' by Export-XKCDTerminalImage, without fetching
@@ -117,6 +125,13 @@ function Show-XKCD {
         [Parameter(ParameterSetName = 'Previous', Mandatory)]
         [switch]
         $Previous,
+
+        # Displays whichever comic you last read, as recorded in the state file (the same record used by -Next,
+        # -Previous, Test-XKCD, and Start-XKCD). Falls back to the latest comic if the state file has no
+        # record yet.
+        [Parameter(ParameterSetName = 'Resume', Mandatory)]
+        [switch]
+        $Resume,
 
         # Displays the comic saved in the specified file(s), previously created with Export-XKCDTerminalImage,
         # instead of fetching it from the xkcd API. Accepts array input and FileInfo objects via the pipeline
@@ -176,6 +191,10 @@ function Show-XKCD {
         elseif ($Previous) {
             $LastRead = Get-XKCDLastReadComic -StatePath $StatePath
             if ($LastRead -gt 1) { $Number = $LastRead - 1 } else { $Number = @() }
+        }
+        elseif ($Resume) {
+            $LastRead = Get-XKCDLastReadComic -StatePath $StatePath
+            $Number = if ($LastRead -gt 0) { $LastRead } else { $Latest }
         }
         elseif (-not $Number) {
             $Number = $Latest

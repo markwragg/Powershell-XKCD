@@ -56,7 +56,10 @@ function Show-XKCDComic {
             Show-XKCDComicImage -Comic $Comic -TerminalImage $TerminalImage -Width $width
         }
         else {
-            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $width
+            # Keyed by comic number plus -HighQuality (matching Start-XKCD's own cache key) so that, e.g.,
+            # paging back to a comic already shown this session, or showing its explanation right after,
+            # re-uses the earlier render instead of converting it again.
+            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $width -CacheKey "$($Comic.num)|$HighQuality"
         }
     }
     catch {

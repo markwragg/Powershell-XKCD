@@ -24,7 +24,18 @@ function Show-XKCDImage {
 
         # The console width to fit the image within (used only to work out the Kitty/iTerm2 column count).
         [int]
-        $Width = 80
+        $Width = 80,
+
+        # A key identifying this image (e.g. the comic's number plus -HighQuality), used to re-use a previously
+        # rendered terminal image for the rest of this session instead of rendering it again -- which for
+        # Sixel in particular can take a while. Backed by a module-scoped cache (unlike Start-XKCD's own
+        # -Cache hashtable passed to Show-XKCDTuiImage, which only lives for a single Start-XKCD call) so it
+        # also pays off across separate calls to Show-XKCD/Show-XKCDExplanation, e.g. paging back to a comic
+        # already shown, or displaying its explanation right after. Omit to always render fresh. Combined
+        # internally with the detected protocol, so switching terminals mid-session (unlikely, but cheap to
+        # guard against) can't return a stale render for the wrong protocol.
+        [string]
+        $CacheKey
     )
 
     $protocol = Get-XKCDTerminalGraphicsProtocol
@@ -32,6 +43,18 @@ function Show-XKCDImage {
     if (-not $protocol) {
         Write-Warning 'Your terminal does not appear to support inline image display (Sixel, Kitty, or iTerm2 graphics protocols), so the comic could not be shown.'
         return
+    }
+
+    $FullCacheKey = if ($CacheKey) { "$CacheKey|$protocol" }
+
+    if ($FullCacheKey) {
+        if (-not $script:XKCDImageCache) { $script:XKCDImageCache = @{} }
+
+        if ($script:XKCDImageCache.ContainsKey($FullCacheKey)) {
+            [Console]::Out.Write($script:XKCDImageCache[$FullCacheKey])
+            [Console]::Out.Write([Environment]::NewLine)
+            return
+        }
     }
 
     try {
@@ -50,6 +73,8 @@ function Show-XKCDImage {
         Write-Warning "Unable to render the comic as $($protocol): $_"
         return
     }
+
+    if ($FullCacheKey) { $script:XKCDImageCache[$FullCacheKey] = $TerminalImage }
 
     [Console]::Out.Write($TerminalImage)
     [Console]::Out.Write([Environment]::NewLine)

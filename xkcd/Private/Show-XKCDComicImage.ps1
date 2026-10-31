@@ -29,7 +29,14 @@ function Show-XKCDComicImage {
 
         # The console width to wrap the alt text to.
         [int]
-        $Width = 80
+        $Width = 80,
+
+        # A key identifying this image for Show-XKCDImage's session cache (e.g. the comic's number plus
+        # -HighQuality), so it can be re-used instead of being rendered again. Ignored when -TerminalImage is
+        # used instead of -ImageBytes, since that's already a rendered image written as-is. Omit to always
+        # render fresh.
+        [string]
+        $CacheKey
     )
 
     $esc = [char]27
@@ -42,7 +49,7 @@ function Show-XKCDComicImage {
         [Console]::Out.Write($newLine)
     }
     else {
-        Show-XKCDImage -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width
+        Show-XKCDImage -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $Width -CacheKey $CacheKey
     }
 
     if ($Comic.alt) {

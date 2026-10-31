@@ -94,7 +94,9 @@ function Show-XKCDExplanationText {
         }
 
         if ($ImageBytes) {
-            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $width
+            # Keyed the same way as Show-XKCDComic, so an image already rendered via Show-XKCD this session
+            # (or vice versa) is re-used here instead of being rendered again.
+            Show-XKCDComicImage -Comic $Comic -ImageBytes $ImageBytes -HighQuality:$HighQuality -Width $width -CacheKey "$($Comic.num)|$HighQuality"
         }
 
         $Sections = [ordered]@{}

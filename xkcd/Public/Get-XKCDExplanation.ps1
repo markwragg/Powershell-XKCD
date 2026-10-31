@@ -6,8 +6,9 @@ function Get-XKCDExplanation {
     .DESCRIPTION
         The Get-XKCDExplanation cmdlet uses the explain xkcd wiki's MediaWiki API to retrieve a comic's
         "Explanation" section, and optionally its "Transcript" section and reader "Discussion" (from its
-        explain xkcd talk page), returning them as plain text, with the wiki markup used by the site stripped
-        out for readability.
+        explain xkcd talk page), returning them as text, with the wiki markup used by the site converted to
+        Markdown-style formatting and hyperlinks for readability. Use -AsPlainText to instead strip that
+        formatting (and any urls) entirely, returning fully plain text.
 
         By default, only the Explanation is retrieved. Use -Transcript and/or -Discussion to also retrieve
         those sections on the returned object, or -Full to always retrieve all three. Sections that aren't
@@ -79,6 +80,12 @@ function Get-XKCDExplanation {
 
         This command returns the explanation of the latest comic and opens it in your default web browser.
 
+    .EXAMPLE
+        (Get-XKCDExplanation 2000 -AsPlainText).Explanation
+
+        This command returns the explanation of comic number 2000 as fully plain text, with the Markdown-style
+        bold/italic, code, and link/url formatting that's normally included stripped out entirely.
+
     .LINK
         https://github.com/markwragg/Powershell-XKCD/wiki/Get-XKCDExplanation
 
@@ -86,6 +93,7 @@ function Get-XKCDExplanation {
         https://www.explainxkcd.com/wiki/index.php/Main_Page
     #>
     [cmdletbinding(DefaultParameterSetName = 'Specific')]
+    [OutputType([pscustomobject])]
     Param(
         # Gets the explanation of a random comic.
         [Parameter(ParameterSetName = 'Random')]
@@ -136,6 +144,12 @@ function Get-XKCDExplanation {
         # Defaults to the value saved with Set-XKCDDefault -Full, if any.
         [switch]
         $Full = (Get-XKCDDefaultValue -Name 'Full' -Value $false),
+
+        # Strips all Markdown-style formatting -- bold/italic, inline code, and links/urls -- from the
+        # Explanation, Transcript, and Discussion properties, returning fully plain text instead. Defaults to
+        # the value saved with Set-XKCDDefault -AsPlainText, if any.
+        [switch]
+        $AsPlainText = (Get-XKCDDefaultValue -Name 'AsPlainText' -Value $false),
 
         # Displays the comic's title, image, and retrieved sections in the console instead of returning the
         # explanation object. Image display requires your terminal to support the Sixel, Kitty, or iTerm2
@@ -216,6 +230,16 @@ function Get-XKCDExplanation {
                         $ExplanationProperties.Discussion = if ($TalkParse) { ConvertTo-XKCDPlainText -WikiText $TalkParse.wikitext.'*' } else { '' }
                     }
 
+                    # -AsPlainText strips the Markdown-style formatting and urls that ConvertTo-XKCDPlainText
+                    # writes from each retrieved section, down to fully plain text.
+                    if ($AsPlainText) {
+                        foreach ($SectionName in 'Explanation', 'Transcript', 'Discussion') {
+                            if ($ExplanationProperties.Contains($SectionName)) {
+                                $ExplanationProperties[$SectionName] = ConvertFrom-XKCDMarkdown -Text $ExplanationProperties[$SectionName]
+                            }
+                        }
+                    }
+
                     [pscustomobject]$ExplanationProperties
                 }
             }
@@ -225,7 +249,7 @@ function Get-XKCDExplanation {
                     if (-not $confirmation) { $confirmation = Read-Host "This will open $($Number.count) comics in your default browser. Are you sure you want to proceed? [y|n]" }
                 }
                 if ($confirmation -eq 'y' -or $Number.count -lt 10 -or $Force) {
-                    Start-Process "https://xkcd.com/$ID"
+                    $null = Start-Process "https://xkcd.com/$ID"
                 }
             }
         }
