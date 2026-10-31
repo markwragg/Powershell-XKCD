@@ -23,6 +23,12 @@ Show-XKCD [-Previous] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePat
  [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
+### Resume
+```
+Show-XKCD [-Resume] [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
+ [-DownloadPath <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
+```
+
 ### File
 ```
 Show-XKCD [-Path] <String[]> [-HighQuality] [-StatePath <String>] [-Offline] [-CachePath <String>]
@@ -39,10 +45,11 @@ When you use the -Number parameter (aliased as
 
 Each displayed comic updates a local state file with two records: the highest-numbered comic you've ever
 viewed, used by Test-XKCD to report how many new comics have been published since you last checked; and
-the comic you most recently displayed in either direction, used by -Next and -Previous so you can page
-back and forth through comics sequentially.
--Next displays nothing once you've reached the latest comic,
-and -Previous displays nothing once you've reached comic #1.
+the comic you most recently displayed in either direction, used by -Next, -Previous, and -Resume (also
+shared with Start-XKCD) so you can page back and forth through comics sequentially, or pick back up
+where you left off.
+-Next displays nothing once you've reached the latest comic, and -Previous displays
+nothing once you've reached comic #1.
 
 Use -Path to display a comic from a file previously saved with Export-XKCDTerminalImage instead of
 fetching it from the xkcd API -- useful for redisplaying a comic without needing network access, or for
@@ -120,20 +127,30 @@ if you're already at comic #1.
 
 ### EXAMPLE 8
 ```
+Show-XKCD -Resume
+```
+
+Displays whichever comic you last read, as recorded in the state file (the same record used by -Next,
+-Previous, Test-XKCD, and Start-XKCD).
+Falls back to the latest comic if the state file has no record
+yet.
+
+### EXAMPLE 9
+```
 Show-XKCD -Path .\353.xkcdterm.json
 ```
 
 Displays the comic saved to '.\353.xkcdterm.json' by Export-XKCDTerminalImage, without fetching
 anything from the xkcd API.
 
-### EXAMPLE 9
+### EXAMPLE 10
 ```
 Export-XKCDTerminalImage -Number 353 -PassThru | Show-XKCD
 ```
 
 Exports comic number 353 and immediately displays it from the saved file.
 
-### EXAMPLE 10
+### EXAMPLE 11
 ```
 Show-XKCD -Offline
 ```
@@ -141,7 +158,7 @@ Show-XKCD -Offline
 Displays the latest cached comic, rendering its image from a copy previously saved with
 Get-XKCD -Download, instead of fetching either from the xkcd API.
 
-### EXAMPLE 11
+### EXAMPLE 12
 ```
 Show-XKCD -Num 353 -Offline -DownloadPath C:\XKCD
 ```
@@ -195,6 +212,24 @@ Displays nothing if you're already at comic #1.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: Previous
+Aliases:
+
+Required: True
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Resume
+Displays whichever comic you last read, as recorded in the state file (the same record used by -Next,
+-Previous, Test-XKCD, and Start-XKCD).
+Falls back to the latest comic if the state file has no
+record yet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: Resume
 Aliases:
 
 Required: True

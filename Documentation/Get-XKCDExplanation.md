@@ -7,28 +7,31 @@ Gets the explanation of a comic from the explain xkcd wiki: https://www.explainx
 
 ### Specific (Default)
 ```
-Get-XKCDExplanation [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Show] [-HighQuality]
- [-ApiUrl <String>] [[-Number] <Int32[]>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-XKCDExplanation [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-AsPlainText] [-Show]
+ [-HighQuality] [-ApiUrl <String>] [[-Number] <Int32[]>] [-Force] [-ProgressAction <ActionPreference>]
+ [<CommonParameters>]
 ```
 
 ### Random
 ```
 Get-XKCDExplanation [-Random] [-Minimum <Int32>] [-Maximum <Int32>] [-Open] [-Explanation] [-Transcript]
- [-Discussion] [-Full] [-Show] [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>]
- [<CommonParameters>]
+ [-Discussion] [-Full] [-AsPlainText] [-Show] [-HighQuality] [-ApiUrl <String>] [-Force]
+ [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ### Newest
 ```
-Get-XKCDExplanation [-Newest <Int32>] [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Show]
- [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
+Get-XKCDExplanation [-Newest <Int32>] [-Open] [-Explanation] [-Transcript] [-Discussion] [-Full] [-AsPlainText]
+ [-Show] [-HighQuality] [-ApiUrl <String>] [-Force] [-ProgressAction <ActionPreference>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
 The Get-XKCDExplanation cmdlet uses the explain xkcd wiki's MediaWiki API to retrieve a comic's
 "Explanation" section, and optionally its "Transcript" section and reader "Discussion" (from its
-explain xkcd talk page), returning them as plain text, with the wiki markup used by the site stripped
-out for readability.
+explain xkcd talk page), returning them as text, with the wiki markup used by the site converted to
+Markdown-style formatting and hyperlinks for readability.
+Use -AsPlainText to instead strip that
+formatting (and any urls) entirely, returning fully plain text.
 
 By default, only the Explanation is retrieved.
 Use -Transcript and/or -Discussion to also retrieve
@@ -128,6 +131,14 @@ Get-XKCDExplanation -Open
 ```
 
 This command returns the explanation of the latest comic and opens it in your default web browser.
+
+### EXAMPLE 10
+```
+(Get-XKCDExplanation 2000 -AsPlainText).Explanation
+```
+
+This command returns the explanation of comic number 2000 as fully plain text, with the Markdown-style
+bold/italic, code, and link/url formatting that's normally included stripped out entirely.
 
 ## PARAMETERS
 
@@ -284,6 +295,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -AsPlainText
+Strips all Markdown-style formatting -- bold/italic, inline code, and links/urls -- from the
+Explanation, Transcript, and Discussion properties, returning fully plain text instead.
+Defaults to
+the value saved with Set-XKCDDefault -AsPlainText, if any.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: (Get-XKCDDefaultValue -Name 'AsPlainText' -Value $false)
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Show
 Displays the comic's title, image, and retrieved sections in the console instead of returning the
 explanation object.
@@ -391,6 +420,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
 ## OUTPUTS
 
+### System.Management.Automation.PSObject
 ## NOTES
 
 ## RELATED LINKS

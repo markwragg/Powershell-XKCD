@@ -8,7 +8,7 @@ high quality images by default.
 
 ```
 Set-XKCDDefault [-HighQuality] [[-Path] <String>] [-FullSearch] [-SkipCacheRefresh] [[-CachePath] <String>]
- [[-StatePath] <String>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-Offline] [-Reset]
+ [[-StatePath] <String>] [-Explanation] [-Transcript] [-Discussion] [-Full] [-AsPlainText] [-Offline] [-Reset]
  [[-DefaultsPath] <String>] [-ProgressAction <ActionPreference>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
@@ -35,6 +35,7 @@ Supported preferences:
 -Transcript        Default for -Transcript on Get-XKCDExplanation and Show-XKCDExplanation.
 -Discussion        Default for -Discussion on Get-XKCDExplanation and Show-XKCDExplanation.
 -Full              Default for -Full on Get-XKCDExplanation and Show-XKCDExplanation.
+-AsPlainText       Default for -AsPlainText on Get-XKCDExplanation.
 -Offline           Default for -Offline on Get-XKCD, Show-XKCD, Start-XKCD, Find-XKCD, Export-XKCDTerminalImage and Test-XKCD.
 
 ## EXAMPLES
@@ -224,6 +225,21 @@ Accept wildcard characters: False
 
 ### -Full
 Sets the default for -Full, used by Get-XKCDExplanation and Show-XKCDExplanation.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AsPlainText
+Sets the default for -AsPlainText, used by Get-XKCDExplanation.
 
 ```yaml
 Type: SwitchParameter
