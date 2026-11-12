@@ -232,7 +232,7 @@ function Start-XKCD {
                 $ComicPromptMessageShown = $false
 
                 if ($Key.KeyChar -eq '`') {
-                    $Jump = Show-XKCDAdminConsole -CachePath $CachePath -Seasonal $SeasonalEmoji
+                    $Jump = Show-XKCDAdminConsole -CachePath $CachePath -Width $Width -Seasonal $SeasonalEmoji
                     if ($Jump) { $Current = $Jump }
                     $NeedsRedraw = $true
                 }

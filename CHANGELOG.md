@@ -1,5 +1,9 @@
 # Change Log
 
+## !Deploy
+
+* `Start-XKCD` easter egg improvements.
+
 ## [1.12.8] - 2026-10-31
 
 * `Show-XKCD` and `Show-XKCDExplanation` now cache each comic's rendered terminal image for the rest of the session, so redisplaying one -- e.g. paging back to it with `-Previous`, or viewing its explanation right after -- skips re-rendering it, which for Sixel in particular can take a while. This cache is shared with `Start-XKCD`'s own (previously separate) session cache, so a comic already rendered by any one of these cmdlets is reused by the others too, in either direction.

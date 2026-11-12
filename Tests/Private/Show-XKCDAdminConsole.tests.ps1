@@ -13,16 +13,21 @@ Describe "Unit Tests PS$PSVersion" {
 
         $ModuleObj = Get-Module $Module
 
+        # Prevents every test here from making a real network call on entry (Show-XKCDAdminConsole refreshes
+        # the cache via Update-XKCDCache as soon as it's entered) -- individual tests override this where the
+        # call itself, or its failure handling, is what's under test.
+        Mock -ModuleName $Module Update-XKCDCache {}
+
         # Show-XKCDAdminConsole returns a value (the comic number to jump to, or $null), which would
         # otherwise leak into Get-XKCDCapturedOutput's own return alongside the captured text -- piped to
         # Out-Null here so $Output stays a plain string wherever only the captured text is under test.
-        function Get-XKCDCapturedAdminConsoleOutput ([string]$CachePath) {
+        function Get-XKCDCapturedAdminConsoleOutput ([string]$CachePath, [int]$Width = 80) {
             $OriginalOut = [Console]::Out
             $Writer = [System.IO.StringWriter]::new()
 
             try {
                 [Console]::SetOut($Writer)
-                & $ModuleObj { Param($CachePath) Show-XKCDAdminConsole -CachePath $CachePath } $CachePath | Out-Null
+                & $ModuleObj { Param($CachePath, $Width) Show-XKCDAdminConsole -CachePath $CachePath -Width $Width } $CachePath $Width | Out-Null
             }
             finally {
                 [Console]::SetOut($OriginalOut)
@@ -67,6 +72,57 @@ Describe "Unit Tests PS$PSVersion" {
 
         It 'Explains that the archive is navigable like a filesystem' {
             $Output | Should -Match '/<year>/<month>/<num>\.json'
+        }
+
+        It 'Centers the banner within the given width, same as the main viewer' {
+            # The outer BeforeAll's queue was already drained by the $Output call above -- a fresh one is
+            # needed here since this test drives its own separate invocation (with a non-default -Width).
+            $WidthLineQueue = [System.Collections.Generic.Queue[string]]::new([string[]]@('exit'))
+            Mock -ModuleName $Module Read-XKCDConsoleLine { $WidthLineQueue.Dequeue() }
+
+            $CenteredOutput = Get-XKCDCapturedAdminConsoleOutput -CachePath $CachePath -Width 100
+
+            # The raw (uncolored) banner line is 35 characters wide: floor((100 - 35) / 2) == 32 leading spaces.
+            $CenteredOutput | Should -Match "(?m)^ {32}.*X88K"
+        }
+    }
+
+    Context 'Cache Refresh Tests' {
+
+        BeforeAll {
+            $CachePath = Join-Path $TestDrive 'refresh-cache.json'
+            @([pscustomobject]@{ num = 1; title = 'Comic 1'; year = '2006'; month = '1'; day = '1' }) | ConvertTo-Json | Out-File $CachePath
+        }
+
+        It 'Refreshes the cache on entry so the filesystem reflects the latest comics' {
+            $LineQueue = [System.Collections.Generic.Queue[string]]::new([string[]]@('exit'))
+            Mock -ModuleName $Module Read-XKCDConsoleLine { $LineQueue.Dequeue() }
+            Mock -ModuleName $Module Update-XKCDCache {}
+
+            Get-XKCDCapturedAdminConsoleOutput -CachePath $CachePath | Out-Null
+
+            Should -Invoke Update-XKCDCache -ModuleName $Module -Times 1 -Exactly -ParameterFilter { $CachePath -eq $CachePath }
+        }
+
+        It 'Reports that it is updating the local comic cache' {
+            $LineQueue = [System.Collections.Generic.Queue[string]]::new([string[]]@('exit'))
+            Mock -ModuleName $Module Read-XKCDConsoleLine { $LineQueue.Dequeue() }
+            Mock -ModuleName $Module Update-XKCDCache {}
+
+            $Output = Get-XKCDCapturedAdminConsoleOutput -CachePath $CachePath
+
+            $Output | Should -Match 'Updating local comic cache\.\.\.'
+        }
+
+        It 'Still comes up and browses the existing cache if the refresh fails (e.g. no network)' {
+            $LineQueue = [System.Collections.Generic.Queue[string]]::new([string[]]@('exit'))
+            Mock -ModuleName $Module Read-XKCDConsoleLine { $LineQueue.Dequeue() }
+            Mock -ModuleName $Module Update-XKCDCache { throw 'No network connectivity' }
+
+            $Output = Get-XKCDCapturedAdminConsoleOutput -CachePath $CachePath
+
+            $Output | Should -Match 'Access granted\.'
+            $Output | Should -Not -Match 'No such file or directory'
         }
     }
 
