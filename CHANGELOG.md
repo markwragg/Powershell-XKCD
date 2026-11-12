@@ -1,6 +1,6 @@
 # Change Log
 
-## !Deploy
+## [1.12.9] - 2026-11-12
 
 * `Start-XKCD` easter egg improvements.
 
